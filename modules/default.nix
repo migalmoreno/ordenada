@@ -1,0 +1,34 @@
+{
+  imports = [
+    ./android.nix
+    ./base.nix
+    ./bash.nix
+    ./bluetooth.nix
+    ./clojure.nix
+    ./compile.nix
+    ./direnv.nix
+    ./docker.nix
+    ./emacs
+    ./git.nix
+    ./gnupg.nix
+    ./gtk.nix
+    ./home.nix
+    ./keyboard.nix
+    ./firefox.nix
+    ./fontutils.nix
+    ./javascript.nix
+    ./markdown.nix
+    ./networking.nix
+    ./nginx.nix
+    ./nix.nix
+    ./password-store.nix
+    ./pipewire.nix
+    ./qemu.nix
+    ./ssh.nix
+    ./tailscale.nix
+    ./theme.nix
+    ./wm
+    ./xdg.nix
+    ./yaml.nix
+  ];
+}

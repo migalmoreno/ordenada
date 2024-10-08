@@ -1,0 +1,28 @@
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+
+with pkgs.lib.ordenada;
+
+{
+  options = {
+    ordenada.features.kanshi = {
+      enable = lib.mkEnableOption "the Kanshi feature";
+      settings = lib.mkOption {
+        type = lib.types.listOf lib.types.attrs;
+        description = "The list of profile settings to apply to Kanshi.";
+      };
+    };
+  };
+  config = {
+    home-manager = mkHomeConfig config "kanshi" (user: {
+      services.kanshi = {
+        enable = true;
+        settings = user.features.kanshi.settings;
+      };
+    });
+  };
+}
