@@ -24,7 +24,16 @@ with pkgs.lib.ordenada;
       userDirs = lib.mkOption {
         type = lib.types.attrs;
         description = "The XDG user directories.";
-        default = { };
+        default = {
+          desktop = null;
+          documents = "$HOME/documents";
+          download = "$HOME/downloads";
+          music = "$HOME/music";
+          pictures = "$HOME/pictures";
+          publicShare = "$HOME/public";
+          templates = null;
+          videos = "$HOME/videos";
+        };
       };
     };
   };
