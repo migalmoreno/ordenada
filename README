@@ -1,7 +1,7 @@
 # -*- mode: org; org-html-head-include-default-style: nil; org-html-postamble: nil; org-export-with-author: nil; org-export-with-date: nil; -*-
 #+OPTIONS: toc:nil num:nil
 * Ordenada
-Ordenada is a Reproducible Development Environment for Nix. It's based on the [[https://nixos.org/][Nix]] package manager and it draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] configuration framework for [[https://guix.gnu.org/][GNU Guix]]. Its main goal is to serve as a layer of abstraction on top of the standard Nix configuration tools to easily build reproducible multi-user desktop environments.
+Ordenada is a Reproducible Development Environment for Nix. It's based on the [[https://nixos.org/][Nix]] package manager and it draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] configuration framework for [[https://guix.gnu.org/][GNU Guix]]. Its main goal is to serve as a layer of abstraction on top of the standard Nix configuration tools to easily build reproducible multi-user development environments.
 
 #+begin_quote
 NOTE: Ordenada is in current development and its API is subject to change
@@ -37,7 +37,7 @@ Import its list of modules into your configuration.
 }
 #+end_src
 
-Additionally, if you want to make use of Ordenada's utility library, to e.g. create your own features, add the following to your configuration.
+Optionally, if you want to make use of Ordenada's utility library, to e.g. create your own features, add the following to your configuration.
 
 #+begin_src nix
 nixpkgs.overlays = [ ordenada.overlays.default ];
@@ -108,9 +108,9 @@ In more complex multi-user installations, you can modify the attrset of user fea
       };
       alice = {
         features = with config.ordenada.features; {
+          inherit gnupg;
           home.enable = true;
           bash.enable = true;
-          gnupg = gnupg;
           emacs = with emacs; {
             enabled = true;
             inherit smartparens org-roam vertico;
@@ -125,7 +125,7 @@ In more complex multi-user installations, you can modify the attrset of user fea
 }
 #+end_src
 
-With the above setup, two users =john= and =jane= will be configured in the system. Note that users inherit all "global" features by default. =john= will end up with an augmented global features setup while =jane= will only have the features =userInfo=, =bash=, the inherited global =gnupg= feature, =emacs=, and the inherited global attrset of =emacs= features (=emacs.smartparens=, =emacs.org-roam=, and =emacs.vertico=)  .
+With the above setup, two users =john= and =alice= will be configured in the system. Note that users inherit all "global" features by default. =john= will end up with an augmented global features setup while =alice= will only have the features =home=, =bash=, the inherited global =gnupg= feature, =emacs=, and the inherited global attrset of =emacs= features (=emacs.smartparens=, =emacs.org-roam=, and =emacs.vertico=)  .
 
 By default, settings for each configured global feature will be inherited by each user feature, so beware that if you write a user features attrset from scratch (e.g. =alice='s example above) you won't have to include all the global configuration again for a new user feature (like the  =home=, =bash=, and =emacs= features above). However, if you need the default values of the new user feature, i.e. those that are not explicitly set in the global feature, you'll need to explicitly inherit from the global feature, such as the case with the =gnupg= feature above.
 
@@ -174,7 +174,7 @@ in
               ;; < your Elisp configuration >
               (setq my-elisp-value ${user.features.example.message})
             '';
-            extraElispPackages = [ ];
+            elispPackages = [ ];
             summary = "My example Emacs feature";
           };
         });
