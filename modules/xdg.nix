@@ -15,10 +15,10 @@ with pkgs.lib.ordenada;
         type = lib.types.attrs;
         description = "The XDG base directories";
         default = {
-          configHome = "~/.config";
-          dataHome = "~/.local/share";
-          cacheHome = "~/.cache";
-          stateHome = "~/.local/state";
+          configHome = "$HOME/.config";
+          dataHome = "$HOME/.local/share";
+          cacheHome = "$HOME/.cache";
+          stateHome = "$HOME/.local/state";
         };
       };
       userDirs = lib.mkOption {
