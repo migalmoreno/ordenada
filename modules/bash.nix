@@ -22,10 +22,13 @@ with pkgs.lib.ordenada;
       programs.bash = {
         enable = true;
       };
-      programs.emacs.extraConfig = ''
-        (with-eval-after-load 'shell
-          (setq explicit-shell-file-name "${user.features.bash.package}/bin/bash"))
-      '';
+      programs.emacs = mkElispConfig {
+        name = "ordenada-bash";
+        config = ''
+          (with-eval-after-load 'shell
+            (setq explicit-shell-file-name "${user.features.bash.package}/bin/bash"))
+        '';
+      };
     });
   };
 }
