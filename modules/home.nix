@@ -9,31 +9,9 @@ with pkgs.lib.ordenada;
 
 let
   cfg = config.ordenada.features.home;
-  user = lib.types.submodule {
-    options = {
-      name = lib.mkOption {
-        type = lib.types.attrs;
-        description = "The username for this user.";
-      };
-      features = lib.mkOption {
-        type = lib.types.attrs;
-        description = "Attrs of Ordenada features for this user.";
-        default = config.ordenada.features;
-      };
-      homeDirectory = lib.mkOption {
-        type = lib.types.str;
-        description = "Home directory of this user.";
-        default = "/home/${name}";
-      };
-    };
-  };
 in
 {
   options = {
-    ordenada.users = lib.mkOption {
-      type = lib.types.attrsOf user;
-      description = "Attrs of Ordenada users.";
-    };
     ordenada.features.home = {
       enable = mkEnableTrueOption "the home feature";
       extraGroups = lib.mkOption {
