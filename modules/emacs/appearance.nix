@@ -43,6 +43,7 @@ in
         description = "The padding for the Emacs tab bar.";
         default = 4;
       };
+      headerLineAsModeLine = mkEnableTrueOption "the Emacs header line to be used as the mode line";
     };
   };
   config = {
@@ -82,24 +83,28 @@ in
               (minions-mode))
             (with-eval-after-load 'minions
               (setq minions-mode-line-lighter ";"))
-            (setq minions-mode-line-minor-modes-map
-                  (let ((map (make-sparse-keymap)))
-                    (define-key map (vector 'header-line 'down-mouse-1)
-                                'minions-minor-modes-menu)
-                    map))
-            (defun ordenada-appearance--move-mode-line-to-header ()
-              "Move mode-line to header-line.
-            This function is needed for various modes to set up the mode-line late."
-              (setq-local header-line-format mode-line-format)
-              (setq-local mode-line-format nil))
+            ${
+              if headerLineAsModeLine then
+                ''
+                  (setq minions-mode-line-minor-modes-map
+                        (let ((map (make-sparse-keymap)))
+                          (define-key map [header-line down-mouse-1]
+                                      #'minions-minor-modes-menu)
+                          map))
+                  (defun ordenada-appearance--move-mode-line-to-header ()
+                    "Move mode-line to header-line.
+                  This function is needed for various modes to set up the mode-line late."
+                    (setq-local header-line-format mode-line-format)
+                    (setq-local mode-line-format nil))
 
-            (add-hook 'calendar-initial-window-hook 'ordenada-appearance--move-mode-line-to-header)
-            (setq-default header-line-format mode-line-format)
-            (setq-default mode-line-format nil)
-
-            (setcdr (assq 'vc-mode header-line-format)
-                    '((:eval (truncate-string-to-width vc-mode 25 nil nil "..."))))
-          '';
+                  (add-hook 'calendar-initial-window-hook
+                            #'ordenada-appearance--move-mode-line-to-header)
+                  (setq-default header-line-format mode-line-format)
+                  (setq-default mode-line-format nil)
+                ''
+              else
+                ""
+            }'';
           elispPackages = with pkgs.emacsPackages; [ minions ];
           earlyInit = ''
             (push '(menu-bar-lines . 0) default-frame-alist)
