@@ -60,6 +60,7 @@ In a typical single user setup, you just need to add a "global" attrset of featu
       userInfo = {
         username = "user1";
       };
+      home.enable = true;
       gtk = {
         enable = true;
         theme = {
@@ -102,24 +103,30 @@ In more complex multi-user installations, you can modify the attrset of user fea
     users = {
       john = {
         features = config.ordenada.features // {
-          emacs.spelling.enabled = true;
-          firefox.enabled = false;
+          emacs.spelling.enable = true;
+          firefox.enable = false;
         };
       };
       alice = {
         features = with config.ordenada.features; {
+          userInfo = {
+            username = "alice";
+          };
           inherit gnupg;
           home.enable = true;
           bash.enable = true;
           emacs = with emacs; {
-            enabled = true;
+            enable = true;
             inherit smartparens org-roam vertico;
           };
         };
       };
     };
     features = {
-      # < attrset of global features >
+      userInfo = {
+        username = "john";
+      };
+      # < attrset of rest of global features >
     };
   };
 }
