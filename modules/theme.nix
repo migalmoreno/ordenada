@@ -11,19 +11,6 @@ with pkgs.lib.base16;
 let
   cfg = config.ordenada.features.theme;
   themeToToggle = if cfg.polarity == "dark" then "light" else "dark";
-  themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
-    with config.ordenada.features;
-    ''
-      current_system=$(readlink /run/current-system)
-      specialisation=$(readlink /nix/var/nix/profiles/system/specialisation/${themeToToggle})
-      if [ "$current_system" == "$specialisation"] || [ ! "$specialisation" ]; then
-        sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
-      else
-        sudo /nix/var/nix/profiles/system/specialisation/${themeToToggle}/bin/switch-to-configuration switch
-      fi
-      ${emacs.package}/bin/emacsclient -e "(load-theme '${emacs.defaultThemes.${themeToToggle}} t)"
-    ''
-  );
   defaultThemeSchemes = {
     light = (
       mkSchemeAttrs {
@@ -118,7 +105,6 @@ in
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
-      environment.systemPackages = [ themeToggler ];
       security.sudo.extraRules = [
         {
           runAs = "root";
@@ -130,14 +116,6 @@ in
             }
             {
               command = "/nix/var/nix/profiles/system/bin/switch-to-configuration switch";
-              options = [ "NOPASSWD" ];
-            }
-            {
-              command = "${config.system.build.nixos-rebuild}/bin/nixos-rebuild switch";
-              options = [ "NOPASSWD" ];
-            }
-            {
-              command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild switch";
               options = [ "NOPASSWD" ];
             }
           ];
@@ -152,12 +130,38 @@ in
       };
     })
     {
-      home-manager = mkHomeConfig config "theme" (user: {
-        xdg.desktopEntries.themeToggler = {
-          name = "Toggle Theme";
-          exec = "${themeToggler}/bin/toggle-theme %U";
-        };
-      });
+      home-manager = mkHomeConfig config "theme" (
+        user:
+        let
+          themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
+            with user.features;
+            ''
+              current_system=$(readlink /run/current-system)
+              specialisation=$(readlink /nix/var/nix/profiles/system/specialisation/${themeToToggle})
+              if [ "$current_system" == "$specialisation"] || [ ! "$specialisation" ]; then
+                sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
+              else
+                sudo /nix/var/nix/profiles/system/specialisation/${themeToToggle}/bin/switch-to-configuration switch
+              fi
+              ${
+                if hasFeature "emacs" user then
+                  ''
+                    ${emacs.package}/bin/emacsclient -e "(load-theme '${emacs.defaultThemes.${themeToToggle}} t)"
+                  ''
+                else
+                  ""
+              }
+            ''
+          );
+        in
+        {
+          home.packages = [ themeToggler ];
+          xdg.desktopEntries.themeToggler = {
+            name = "Toggle Theme";
+            exec = "${themeToggler}/bin/toggle-theme %U";
+          };
+        }
+      );
     }
   ];
 }
