@@ -87,7 +87,7 @@ with pkgs.lib.ordenada;
 
           (with-eval-after-load 'apheleia
             (push '(zprint . ("zprint")) apheleia-formatters)
-            (add-to-list 'apheleia-mode-alist '(clojure-mode . clj-zprint)))
+            (add-to-list 'apheleia-mode-alist '(clojure-mode . zprint)))
         '';
         elispPackages = with pkgs.emacsPackages; [
           cider
