@@ -74,6 +74,8 @@ in
                 '') user.features.git.gitLinkRemotes
               )
             })
+          (setcdr (assq 'vc-mode mode-line-format)
+                  '((:eval (truncate-string-to-width vc-mode 25 nil nil "..."))))
         '';
         elispPackages = with pkgs.emacsPackages; [
           magit
