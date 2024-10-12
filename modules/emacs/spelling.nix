@@ -23,7 +23,9 @@ in
       ispellProgram = mkOption {
         type = types.pathInStore;
         description = "Program to be used by ispell.";
-        default = with cfg; "${package}/bin/${lib.getName package}";
+        default =
+          with cfg;
+          "${package}/bin/${builtins.elemAt (lib.splitString "-" (lib.getName package)) 0}";
       };
       ispellStandardDictionary = mkOption {
         type = types.str;
