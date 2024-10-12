@@ -21,6 +21,9 @@ with pkgs.lib.ordenada;
         jdk
         leiningen
       ];
+      home.file.".zprint.edn".text = ''
+        {:search-config? true}
+      '';
       programs.emacs = mkElispConfig {
         name = "ordenada-clojure";
         config = ''
