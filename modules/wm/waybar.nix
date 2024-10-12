@@ -28,6 +28,7 @@ let
       config = mkOption {
         description = "Configuration for this Waybar module.";
         type = types.attrs;
+        default = { };
       };
       placement = mkOption {
         description = "Placement of the Waybar module in the bar.";
@@ -147,6 +148,10 @@ let
         }
       '';
     };
+    swayMode = {
+      name = "sway/mode";
+      placement = "modules-left";
+    };
     swayWindow = {
       name = "sway/window";
       placement = "modules-center";
@@ -157,6 +162,7 @@ let
   };
   waybarModules = with defaultWaybarModules; [
     swayWorkspaces
+    swayMode
     swayWindow
     battery
     pulseaudio
