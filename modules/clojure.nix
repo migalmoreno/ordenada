@@ -7,9 +7,27 @@
 
 with pkgs.lib.ordenada;
 
+let
+  inherit (lib) mkEnableOption mkOption types;
+in
 {
   options.ordenada.features.clojure = {
-    enable = lib.mkEnableOption "the Clojure feature";
+    enable = mkEnableOption "the Clojure feature";
+    cider = mkOption {
+      type = types.submodule {
+        options = {
+          popReplOnConnect = mkOption {
+            type = types.either (types.strMatching "display-only") types.bool;
+            description = ''
+              If true, pop a REPL buffer and focus on it, if "display-only" pop it but
+              don't focus on it, and if false create it but don't display it.
+            '';
+            default = "display-only";
+          };
+          replInCurrentWindow = mkEnableOption "showing the REPL in the current window";
+        };
+      };
+    };
   };
   config = {
     home-manager = mkHomeConfig config "clojure" (user: {
@@ -26,7 +44,7 @@ with pkgs.lib.ordenada;
       '';
       programs.emacs = mkElispConfig {
         name = "ordenada-clojure";
-        config = ''
+        config = with user.features.clojure; ''
           (defgroup ordenada-clojure nil
             "General Clojure programming utilities."
             :group 'ordenada)
@@ -46,8 +64,15 @@ with pkgs.lib.ordenada;
             (setq cider-doc-auto-select-buffer nil))
 
           (with-eval-after-load 'cider-repl
-            (define-key cider-repl-mode-map (kbd "C-M-q") #'indent-sexp)
-            (setq cider-repl-pop-to-buffer-on-connect #'display-only)
+            (setq cider-repl-pop-to-buffer-on-connect ${
+              if cider.popReplOnConnect == "display-only" then
+                "'display-only"
+              else if cider.popReplOnConnect then
+                "t"
+              else
+                "nil"
+            })
+            (setq cider-repl-display-in-current-window ${if cider.replInCurrentWindow then "t" else "nil"})
             (setq cider-repl-display-help-banner nil))
 
           (with-eval-after-load 'ordenada-keymaps
