@@ -17,9 +17,13 @@ in
 {
   options = {
     ordenada.features.emacs.modus-themes = {
-      enable = lib.mkEnableOption "modus-themes Emacs feature";
-      dark = lib.mkEnableOption "dark mode for modus-themes.";
-      deuteranopia = lib.mkEnableOption "deuteranopia support in modus-themes.";
+      enable = lib.mkEnableOption "the Emacs Modus Themes feature";
+      dark = lib.mkOption {
+        type = lib.types.bool;
+        description = "Whether to enable dark mode in Modus Themes.";
+        default = config.ordenada.features.theme.polarity == "dark";
+      };
+      deuteranopia = lib.mkEnableOption "deuteranopia support in Modus Themes";
     };
   };
   config = lib.mkMerge [
