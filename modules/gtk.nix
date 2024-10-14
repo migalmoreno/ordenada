@@ -8,6 +8,7 @@
 with pkgs.lib.ordenada;
 
 let
+  cfg = config.ordenada.features;
   themeModule = lib.types.submodule {
     options = {
       name = lib.mkOption {
@@ -42,13 +43,13 @@ in
       theme = lib.mkOption {
         type = themeModule;
         description = "The GTK theme.";
-        default = config.ordenada.features.gtk.defaultThemes.${config.ordenada.features.theme.polarity};
+        default = config.ordenada.features.gtk.defaultThemes.${cfg.theme.polarity};
       };
       cursorTheme = lib.mkOption {
         type = themeModule;
         description = "The cursor theme.";
         default = {
-          name = "Bibata-Modern-Classic";
+          name = "Bibata-Modern-${if cfg.theme.polarity == "dark" then "Classic" else "Ice"}";
           package = pkgs.bibata-cursors;
         };
       };
