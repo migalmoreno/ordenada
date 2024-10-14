@@ -104,14 +104,12 @@ in
             :group 'ordenada-clojure
             (when ordenada-clojure-mode
               (ordenada-clojure--disable-eglot-parts)
-              (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
+              (add-hook 'flymake-diagnostic-functions #'eglot-flymake-backend nil t)
               (eglot-ensure)
               (flymake-kondor-setup)
               (flymake-mode t)))
 
           (add-hook 'clojure-mode-hook #'ordenada-clojure-mode)
-          (with-eval-after-load 'clojure-mode
-            (setq clojure-align-forms-automatically t))
 
           (with-eval-after-load 'apheleia
             (push '(zprint . ("zprint")) apheleia-formatters)
