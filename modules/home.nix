@@ -31,7 +31,7 @@ in
       home-manager = mkHomeConfig config "home" (user: {
         programs.home-manager.enable = true;
         targets.genericLinux.enable = true;
-        home.stateVersion = "23.05";
+        home.stateVersion = "24.05";
       });
       users = mkHomeConfig config "home" (user: {
         isNormalUser = true;
