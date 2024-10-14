@@ -23,6 +23,7 @@ in
     ./completion.nix
     ./consult.nix
     ./corfu.nix
+    ./daemons.nix
     ./dired.nix
     ./ebdb.nix
     ./embark.nix
