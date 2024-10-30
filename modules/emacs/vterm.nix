@@ -25,7 +25,7 @@ with pkgs.lib.ordenada;
         config = ''
           (define-key global-map (kbd "s-t") #'vterm)
           ${
-            if (hasFeature "emacs.consult" user) then
+            if hasFeature "emacs.consult" user then
               ''
                 (eval-when-compile (require 'cl-macs))
                 (defun ordenada-vterm-consult-yank-pop-wrapper (orig-fun &rest args)
@@ -46,7 +46,7 @@ with pkgs.lib.ordenada;
               ""
           }
           ${
-            if (hasFeature "emacs.project" user) then
+            if hasFeature "emacs.project" user then
               ''
                 (defun ordenada-vterm-project-vterm ()
                   "Start vterm in the current project's root directory.

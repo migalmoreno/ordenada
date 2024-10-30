@@ -62,7 +62,7 @@ with pkgs.lib.ordenada;
           '';
           elispPackages =
             with pkgs.emacsPackages;
-            [ eglot ] ++ (if (hasFeature "emacs.consult" user) then [ consult-eglot ] else [ ]);
+            [ eglot ] ++ lib.optional (hasFeature "emacs.consult" user) consult-eglot;
         };
       });
     }

@@ -41,7 +41,7 @@ in
         config = with user.features.emacs; ''
           (eval-when-compile (require 'dired))
           ${
-            if (hasFeature "emacs.embark" user) then
+            if hasFeature "emacs.embark" user then
               ''
                 (defun ordenada-dired-open-externally ()
                   "Open marked files in Dired through an external program."
@@ -66,7 +66,7 @@ in
           (add-hook 'dired-mode-hook 'toggle-truncate-lines)
           (with-eval-after-load 'dired
             ${
-              if (hasFeature "emacs.all-the-icons" user) then
+              if hasFeature "emacs.all-the-icons" user then
                 ''
                   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
                   (with-eval-after-load 'all-the-icons-dired

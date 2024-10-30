@@ -102,7 +102,7 @@ in
                    `(aw-leading-char-face
                      ((,c :height 1.0 :foreground ,blue-cooler)))))))
             ${
-              if (hasFeature "emacs.appearance" user) then
+              if hasFeature "emacs.appearance" user then
                 with user.features.emacs.appearance;
                 ''
                   (setq ordenada-modus-themes-header-line-padding ${toString headerLinePadding})

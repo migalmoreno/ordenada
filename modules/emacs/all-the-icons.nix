@@ -25,7 +25,7 @@ with pkgs.lib.ordenada;
               (setq all-the-icons-default-adjust 0)
               (setq all-the-icons-octicon-scale-factor 0.9))
             ${
-              if (hasFeature "emacs.completion" user) then
+              if hasFeature "emacs.completion" user then
                 ''
                   (autoload 'all-the-icons-completion-mode "all-the-icons-completion")
                   (all-the-icons-completion-mode)
@@ -35,7 +35,7 @@ with pkgs.lib.ordenada;
             }
 
             ${
-              if (hasFeature "emacs.marginalia" user) then
+              if hasFeature "emacs.marginalia" user then
                 ''
                   (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
                 ''
@@ -45,8 +45,7 @@ with pkgs.lib.ordenada;
           '';
           elispPackages =
             with pkgs.emacsPackages;
-            [ all-the-icons ]
-            ++ (if (hasFeature "emacs.completion" user) then [ all-the-icons-completion ] else [ ]);
+            [ all-the-icons ] ++ lib.optional (hasFeature "emacs.completion" user) all-the-icons-completion;
         };
       }
     );
