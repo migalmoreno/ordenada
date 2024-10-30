@@ -16,13 +16,13 @@ in
       enable = mkEnableOption "the Git feature";
       username = mkOption {
         type = types.str;
-        description = "Primary Git username";
-        default = "";
+        description = "Primary Git username.";
+        default = config.ordenada.features.userInfo.fullName;
       };
       email = mkOption {
         type = types.str;
-        description = "Primary Git email";
-        default = "";
+        description = "Primary Git email.";
+        default = config.ordenada.features.userInfo.email;
       };
       signCommits = mkEnableOption "GPG signing of commits";
       signingKey = mkOption {
