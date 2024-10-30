@@ -14,25 +14,25 @@ with pkgs.lib.ordenada;
       baseDirs = lib.mkOption {
         type = lib.types.attrs;
         description = "The XDG base directories";
-        default = {
-          configHome = "$HOME/.config";
-          dataHome = "$HOME/.local/share";
-          cacheHome = "$HOME/.cache";
-          stateHome = "$HOME/.local/state";
+        default = with config.ordenada.features.userInfo; {
+          configHome = "${homeDirectory}/.config";
+          dataHome = "${homeDirectory}/.local/share";
+          cacheHome = "${homeDirectory}/.cache";
+          stateHome = "${homeDirectory}/.local/state";
         };
       };
       userDirs = lib.mkOption {
         type = lib.types.attrs;
         description = "The XDG user directories.";
-        default = {
+        default = with config.ordenada.features.userInfo; {
           desktop = null;
-          documents = "$HOME/documents";
-          download = "$HOME/downloads";
-          music = "$HOME/music";
-          pictures = "$HOME/pictures";
-          publicShare = "$HOME/public";
+          documents = "${homeDirectory}/documents";
+          download = "${homeDirectory}/downloads";
+          music = "${homeDirectory}/music";
+          pictures = "${homeDirectory}/pictures";
+          publicShare = "${homeDirectory}/public";
           templates = null;
-          videos = "$HOME/videos";
+          videos = "${homeDirectory}/videos";
         };
       };
     };
