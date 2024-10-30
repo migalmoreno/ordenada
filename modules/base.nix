@@ -1,32 +1,41 @@
 { config, lib, ... }:
 let
+  inherit (lib) mkOption types;
   cfg = config.ordenada.features;
-  user = lib.types.submodule {
+  user = types.submodule {
     options = rec {
-      name = lib.mkOption {
-        type = lib.types.attrs;
+      name = mkOption {
+        type = types.attrs;
         description = "The username for this user.";
       };
-      features = lib.mkOption {
-        type = lib.types.attrs;
+      features = mkOption {
+        type = types.attrs;
         description = "Attrs of Ordenada features for this user.";
         default = config.ordenada.features;
       };
-      homeDirectory = lib.mkOption {
-        type = lib.types.str;
+      homeDirectory = mkOption {
+        type = types.str;
         description = "Home directory of this user.";
         default = "/home/${name}";
       };
     };
   };
-  userInfo = lib.types.submodule {
+  userInfo = types.submodule {
     options = {
-      username = lib.mkOption {
-        type = lib.types.str;
-        description = "Primary Ordenada username.";
+      username = mkOption {
+        type = types.str;
+        description = "Username of Ordenada user.";
       };
-      homeDirectory = lib.mkOption {
-        type = lib.types.str;
+      fullName = mkOption {
+        type = types.str;
+        description = "Fullname of Ordenada user.";
+      };
+      email = mkOption {
+        type = types.str;
+        description = "Email of Ordenada user.";
+      };
+      homeDirectory = mkOption {
+        type = types.str;
         description = "Home directory of primary Ordenada user.";
         default = config.home-manager.users.${cfg.userInfo.username}.home.homeDirectory;
       };
@@ -35,11 +44,11 @@ let
 in
 {
   options = {
-    ordenada.users = lib.mkOption {
-      type = lib.types.attrsOf user;
+    ordenada.users = mkOption {
+      type = types.attrsOf user;
       description = "Attrs of Ordenada users.";
     };
-    ordenada.features.userInfo = lib.mkOption {
+    ordenada.features.userInfo = mkOption {
       type = userInfo;
       description = "User information for Ordenada.";
     };
