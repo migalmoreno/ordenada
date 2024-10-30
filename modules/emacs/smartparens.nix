@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.smartparens = {
-      enable = lib.mkEnableOption "Emacs smartparens feature.";
+      enable = lib.mkEnableOption "the Emacs smartparens feature";
       package = lib.mkPackageOption pkgs [
         "emacsPackages"
         "smartparens"
@@ -25,8 +25,8 @@ with pkgs.lib.ordenada;
         description = "The list of mode hooks where smartparens-strict-mode should be enabled.";
         default = [ "prog-mode-hook" ];
       };
-      showSmartParens = lib.mkEnableOption "Smartparens built-in visualization of matching pairs.";
-      pareditBindings = lib.mkEnableOption "Paredit bindings for Smartparens.";
+      showSmartParens = lib.mkEnableOption "Smartparens built-in visualization of matching pairs";
+      pareditBindings = lib.mkEnableOption "Paredit bindings for Smartparens";
     };
   };
   config = {
