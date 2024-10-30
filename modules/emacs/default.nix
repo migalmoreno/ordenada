@@ -94,6 +94,8 @@ in
                                 read-process-output-max (* 1024 1024))))
               (advice-add 'x-apply-session-resources :override 'ignore)
               (setq native-comp-jit-compilation nil)
+              (setopt user-full-name "${user.features.userInfo.fullName}")
+              (setopt user-mail-address "${user.features.userInfo.email}")
               (setopt custom-file
                       (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                               "/emacs/custom.el"))
