@@ -9,17 +9,19 @@ with pkgs.lib.ordenada;
 
 {
   options = {
-    ordenada.features.emacs.rainbow-delimiters = {
-      enable = lib.mkEnableOption "the Emacs rainbow-delimiters feature.";
-    };
-    ordenada.features.emacs.apheleia = {
-      enable = lib.mkEnableOption "the Emacs Apheleia feature.";
-    };
-    ordenada.features.emacs.eglot = {
-      enable = lib.mkEnableOption "the Emacs Eglot feature.";
-    };
-    ordenada.features.emacs.flymake = {
-      enable = lib.mkEnableOption "the Emacs Flymake feature.";
+    ordenada.features.emacs = {
+      rainbow-delimiters = {
+        enable = lib.mkEnableOption "the Emacs rainbow-delimiters feature";
+      };
+      apheleia = {
+        enable = lib.mkEnableOption "the Emacs Apheleia feature";
+      };
+      eglot = {
+        enable = lib.mkEnableOption "the Emacs Eglot feature";
+      };
+      flymake = {
+        enable = lib.mkEnableOption "the Emacs Flymake feature";
+      };
     };
   };
   config = lib.mkMerge [
