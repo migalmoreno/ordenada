@@ -11,6 +11,11 @@ with pkgs.lib.ordenada;
   options = {
     ordenada.features.emacs.ebdb = {
       enable = lib.mkEnableOption "the Emacs EBDB feature";
+      sources = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = "The list of EBDB database sources..";
+        default = [ "${config.ordenada.features.xdg.userDirs.documents}/contacts" ];
+      };
     };
   };
   config = {
@@ -38,7 +43,7 @@ with pkgs.lib.ordenada;
             (require 'ebdb-message)
             (require 'ebdb-ispell)
             (require 'ebdb-gnus)
-            (setq ebdb-sources (list "~/documents/contacts"))
+            (setopt ebdb-sources '(${toString (map (x: ''"${x}"'') user.features.emacs.ebdb.sources)}))
             (setopt ebdb-default-country nil)
             (setopt ebdb-default-window-size 0.4)
             (setopt ebdb-dedicated-window 'ebdb)
