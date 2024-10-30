@@ -26,9 +26,9 @@ in
       };
       signCommits = mkEnableOption "GPG signing of commits";
       signingKey = mkOption {
-        type = types.str;
+        type = types.nullOr types.str;
         description = "The GPG key fingerprint to use to sign commits.";
-        default = "";
+        default = null;
       };
       gitLinkRemotes = mkOption {
         type = types.attrs;
