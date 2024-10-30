@@ -112,6 +112,11 @@ with pkgs.lib.ordenada;
             (setopt js-indent-level 2)
             (setopt js-chain-indent t))
 
+          (with-eval-after-load 'org
+            (add-to-list 'org-structure-template-alist '("js" . "src js")))
+          (with-eval-after-load 'ob-core
+            (require 'ob-js))
+
           (with-eval-after-load 'js2-mode
             (setopt js2-basic-offset 2)
             (setopt js2-skip-preprocessor-directives t)
