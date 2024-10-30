@@ -34,9 +34,9 @@ in
         description = "User.js extra settings for the default Firefox profile.";
         default = { };
       };
-      extensions = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        description = "The Firefox extensions to install.";
+      extraAddons = mkOption {
+        type = types.listOf types.package;
+        description = "Extra Firefox add-ons to install.";
         default = [ ];
       };
       arkenfoxSettings = mkOption {
@@ -112,7 +112,13 @@ in
                   "Amazon.com".metaData.hidden = true;
                 };
               } extraSearchConfig;
-              extensions = extensions;
+              extensions =
+                with nurPkgs.repos.rycee.firefox-addons;
+                [
+                  ublock-origin
+                  multi-account-containers
+                ]
+                ++ extraAddons;
             };
           };
         };
