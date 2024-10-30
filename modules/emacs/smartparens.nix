@@ -65,7 +65,7 @@ with pkgs.lib.ordenada;
                 ''
             })
         '';
-        elispPackages = with pkgs.emacsPackages; [ smartparens ];
+        elispPackages = [ user.features.emacs.smartparens.package ];
       };
     });
   };
