@@ -21,6 +21,18 @@ with pkgs.lib.ordenada;
         description = "The prefix key used for ordenada-toggle-map.";
         default = "t";
       };
+      appMap = lib.mkOption {
+        type = lib.types.attrs;
+        default = with config.ordenada.features.emacs; {
+          calendar = calendar.calendarKey;
+          appt = calendar.apptKey;
+        };
+        description = "The Emacs keymap for application keybindings.";
+      };
+      toggleMap = lib.mkOption {
+        type = lib.types.attrs;
+        description = "The Emacs keymap for toggle keybindings.";
+      };
     };
   };
   config = {
