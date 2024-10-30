@@ -204,6 +204,9 @@ in
                   (add-hook 'org-roam-find-file-hook #'ordenada-org-roam-update-todo-tag)
                   (add-hook 'before-save-hook #'ordenada-org-roam-update-todo-tag))
                 (advice-add 'org-agenda :before #'ordenada-org-roam-update-todo-files)
+
+                (with-eval-after-load 'org
+                  (add-to-list 'org-tags-exclude-from-inheritance "todo"))
               ''
             else
               ""
