@@ -9,18 +9,23 @@ with pkgs.lib.ordenada;
 
 let
   cfg = config.ordenada.features.firefox;
+  nurPkgs = import pkgs.inputs.nur {
+    inherit pkgs;
+    nurpkgs = pkgs;
+  };
+  inherit (lib) mkOption mkEnableOption types;
 in
 {
   options = {
     ordenada.features.firefox = {
-      enable = lib.mkEnableOption "the Firefox feature";
-      package = lib.mkOption {
-        type = lib.types.package;
+      enable = mkEnableOption "the Firefox feature";
+      package = mkOption {
+        type = types.package;
         description = "The Firefox package to use.";
         default = pkgs.firefox-wayland;
       };
-      extraSearchConfig = lib.mkOption {
-        type = lib.types.attrs;
+      extraSearchConfig = mkOption {
+        type = types.attrs;
         description = "Extra search engines configuration.";
         default = { };
       };
@@ -34,12 +39,26 @@ in
         description = "The Firefox extensions to install.";
         default = [ ];
       };
+      arkenfoxSettings = mkOption {
+        type = types.attrs;
+        description = "Arkenfox user.js settings.";
+        default = {
+          "0000".enable = true;
+          "0100".enable = true;
+          "0300".enable = true;
+          "0800".enable = true;
+          "1700".enable = true;
+          "2600".enable = true;
+          "5000".enable = true;
+        };
+      };
     };
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable { environment.sessionVariables.MOZ_ENABLE_WAYLAND = 1; })
     {
       home-manager = mkHomeConfig config "firefox" (user: {
+        imports = [ pkgs.inputs.arkenfox-nixos.hmModules.default ];
         xdg.mimeApps.defaultApplications = {
           "text/html" = [ "firefox.desktop" ];
           "text/xml" = [ "firefox.desktop" ];
@@ -66,12 +85,18 @@ in
               ImproveSuggest = false;
               Locked = true;
             };
+          arkenfox = {
+            enable = true;
+            version = "126.1";
           };
           profiles = {
             default = {
               id = 0;
               name = "default";
               isDefault = true;
+              arkenfox = {
+                enable = true;
+              } // arkenfoxSettings;
               settings = {
                 "accessibility.typeaheadfind.enablesound" = false;
                 "browser.aboutConfig.showWarning" = false;

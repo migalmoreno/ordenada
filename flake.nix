@@ -10,6 +10,7 @@
     nur.url = "github:nix-community/NUR";
     nix-rice.url = "github:bertof/nix-rice";
     base16.url = "github:SenchoPens/base16.nix";
+    arkenfox-nixos.url = "github:dwarfmaster/arkenfox-nixos";
   };
   outputs =
     inputs@{
@@ -48,7 +49,7 @@
               nur.overlay
               nix-rice.overlays.default
               (final: prev: {
-                inputs = inputs;
+                inherit inputs;
                 lib = prev.lib // {
                   base16 = pkgs.callPackage base16.lib { };
                 };
