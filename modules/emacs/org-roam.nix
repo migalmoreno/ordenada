@@ -43,9 +43,7 @@ in
         name = "ordenada-org-roam";
         config = with user.features.emacs.org-roam; ''
           (eval-when-compile
-            (let ((org-roam-v2-ack t))
-              (require 'org-roam)))
-          (setq org-roam-v2-ack t)
+            (require 'org-roam))
           (setopt org-roam-completion-everywhere t)
           (setopt org-roam-directory "${directory}")
           (autoload 'org-roam-db-autosync-enable "org-roam")
