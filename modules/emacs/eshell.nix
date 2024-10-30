@@ -59,6 +59,8 @@ with pkgs.lib.ordenada;
                                         "/emacs/eshell/")))
               (setopt eshell-aliases-file (concat eshell-cache "alias"))
               (setopt eshell-history-file-name (concat eshell-cache "history"))
+              (unless (file-exists-p eshell-history-file-name)
+                (make-empty-file eshell-history-file-name))
               (setopt eshell-last-dir-ring-file-name
                       (concat eshell-cache "lastdir")))
             (setopt eshell-banner-message "")
