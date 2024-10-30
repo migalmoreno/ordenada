@@ -53,6 +53,11 @@ in
         type = types.attrs;
         description = "The light theme to use for Emacs.";
       };
+      extraConfig = mkOption {
+        type = types.lines;
+        description = "Extra Emacs configuration.";
+        default = '''';
+      };
       extraPackages = mkOption {
         type = types.listOf types.package;
         description = "List of extra Emacs packages.";
@@ -63,8 +68,9 @@ in
   config = {
     home-manager = mkHomeConfig config "emacs" (
       user:
+      with user.features.emacs;
       lib.mkMerge [
-        (lib.mkIf user.features.emacs.enable {
+        (lib.mkIf enable {
           services.emacs = {
             enable = true;
             defaultEditor = true;
@@ -74,8 +80,9 @@ in
           };
           programs.emacs = {
             enable = true;
-            package = user.features.emacs.package;
-            extraPackages = epkgs: user.features.emacs.extraPackages;
+            package = package;
+            extraConfig = extraConfig;
+            extraPackages = epkgs: extraPackages;
           };
         })
         {
