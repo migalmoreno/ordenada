@@ -29,6 +29,11 @@ in
         description = "Extra search engines configuration.";
         default = { };
       };
+      extraPolicies = mkOption {
+        type = types.attrs;
+        description = "Attrset of extra Firefox policies.";
+        default = { };
+      };
       extraSettings = mkOption {
         type = types.attrs;
         description = "User.js extra settings for the default Firefox profile.";
@@ -85,6 +90,7 @@ in
               ImproveSuggest = false;
               Locked = true;
             };
+          } // extraPolicies;
           arkenfox = {
             enable = true;
             version = "126.1";
