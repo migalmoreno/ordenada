@@ -20,6 +20,7 @@ in
     ./ace-window.nix
     ./all-the-icons.nix
     ./appearance.nix
+    ./calendar.nix
     ./completion.nix
     ./consult.nix
     ./corfu.nix
