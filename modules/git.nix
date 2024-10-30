@@ -63,6 +63,12 @@ in
             (setopt magit-pull-or-fetch t)
             (require 'forge))
 
+          (with-eval-after-load 'vc
+            (setopt vc-follow-symlinks t))
+
+          (with-eval-after-load 'ediff
+            (setopt ediff-window-setup-function #'ediff-setup-windows-plain))
+
           (with-eval-after-load 'ordenada-keymaps
             (keymap-set ordenada-app-map "g l" #'git-link))
           (with-eval-after-load 'git-link
