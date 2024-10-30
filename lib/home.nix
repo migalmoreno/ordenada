@@ -17,7 +17,7 @@ rec {
     lib.mkMerge (
       (lib.attrsets.mapAttrsToList (
         name: user:
-        if (hasFeature feature user) then
+        if hasFeature feature user then
           {
             users.${name} = (
               homeConfigFn (
