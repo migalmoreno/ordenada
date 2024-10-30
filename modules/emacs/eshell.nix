@@ -36,7 +36,7 @@ with pkgs.lib.ordenada;
                   (if (and (boundp 'envrc-global-mode) envrc-global-mode)
                       (add-hook 'envrc-mode-hook (lambda () (setenv "PAGER" "")))
                       (setenv "PAGER" ""))
-                  (define-key eshell-mode-map (kbd "C-c M-o") 'eshell/clear))
+                  (keymap-set eshell-mode-map "C-c M-o" #'eshell/clear))
                 (local-unset-key 'eshell/clear)))
 
           (defun ordenada--epe-git-branch ()
@@ -52,28 +52,28 @@ with pkgs.lib.ordenada;
 
           (advice-add 'epe-git-branch :override #'ordenada--epe-git-branch)
 
-          (define-key global-map (kbd "s-e") 'eshell)
-          (add-hook 'eshell-mode-hook 'ordenada-eshell-mode)
+          (keymap-global-set "s-e" #'eshell)
+          (add-hook 'eshell-mode-hook #'ordenada-eshell-mode)
           (with-eval-after-load 'eshell
             (let ((eshell-cache (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                                         "/emacs/eshell/")))
-              (setq eshell-aliases-file (concat eshell-cache "alias"))
-              (setq eshell-history-file-name (concat eshell-cache "history"))
-              (setq eshell-last-dir-ring-file-name
-                    (concat eshell-cache "lastdir")))
-            (setq eshell-banner-message "")
+              (setopt eshell-aliases-file (concat eshell-cache "alias"))
+              (setopt eshell-history-file-name (concat eshell-cache "history"))
+              (setopt eshell-last-dir-ring-file-name
+                      (concat eshell-cache "lastdir")))
+            (setopt eshell-banner-message "")
             (autoload 'eshell-syntax-highlighting-global-mode
                       "eshell-syntax-highlighting")
             (eshell-syntax-highlighting-global-mode)
             (add-hook 'eshell-hist-mode-hook
                       (lambda ()
-                        (define-key eshell-hist-mode-map (kbd "M-r") 'consult-history)))
+                        (keymap-set eshell-hist-mode-map "M-r" #'consult-history)))
 
             (add-hook 'eshell-preoutput-filter-functions #'ansi-color-filter-apply)
             (with-eval-after-load 'em-prompt
               (autoload 'epe-theme-lambda "eshell-prompt-extras")
-              (setq eshell-prompt-function #'epe-theme-lambda)
-              (setq eshell-highlight-prompt nil)))
+              (setopt eshell-prompt-function #'epe-theme-lambda)
+              (setopt eshell-highlight-prompt nil)))
         '';
         elispPackages = with pkgs.emacsPackages; [
           eshell-syntax-highlighting

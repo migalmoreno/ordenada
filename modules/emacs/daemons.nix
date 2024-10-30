@@ -19,7 +19,7 @@ with pkgs.lib.ordenada;
         name = "ordenada-daemons";
         config = ''
           (with-eval-after-load 'ordenada-keymaps
-            (define-key ordenada-app-map (kbd "D") #'daemons))
+            (keymap-set ordenada-app-map "D" #'daemons))
           (add-hook 'daemons-mode-hook #'eldoc-mode)
           (with-eval-after-load 'daemons
             (setopt daemons-list-fill-frame t)

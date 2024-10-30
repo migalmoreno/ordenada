@@ -18,14 +18,14 @@ with pkgs.lib.ordenada;
       programs.emacs = mkElispConfig {
         name = "ordenada-embark";
         config = ''
-          (define-key global-map (kbd "C-.") #'embark-act)
-          (define-key global-map (kbd "C->") #'embark-become)
-          (define-key minibuffer-local-map (kbd "M-g") #'embark-become)
-          (define-key help-map "b" #'embark-bindings)
+          (keymap-global-set "C-." #'embark-act)
+          (keymap-global-set "C->" #'embark-become)
+          (keymap-set minibuffer-local-map "M-g" #'embark-become)
+          (keymap-set help-map "b" #'embark-bindings)
 
           (with-eval-after-load 'embark
-            (setq embark-indicators '(embark-minimal-indicator))
-            (setq embark-prompter #'embark-keymap-prompter)
+            (setopt embark-indicators '(embark-minimal-indicator))
+            (setopt embark-prompter #'embark-keymap-prompter)
             (setq prefix-help-command #'embark-prefix-help-command))
 
           (with-eval-after-load 'window

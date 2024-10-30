@@ -23,16 +23,16 @@ with pkgs.lib.ordenada;
             ${
               if user.features.markdown.headingsScaling then
                 ''
-                  (setq markdown-header-scaling t)
-                  (setq markdown-header-scaling-values '(1.2 1.1 1.1 1.0 1.0 0.9))
+                  (setopt markdown-header-scaling t)
+                  (setopt markdown-header-scaling-values '(1.2 1.1 1.1 1.0 1.0 0.9))
                 ''
               else
                 ""
             }
-            (setq markdown-hide-urls t)
-            (setq markdown-hide-markup t)
-            (setq markdown-command "${pkgs.pandoc}/bin/pandoc")
-            (setq markdown-fontify-code-blocks-natively t))
+            (setopt markdown-hide-urls t)
+            (setopt markdown-hide-markup t)
+            (setopt markdown-command "${pkgs.pandoc}/bin/pandoc")
+            (setopt markdown-fontify-code-blocks-natively t))
         '';
         elispPackages = with pkgs.emacsPackages; [ markdown-mode ];
       };

@@ -37,35 +37,35 @@ with pkgs.lib.ordenada;
                       (propertize "» " 'face 'vertico-current)
                       "  ")
                   cand))))
-            (define-key global-map (kbd "s-s") 'vertico-repeat)
+            (keymap-global-set "s-s" #'vertico-repeat)
             (require 'vertico-repeat)
-            (add-hook 'minibuffer-setup-hook 'vertico-repeat-save)
-            (setq vertico-cycle t)
-            (setq vertico-multiform-categories
-                  '((consult-grep buffer)
-                    (imenu buffer)
-                    (buffer)
-                    ;; (file buffer)
-                    ;; (project-file buffer)
-                    (info-menu buffer)
-                    (consult-org-heading buffer)
-                    (consult-history buffer)
-                    (consult-lsp-symbols buffer)
-                    (consult-xref buffer)
-                    (embark-keybinding buffer)
-                    (consult-location buffer)))
+            (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+            (setopt vertico-cycle t)
+            (setopt vertico-multiform-categories
+                    '((consult-grep buffer)
+                      (imenu buffer)
+                      (buffer)
+                      ;; (file buffer)
+                      ;; (project-file buffer)
+                      (info-menu buffer)
+                      (consult-org-heading buffer)
+                      (consult-history buffer)
+                      (consult-lsp-symbols buffer)
+                      (consult-xref buffer)
+                      (embark-keybinding buffer)
+                      (consult-location buffer)))
 
-            (setq vertico-multiform-commands
-                  '((telega-chat-with buffer)
-                    (magit:--author flat)
-                    ;; For some reason it doesn't have an info-menu
-                    ;; category and also setting
-                    ;; marginalia-command-categories doesn't help
-                    ;; (org-roam-node-find buffer)
-                    (Info-goto-node buffer)
-                    (info-lookup-symbol buffer)
-                    (Info-follow-reference buffer)
-                    (consult-yank-pop buffer)))
+            (setopt vertico-multiform-commands
+                    '((telega-chat-with buffer)
+                      (magit:--author flat)
+                      ;; For some reason it doesn't have an info-menu
+                      ;; category and also setting
+                      ;; marginalia-command-categories doesn't help
+                      ;; (org-roam-node-find buffer)
+                      (Info-goto-node buffer)
+                      (info-lookup-symbol buffer)
+                      (Info-follow-reference buffer)
+                      (consult-yank-pop buffer)))
 
             (autoload 'vertico-multiform-mode "vertico-multiform")
             (vertico-multiform-mode))
@@ -73,7 +73,7 @@ with pkgs.lib.ordenada;
           (autoload 'vertico-mode "vertico")
           (if after-init-time
             (vertico-mode 1)
-            (add-hook 'after-init-hook 'vertico-mode))
+            (add-hook 'after-init-hook #'vertico-mode))
         '';
         elispPackages = [ user.features.emacs.vertico.package ];
       };

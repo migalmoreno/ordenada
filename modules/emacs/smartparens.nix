@@ -47,12 +47,12 @@ with pkgs.lib.ordenada;
 
           (require 'smartparens-config)
           (sp-use-${if pareditBindings then "paredit" else "smartparens"}-bindings)
-          (setq sp-highlight-pair-overlay nil)
-          (define-key smartparens-mode-map (kbd "M-s") nil)
-          (define-key smartparens-mode-map (kbd "M-S") #'sp-forward-slurp-sexp)
+          (setopt sp-highlight-pair-overlay nil)
+          (keymap-set smartparens-mode-map "M-s" nil)
+          (keymap-set smartparens-mode-map "M-S" #'sp-forward-slurp-sexp)
 
           (with-eval-after-load 'paren
-            (setq show-paren-style 'mixed)
+            (setopt show-paren-style 'mixed)
             ${
               if showSmartParens then
                 ''

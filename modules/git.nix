@@ -51,20 +51,20 @@ in
       programs.emacs = mkElispConfig {
         name = "ordenada-git";
         config = ''
-          (add-hook 'magit-mode-hook 'toggle-truncate-lines)
+          (add-hook 'magit-mode-hook #'toggle-truncate-lines)
           (with-eval-after-load 'project
-            (define-key project-prefix-map "m" 'magit-project-status)
+            (keymap-set project-prefix-map "m" #'magit-project-status)
             (add-to-list 'project-switch-commands
                          '(magit-project-status "Show Magit Status")))
           (with-eval-after-load 'magit
-            (define-key magit-mode-map "q" #'magit-kill-this-buffer)
-            (setq magit-display-buffer-function
-                  #'magit-display-buffer-same-window-except-diff-v1)
-            (setq magit-pull-or-fetch t)
+            (keymap-set magit-mode-map "q" #'magit-kill-this-buffer)
+            (setopt magit-display-buffer-function
+                    #'magit-display-buffer-same-window-except-diff-v1)
+            (setopt magit-pull-or-fetch t)
             (require 'forge))
 
           (with-eval-after-load 'ordenada-keymaps
-            (define-key ordenada-app-map (kbd "g l") #'git-link))
+            (keymap-set ordenada-app-map "g l" #'git-link))
           (with-eval-after-load 'git-link
             ${
               toString (

@@ -67,11 +67,11 @@ in
                     (add-hook hook 'flyspell-prog-mode))
                   '(${toString flyspellProgHooks}))
           (with-eval-after-load 'ispell
-            (setq ispell-program-name "${ispellProgram}")
+            (setopt ispell-program-name "${ispellProgram}")
             ${
               if ispellStandardDictionary != "" then
                 ''
-                  (setq ispell-dictionary "${ispellStandardDictionary}")
+                  (setopt ispell-dictionary "${ispellStandardDictionary}")
                 ''
               else
                 ""
@@ -79,18 +79,18 @@ in
             ${
               if ispellPersonalDictionary != "" then
                 ''
-                  (setq ispell-personal-dictionary "${ispellPersonalDictionary}")
+                  (setopt ispell-personal-dictionary "${ispellPersonalDictionary}")
                 ''
               else
                 ""
             })
           (with-eval-after-load 'flyspell
-            (setq flyspell-issue-welcome-flag nil)
-            (setq flyspell-issue-message-flag nil))
+            (setopt flyspell-issue-welcome-flag nil)
+            (setopt flyspell-issue-message-flag nil))
           (with-eval-after-load 'dictionary
-            (setq dictionary-server "${dictionaryServer}"))
+            (setopt dictionary-server "${dictionaryServer}"))
           (with-eval-after-load 'ordenada-keymaps
-            (define-key ordenada-app-map (kbd "d") 'dictionary-search))
+            (keymap-set ordenada-app-map "d" 'dictionary-search))
         '';
       };
     });

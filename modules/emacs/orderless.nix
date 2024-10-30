@@ -19,11 +19,11 @@ with pkgs.lib.ordenada;
         name = "ordenada-orderless";
         config = ''
           (with-eval-after-load 'minibuffer
-            (setq orderless-component-separator #'orderless-escapable-split-on-space)
-            (setq completion-styles '(orderless basic))
-            (setq completion-category-overrides '((project-file (styles . (orderless partial-completion basic)))
-                                                  (file (styles . (orderless partial-completion basic)))))
-            (setq enable-recursive-minibuffers t))
+            (setopt orderless-component-separator #'orderless-escapable-split-on-space)
+            (setopt completion-styles '(orderless basic))
+            (setopt completion-category-overrides '((project-file (styles . (orderless partial-completion basic)))
+                                                    (file (styles . (orderless partial-completion basic)))))
+            (setopt enable-recursive-minibuffers t))
         '';
         elispPackages = with pkgs.emacsPackages; [ orderless ];
       };

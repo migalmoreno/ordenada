@@ -35,7 +35,7 @@ with pkgs.lib.ordenada;
           (define-prefix-command 'ordenada-toggle-map nil)
           (define-key mode-specific-map (kbd "${appMapPrefix}") '("applications" . ordenada-app-map))
           (define-key mode-specific-map (kbd "${toggleMapPrefix}") '("toggles" . ordenada-toggle-map))
-          (define-key ordenada-toggle-map "f" #'display-fill-column-indicator-mode)
+          (keymap-set ordenada-toggle-map "f" #'display-fill-column-indicator-mode)
         '';
       };
     });

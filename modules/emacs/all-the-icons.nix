@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.all-the-icons = {
-      enable = lib.mkEnableOption "all-the-icons feature.";
+      enable = lib.mkEnableOption "the Emacs all-the-icons feature";
     };
   };
   config = {
@@ -21,9 +21,9 @@ with pkgs.lib.ordenada;
           name = "ordenada-all-the-icons";
           config = ''
             (with-eval-after-load 'all-the-icons
-              (setq all-the-icons-scale-factor 1.0)
-              (setq all-the-icons-default-adjust 0)
-              (setq all-the-icons-octicon-scale-factor 0.9))
+              (setopt all-the-icons-scale-factor 1.0)
+              (setopt all-the-icons-default-adjust 0)
+              (setopt all-the-icons-octicon-scale-factor 0.9))
             ${
               if hasFeature "emacs.completion" user then
                 ''

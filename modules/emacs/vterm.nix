@@ -23,7 +23,7 @@ with pkgs.lib.ordenada;
       programs.emacs = mkElispConfig {
         name = "ordenada-vterm";
         config = ''
-          (define-key global-map (kbd "s-t") #'vterm)
+          (keymap-global-set "s-t" #'vterm)
           ${
             if hasFeature "emacs.consult" user then
               ''
@@ -63,7 +63,7 @@ with pkgs.lib.ordenada;
                         (vterm t))))
 
                 (with-eval-after-load 'project
-                  (define-key project-prefix-map (kbd "t") #'ordenada-vterm-project-vterm))
+                  (keymap-set project-prefix-map "t" #'ordenada-vterm-project-vterm))
               ''
             else
               ""

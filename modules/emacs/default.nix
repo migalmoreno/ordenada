@@ -86,61 +86,64 @@ in
                 "Base customization group for ordenada settings."
                 :group 'external
                 :prefix 'ordenada-)
-              (setq gc-cons-threshold most-positive-fixnum
-                    gc-cons-percentage 0.6)
+              (setq gc-cons-threshold most-positive-fixnum)
+              (setq gc-cons-percentage 0.6)
               (add-hook 'emacs-startup-hook
                         (lambda ()
                           (setq undo-limit (* 8 1024 1024)
                                 read-process-output-max (* 1024 1024))))
               (advice-add 'x-apply-session-resources :override 'ignore)
               (setq native-comp-jit-compilation nil)
-              (setq custom-file
-                   (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                           "/emacs/custom.el"))
+              (setopt custom-file
+                      (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                              "/emacs/custom.el"))
               (load custom-file t)
-              (setq backup-directory-alist
-                    `(,(cons "." (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                                         "/emacs/backup"))))
-              (setq bookmark-default-file
-                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                            "/emacs/bookmarks"))
-              (setq auto-save-list-file-prefix
-                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                            "/emacs/auto-save-list"))
+              (setopt backup-directory-alist
+                      `(,(cons "." (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                                           "/emacs/backup"))))
+              (setopt bookmark-default-file
+                      (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                              "/emacs/bookmarks"))
+              (setopt auto-save-list-file-prefix
+                      (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                              "/emacs/auto-save-list"))
               (save-place-mode 1)
-              (setq save-place-file
-                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                            "/emacs/places"))
-              (setq history-length 10000)
-              (setq savehist-file
-                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                            "/emacs/history"))
+              (setopt save-place-file
+                      (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                              "/emacs/places"))
+              (setopt history-length 10000)
+              (setopt savehist-file
+                      (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                              "/emacs/history"))
+              (add-hook 'after-init-hook #'savehist-mode)
+              (run-with-idle-timer 30 t #'savehist-save)
+
               (show-paren-mode 1)
               (subword-mode 1)
               (setq-default indent-tabs-mode nil)
-              (setq save-interprogram-paste-before-kill t)
-              (setq mouse-yank-at-point t)
-              (setq require-final-newline t)
+              (setopt save-interprogram-paste-before-kill t)
+              (setopt mouse-yank-at-point t)
+              (setopt require-final-newline t)
               (repeat-mode 1)
-              (setq copyright-names-regexp
-                    (format "%s <%s>" user-full-name user-mail-address))
+              (setopt copyright-names-regexp
+                      (format "%s <%s>" user-full-name user-mail-address))
               (add-hook 'after-save-hook 'copyright-update)
               (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-              (define-key global-map (kbd "M-K") 'kill-whole-line)
-              (define-key global-map (kbd "M-c") 'capitalize-dwim)
-              (define-key global-map (kbd "M-l") 'downcase-dwim)
-              (define-key global-map (kbd "M-u") 'upcase-dwim)
+              (keymap-global-set "M-K" #'kill-whole-line)
+              (keymap-global-set "M-c" #'capitalize-dwim)
+              (keymap-global-set "M-l" #'downcase-dwim)
+              (keymap-global-set "M-u" #'upcase-dwim)
 
               (with-eval-after-load 'mwheel
-                (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)
-                                                    ((control) . 1)))
-                (setq mouse-wheel-progressive-speed nil)
-                (setq mouse-wheel-follow-mouse t)
-                (setq scroll-conservatively 100)
-                (setq mouse-autoselect-window nil)
-                (setq what-cursor-show-names t)
-                (setq focus-follows-mouse t))
+                (setopt mouse-wheel-scroll-amount '(1 ((shift) . 1)
+                                                       ((control) . 1)))
+                (setopt mouse-wheel-progressive-speed nil)
+                (setopt mouse-wheel-follow-mouse t)
+                (setopt scroll-conservatively 100)
+                (setopt mouse-autoselect-window nil)
+                (setopt what-cursor-show-names t)
+                (setopt focus-follows-mouse t))
             '';
           };
         }

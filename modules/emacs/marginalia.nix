@@ -29,7 +29,7 @@ with pkgs.lib.ordenada;
         config = ''
           (add-hook 'after-init-hook #'marginalia-mode)
           (with-eval-after-load 'marginalia
-            (setq marginalia-align '${user.features.emacs.marginalia.alignment}))
+            (setopt marginalia-align '${user.features.emacs.marginalia.alignment}))
         '';
         elispPackages = with pkgs.emacsPackages; [ marginalia ];
       };

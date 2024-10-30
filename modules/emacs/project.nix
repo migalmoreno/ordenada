@@ -67,24 +67,24 @@ with pkgs.lib.ordenada;
                        compilation-buffer-name-function)))
               (call-interactively 'compile nil (and comint (vector (list 4))))))
 
-          (setq ordenada-project-dominating-files '(${
+          (setopt ordenada-project-dominating-files '(${
             toString (map (x: ''"${x}"'') user.features.emacs.project.extraDominatingFiles)
           }))
           (add-hook 'project-find-functions #'ordenada-project-custom-root)
           (add-hook 'project-find-functions #'project-try-vc)
           (advice-add 'project-compile :override #'ordenada-project-compile)
           (with-eval-after-load 'project
-            (define-key project-prefix-map "F" #'consult-find)
-            (define-key project-prefix-map "R" #'consult-ripgrep)
             (with-eval-after-load 'consult
               (setq consult-project-root-function
                     (lambda ()
                       (when-let (project (project-current))
                         (car (project-roots project))))))
-            (setq project-switch-use-entire-map t)
-            (setq project-list-file (expand-file-name "emacs/projects" (xdg-cache-home)))
             (setq compilation-buffer-name-function #'ordenada-compilation-buffer-name)
             (setq project-compilation-buffer-name-function #'ordenada-compilation-buffer-name))
+            (keymap-set project-prefix-map "F" #'consult-find)
+            (keymap-set project-prefix-map "R" #'consult-ripgrep)
+            (setopt project-switch-use-entire-map t)
+            (setopt project-list-file (expand-file-name "emacs/projects" (xdg-cache-home))))
         '';
       };
     });

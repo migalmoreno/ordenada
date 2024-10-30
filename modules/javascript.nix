@@ -68,15 +68,15 @@ with pkgs.lib.ordenada;
               (npm-mode)))
 
           (let ((map ordenada-javascript-nodejs-repl-mode-command-map))
-            (define-key map (kbd "e") 'nodejs-repl-send-last-expression)
-            (define-key map (kbd "j") 'nodejs-repl-send-line)
-            (define-key map (kbd "r") 'nodejs-repl-send-region)
-            (define-key map (kbd "C-c") 'nodejs-repl-send-buffer)
-            (define-key map (kbd "C-l") 'nodejs-repl-load-file)
-            (define-key map (kbd "C-z") 'nodejs-repl-switch-to-repl))
-          (define-key ordenada-javascript-mode-map (kbd "C-c C-r")
+            (keymap-set map "e" #'nodejs-repl-send-last-expression)
+            (keymap-set map "j" #'nodejs-repl-send-line)
+            (keymap-set map "r" #'nodejs-repl-send-region)
+            (keymap-set map "C-c" #'nodejs-repl-send-buffer)
+            (keymap-set map "C-l" #'nodejs-repl-load-file)
+            (keymap-set map "C-z" #'nodejs-repl-switch-to-repl))
+          (keymap-set ordenada-javascript-mode-map "C-c C-r"
             '("repl" . ordenada-javascript-nodejs-repl-mode-command-map))
-          (define-key ordenada-javascript-mode-map (kbd "C-c f")
+          (keymap-set ordenada-javascript-mode-map "C-c f"
             '("Format buffer" . eslint-fix))
 
           (mapcar (lambda (hook)
@@ -84,13 +84,13 @@ with pkgs.lib.ordenada;
                   '(js-ts-mode typescript-ts-mode tsx-ts-mode jsx-ts-mode))
 
           (with-eval-after-load 'nodejs-repl
-            (setq nodejs-repl-command "${pkgs.nodejs}/bin/node"))
+            (setopt nodejs-repl-command "${pkgs.nodejs}/bin/node"))
 
           (with-eval-after-load 'flymake-eslint
-            (setq flymake-eslint-executable-name "${pkgs.nodePackages_latest.eslint}/bin/eslint"))
+            (setopt flymake-eslint-executable-name "${pkgs.nodePackages_latest.eslint}/bin/eslint"))
 
           (with-eval-after-load 'eslint-fix
-            (setq eslint-fix-executable "${pkgs.nodePackages_latest.eslint}/bin/eslint"))
+            (setopt eslint-fix-executable "${pkgs.nodePackages_latest.eslint}/bin/eslint"))
 
           (add-hook 'eglot-managed-mode-hook 'ordenada-javascript--setup-flymake-for-eglot)
           (with-eval-after-load 'eglot
@@ -106,30 +106,29 @@ with pkgs.lib.ordenada;
 
           (with-eval-after-load 'npm-mode
             (fset 'npm-mode-command-keymap npm-mode-command-keymap)
-            (define-key npm-mode-keymap (kbd "C-c n")
-              '("npm" . npm-mode-command-keymap)))
+            (keymap-set npm-mode-keymap "C-c n" '("npm" . npm-mode-command-keymap)))
 
           (with-eval-after-load 'js
-            (setq js-indent-level 2))
+            (setopt js-indent-level 2)
+            (setopt js-chain-indent t))
 
           (with-eval-after-load 'js2-mode
-            (setq js-chain-indent t)
-            (setq js2-basic-offset 2)
-            (setq js2-skip-preprocessor-directives t)
-            (setq js2-mode-show-parse-errors nil)
-            (setq js2-mode-show-strict-warnings nil)
-            (setq js2-strict-missing-semi-warning nil)
-            (setq js2-highlight-level 3)
-            (setq js2-idle-timer-delay 0.15))
+            (setopt js2-basic-offset 2)
+            (setopt js2-skip-preprocessor-directives t)
+            (setopt js2-mode-show-parse-errors nil)
+            (setopt js2-mode-show-strict-warnings nil)
+            (setopt js2-strict-missing-semi-warning nil)
+            (setopt js2-highlight-level 3)
+            (setopt js2-idle-timer-delay 0.15))
 
           (with-eval-after-load 'web-mode
-            (setq web-mode-markup-indent-offset 2)
-            (setq web-mode-css-indent-offset 2)
-            (setq web-mode-code-indent-offset 2))
+            (setopt web-mode-markup-indent-offset 2)
+            (setopt web-mode-css-indent-offset 2)
+            (setopt web-mode-code-indent-offset 2))
 
           (add-to-list 'major-mode-remap-alist '(css-mode . css-ts-mode))
           (with-eval-after-load 'css-mode
-            (setq css-indent-offset 2))
+            (setopt css-indent-offset 2))
         '';
         elispPackages = with pkgs.emacsPackages; [
           eslint-fix

@@ -46,21 +46,21 @@ in
             (let ((org-roam-v2-ack t))
               (require 'org-roam)))
           (setq org-roam-v2-ack t)
-          (setq org-roam-completion-everywhere t)
-          (setq org-roam-directory "${directory}")
+          (setopt org-roam-completion-everywhere t)
+          (setopt org-roam-directory "${directory}")
           (autoload 'org-roam-db-autosync-enable "org-roam")
 
           (let ((map mode-specific-map))
-            (define-key map (kbd "n n") #'org-roam-buffer-toggle)
-            (define-key map (kbd "n f") #'org-roam-node-find)
-            (define-key map (kbd "n i") #'org-roam-node-insert)
-            (define-key map (kbd "n r") #'org-roam-ref-find)
-            (define-key map (kbd "n C") #'org-roam-capture))
+            (keymap-set map "n n" #'org-roam-buffer-toggle)
+            (keymap-set map "n f" #'org-roam-node-find)
+            (keymap-set map "n i" #'org-roam-node-insert)
+            (keymap-set map "n r" #'org-roam-ref-find)
+            (keymap-set map "n C" #'org-roam-capture))
 
           (with-eval-after-load 'org-roam
-            (setq org-roam-db-location
-                  (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
-                          "/emacs/org-roam.db"))
+            (setopt org-roam-db-location
+                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                            "/emacs/org-roam.db"))
             (org-roam-db-autosync-enable)
             (cl-defmethod org-roam-node-type ((node org-roam-node))
               "Return the TYPE of NODE, where the TYPE is a directory of
@@ -73,10 +73,10 @@ in
                      (file-relative-name (org-roam-node-file node)
                                          org-roam-directory))))
                 (error "")))
-            (setq org-roam-node-display-template
-                  (concat "''${type:15} ''${title:80} " (propertize "''${tags:20}" 'face 'org-tag)))
-            (setq org-roam-node-annotation-function
-                  (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
+            (setopt org-roam-node-display-template
+                    (concat "''${type:15} ''${title:80} " (propertize "''${tags:20}" 'face 'org-tag)))
+            (setopt org-roam-node-annotation-function
+                    (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
             ${
               if captureTemplates == "" then "" else ''(setq org-roam-capture-templates ${captureTemplates})''
             })
@@ -108,15 +108,15 @@ in
 
           (with-eval-after-load 'org
             (let ((map org-mode-map))
-              (define-key map (kbd "C-TAB") #'completion-at-point)
-              (define-key map (kbd "C-c r r") #'org-roam-ref-add)
-              (define-key map (kbd "C-c r R") #'org-roam-ref-remove)
-              (define-key map (kbd "C-c r f") #'org-roam-ref-find)
-              (define-key map (kbd "C-c r t") #'org-roam-tag-add)
-              (define-key map (kbd "C-c r T") #'org-roam-tag-remove)
-              (define-key map (kbd "C-c r a") #'org-roam-alias-add)
-              (define-key map (kbd "C-c r A") #'org-roam-alias-remove)
-              (define-key map (kbd "C-c r O") #'ordenada-org-roam-open-ref)))
+              (keymap-set map "C-TAB" #'completion-at-point)
+              (keymap-set map "C-c r r" #'org-roam-ref-add)
+              (keymap-set map "C-c r R" #'org-roam-ref-remove)
+              (keymap-set map "C-c r f" #'org-roam-ref-find)
+              (keymap-set map "C-c r t" #'org-roam-tag-add)
+              (keymap-set map "C-c r T" #'org-roam-tag-remove)
+              (keymap-set map "C-c r a" #'org-roam-alias-add)
+              (keymap-set map "C-c r A" #'org-roam-alias-remove)
+              (keymap-set map "C-c r O" #'ordenada-org-roam-open-ref)))
 
           (with-eval-after-load 'window
             (add-to-list 'display-buffer-alist
@@ -124,9 +124,9 @@ in
                            display-buffer-same-window)))
 
           (autoload 'org-roam-dailies-map "org-roam-dailies" "" nil 'keymap)
-          (define-key mode-specific-map (kbd "d") #'org-roam-dailies-map)
+          (keymap-set mode-specific-map "d" #'org-roam-dailies-map)
           (with-eval-after-load 'org-roam-dailies
-            (setq org-roam-dailies-directory "${dailiesDirectory}")
+            (setopt org-roam-dailies-directory "${dailiesDirectory}")
             ${
               if dailiesCaptureTemplates == "" then
                 ""

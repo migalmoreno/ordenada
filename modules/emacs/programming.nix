@@ -51,14 +51,14 @@ with pkgs.lib.ordenada;
           name = "ordenada-eglot";
           config = ''
             (with-eval-after-load 'eglot
-              (setq eglot-confirm-server-edits nil)
-              (setq eglot-extend-to-xref t)
+              (setopt eglot-confirm-server-edits nil)
+              (setopt eglot-extend-to-xref t)
               (let ((map eglot-mode-map))
-                (define-key map (kbd "C-c c a") #'eglot-code-actions)
-                (define-key map (kbd "C-c c o") #'eglot-code-action-organize-imports)
-                (define-key map (kbd "C-c c q") #'eglot-code-action-quickfix)
-                (define-key map (kbd "C-c c r") #'eglot-rename)
-                (define-key map (kbd "C-c c f") #'eglot-format)))
+                (keymap-set map "C-c c a" #'eglot-code-actions)
+                (keymap-set map "C-c c o" #'eglot-code-action-organize-imports)
+                (keymap-set map "C-c c q" #'eglot-code-action-quickfix)
+                (keymap-set map "C-c c r" #'eglot-rename)
+                (keymap-set map "C-c c f" #'eglot-format)))
           '';
           elispPackages =
             with pkgs.emacsPackages;
@@ -73,8 +73,8 @@ with pkgs.lib.ordenada;
           config = ''
             (with-eval-after-load 'flymake
               (let ((map flymake-mode-map))
-                (define-key map (kbd "M-n") #'flymake-goto-next-error)
-                (define-key map (kbd "M-p") #'flymake-goto-prev-error)))
+                (keymap-set map "M-n" #'flymake-goto-next-error)
+                (keymap-set map "M-p" #'flymake-goto-prev-error)))
           '';
         };
       });

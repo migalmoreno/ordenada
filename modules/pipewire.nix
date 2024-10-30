@@ -34,12 +34,12 @@ in
           name = "ordenada-pulseaudio-control";
           config = ''
             (with-eval-after-load 'ordenada-keymaps
-              (define-key ordenada-app-map (kbd "v") #'pulseaudio-control-map))
+              (keymap-set ordenada-app-map "v" #'pulseaudio-control-map))
             (with-eval-after-load 'pulseaudio-control
-              (define-key pulseaudio-control-map
+              (keymap-set pulseaudio-control-map "L"
                 #'pulseaudio-control-toggle-sink-input-mute-by-index)
-              (setq pulseaudio-control-volume-step "5%")
-              (setq pulseaudio-control-volume-verbose nil)
+              (setopt pulseaudio-control-volume-step "5%")
+              (setopt pulseaudio-control-volume-verbose nil)
               (pulseaudio-control-default-sink-mode)
               (pulseaudio-control-default-source-mode))
           '';

@@ -55,16 +55,16 @@ in
           (add-hook 'after-init-hook #'jarchive-setup)
 
           (with-eval-after-load 'cider
-            (setq cider-allow-jack-in-without-project t)
-            (setq cider-use-xref nil)
-            (setq cider-auto-select-error-buffer nil)
-            (setq cider-inspector-auto-select-buffer nil)
-            (setq cider-auto-select-test-report-buffer nil)
+            (setopt cider-allow-jack-in-without-project t)
+            (setopt cider-use-xref nil)
+            (setopt cider-auto-select-error-buffer nil)
+            (setopt cider-inspector-auto-select-buffer nil)
+            (setopt cider-auto-select-test-report-buffer nil)
             (setq cider-print-options '(("right-margin" 70) ("length" 50)))
-            (setq cider-doc-auto-select-buffer nil))
+            (setopt cider-doc-auto-select-buffer nil))
 
           (with-eval-after-load 'cider-repl
-            (setq cider-repl-pop-to-buffer-on-connect ${
+            (setopt cider-repl-pop-to-buffer-on-connect ${
               if cider.popReplOnConnect == "display-only" then
                 "'display-only"
               else if cider.popReplOnConnect then
@@ -72,11 +72,11 @@ in
               else
                 "nil"
             })
-            (setq cider-repl-display-in-current-window ${if cider.replInCurrentWindow then "t" else "nil"})
-            (setq cider-repl-display-help-banner nil))
+            (setopt cider-repl-display-in-current-window ${if cider.replInCurrentWindow then "t" else "nil"})
+            (setopt cider-repl-display-help-banner nil))
 
           (with-eval-after-load 'ordenada-keymaps
-            (define-key ordenada-app-map (kbd "J") #'clj-deps-new))
+            (keymap-set ordenada-app-map "J" #'clj-deps-new))
 
           (with-eval-after-load 'org
             (add-to-list 'org-structure-template-alist
@@ -90,7 +90,7 @@ in
                     (:session . ""))))
 
           (with-eval-after-load 'ob-clojure
-            (setq org-babel-clojure-backend 'cider))
+            (setopt org-babel-clojure-backend 'cider))
 
           (with-eval-after-load 'eglot
             (add-to-list 'eglot-server-programs

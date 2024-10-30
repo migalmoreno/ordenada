@@ -26,7 +26,7 @@ with pkgs.lib.ordenada;
         name = "ordenada-bash";
         config = ''
           (with-eval-after-load 'shell
-            (setq explicit-shell-file-name "${user.features.bash.package}/bin/bash"))
+            (setopt explicit-shell-file-name "${user.features.bash.package}/bin/bash"))
         '';
       };
     });

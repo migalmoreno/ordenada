@@ -57,12 +57,12 @@ in
             (setq minibuffer-message-timeout 0)
             (pixel-scroll-precision-mode 1)
             (tooltip-mode 0)
-            (setq mode-line-compact 'long)
+            (setopt mode-line-compact 'long)
             (fset 'yes-or-no-p 'y-or-n-p)
             (blink-cursor-mode 0)
             (set-default 'cursor-type '(bar . 1))
             (setq-default cursor-in-non-selected-windows nil)
-            (setq bookmark-set-fringe-mark nil)
+            (setopt bookmark-set-fringe-mark nil)
             (with-eval-after-load 'menu-bar
               (menu-bar-mode 0))
             (with-eval-after-load 'tool-bar
@@ -72,17 +72,17 @@ in
             (with-eval-after-load 'fringe
               (fringe-mode ${toString fringes}))
             (set-frame-parameter nil 'internal-border-width ${toString margin})
-            (setq use-dialog-box nil)
-            (setq use-file-dialog nil)
-            (setq window-divider-default-right-width ${toString margin})
-            (setq window-divider-default-bottom-width ${toString margin})
+            (setopt use-dialog-box nil)
+            (setopt use-file-dialog nil)
+            (setopt window-divider-default-right-width ${toString margin})
+            (setopt window-divider-default-bottom-width ${toString margin})
             (window-divider-mode)
-            (setq frame-inhibit-implied-resize t)
+            (setopt frame-inhibit-implied-resize t)
             (setq frame-title-format '(multiple-frames "%b" ("" "%b")))
             (with-eval-after-load 'minions-autoloads
               (minions-mode))
             (with-eval-after-load 'minions
-              (setq minions-mode-line-lighter ";"))
+              (setopt minions-mode-line-lighter ";"))
             ${
               if headerLineAsModeLine then
                 ''

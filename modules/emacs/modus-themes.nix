@@ -105,9 +105,9 @@ in
               if hasFeature "emacs.appearance" user then
                 with user.features.emacs.appearance;
                 ''
-                  (setq ordenada-modus-themes-header-line-padding ${toString headerLinePadding})
-                  (setq ordenada-modus-themes-tab-bar-padding ${toString tabBarPadding})
-                  (setq ordenada-modus-themes-mode-line-padding ${toString modeLinePadding})
+                  (setopt ordenada-modus-themes-header-line-padding ${toString headerLinePadding})
+                  (setopt ordenada-modus-themes-tab-bar-padding ${toString tabBarPadding})
+                  (setopt ordenada-modus-themes-mode-line-padding ${toString modeLinePadding})
 
                 ''
               else
@@ -117,18 +117,18 @@ in
                         :after #'ordenada-modus-themes-run-after-enable-theme-hook)
             (add-hook 'ordenada-modus-themes-after-enable-theme-hook #'ordenada-modus-themes-set-custom-faces)
             (with-eval-after-load 'ordenada-keymaps
-              (define-key ordenada-toggle-map (kbd "t") #'modus-themes-toggle))
+              (keymap-set ordenada-toggle-map "t" #'modus-themes-toggle))
             (with-eval-after-load 'modus-themes
               (setq modus-themes-common-palette-overrides
-                '((border-mode-line-active unspecified)
-                  (border-mode-line-inactive unspecified)
-                  (fringe unspecified)
-                  (fg-line-number-inactive "gray50")
-                  (fg-line-number-active fg-main)
-                  (bg-line-number-inactive unspecified)
-                  (bg-line-number-active unspecified)
-                  (bg-region bg-ochre)
-                  (fg-region unspecified)))
+                    '((border-mode-line-active unspecified)
+                      (border-mode-line-inactive unspecified)
+                      (fringe unspecified)
+                      (fg-line-number-inactive "gray50")
+                      (fg-line-number-active fg-main)
+                      (bg-line-number-inactive unspecified)
+                      (bg-line-number-active unspecified)
+                      (bg-region bg-ochre)
+                      (fg-region unspecified)))
                 (setq modus-themes-to-toggle '(${lightTheme} ${darkTheme}))
                 (setq modus-themes-italic-constructs t)
                 (setq modus-themes-bold-constructs t)

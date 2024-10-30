@@ -19,7 +19,7 @@ with pkgs.lib.ordenada;
         name = "ordenada-tramp";
         config = ''
           (with-eval-after-load 'tramp
-            (setq tramp-verbose 1)
+            (setopt tramp-verbose 1)
             (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
         '';
       };

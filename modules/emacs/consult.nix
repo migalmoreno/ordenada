@@ -72,42 +72,42 @@ with pkgs.lib.ordenada;
             (let ((consult-line-numbers-widen nil))
               (call-interactively #'consult-goto-line)))
 
-          (define-key narrow-map (kbd "g") #'ordenada-goto-line-relative)
+          (keymap-set narrow-map "g" #'ordenada-goto-line-relative)
 
-          (define-key minibuffer-local-map (kbd "M-r") #'consult-history)
-          (define-key global-map (kbd "M-y") #'consult-yank-pop)
-          (define-key goto-map (kbd "a") #'consult-org-agenda)
-          (define-key goto-map (kbd "h") #'consult-org-heading)
-          (define-key ctl-x-map "b" #'consult-buffer)
-          (define-key help-map "a" #'consult-apropos)
-          (define-key global-map (kbd "C-x C-r") #'consult-recent-file)
-          (define-key ctl-x-map (kbd "M-:") #'consult-complex-command)
-          (define-key ctl-x-4-map "b" #'consult-buffer-other-window)
+          (keymap-set minibuffer-local-map "M-r" #'consult-history)
+          (keymap-global-set "M-y" #'consult-yank-pop)
+          (keymap-set goto-map "a" #'consult-org-agenda)
+          (keymap-set goto-map "h" #'consult-org-heading)
+          (keymap-set ctl-x-map "b" #'consult-buffer)
+          (keymap-set help-map "a" #'consult-apropos)
+          (keymap-global-set "C-x C-r" #'consult-recent-file)
+          (keymap-set ctl-x-map "M-:" #'consult-complex-command)
+          (keymap-set ctl-x-4-map "b" #'consult-buffer-other-window)
           (let ((map goto-map))
-            (define-key map (kbd "g") #'consult-goto-line)
-            (define-key map (kbd "M-g") #'consult-goto-line)
-            (define-key map (kbd "l") #'consult-line)
-            (define-key map (kbd "o") #'consult-outline)
-            (define-key map (kbd "i") #'consult-imenu)
-            (define-key map (kbd "m") #'consult-mark)
-            (define-key map (kbd "M") #'consult-global-mark)
-            (define-key map (kbd "b") #'consult-bookmark))
+            (keymap-set map "g" #'consult-goto-line)
+            (keymap-set map "M-g" #'consult-goto-line)
+            (keymap-set map "l" #'consult-line)
+            (keymap-set map "o" #'consult-outline)
+            (keymap-set map "i" #'consult-imenu)
+            (keymap-set map "m" #'consult-mark)
+            (keymap-set map "M" #'consult-global-mark)
+            (keymap-set map "b" #'consult-bookmark))
 
           (let ((map search-map))
-            (define-key map (kbd "f") #'consult-find)
-            (define-key map (kbd "g") #'consult-ripgrep)
-            (define-key map (kbd "e") #'consult-isearch-history)
-            (define-key map (kbd "l") #'consult-line))
+            (keymap-set map "f" #'consult-find)
+            (keymap-set map "g" #'consult-ripgrep)
+            (keymap-set map "e" #'consult-isearch-history)
+            (keymap-set map "l" #'consult-line))
 
           (autoload 'consult-isearch-history "consult")
           (let ((map isearch-mode-map))
-            (define-key map (kbd "M-e") #'consult-isearch-history)
-            (define-key map (kbd "M-s e") #'consult-isearch-history)
-            (define-key map (kbd "M-s l") #'consult-line))
+            (keymap-set map "M-e" #'consult-isearch-history)
+            (keymap-set map "M-s e" #'consult-isearch-history)
+            (keymap-set map "M-s l" #'consult-line))
 
           (with-eval-after-load 'consult
-            (setq consult-narrow-key "C-=")
-            (setq consult-widen-key "C--"))
+            (setopt consult-narrow-key "C-=")
+            (setopt consult-widen-key "C--"))
 
           (with-eval-after-load 'embark
             (require 'embark-consult))
@@ -116,14 +116,14 @@ with pkgs.lib.ordenada;
           (autoload 'consult--customize-set "consult")
           (with-eval-after-load 'consult
             (require 'embark-consult)
-            (setq consult-ripgrep-args
-                  (replace-regexp-in-string "^rg" "${pkgs.ripgrep}/bin/rg" consult-ripgrep-args))
+            (setopt consult-ripgrep-args
+                    (replace-regexp-in-string "^rg" "${pkgs.ripgrep}/bin/rg" consult-ripgrep-args))
             (consult-customize consult-buffer :preview-key "M-.")
             (consult-customize consult-history :category 'consult-history)
             (consult-customize consult-line :inherit-input-method t))
 
           (with-eval-after-load 'xref
-            (setq xref-show-xrefs-function #'consult-xref))
+            (setopt xref-show-xrefs-function #'consult-xref))
         '';
         elispPackages = with pkgs.emacsPackages; [
           consult

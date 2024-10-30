@@ -26,10 +26,10 @@ with pkgs.lib.ordenada;
         name = "ordenada-password-store";
         config = ''
           (eval-when-compile (require 'pass))
-          (setq pass-show-keybindings nil)
+          (setopt pass-show-keybindings nil)
           (add-hook 'pass-mode-hook #'toggle-truncate-lines)
           (with-eval-after-load 'ordenada-keymaps
-            (define-key ordenada-app-map (kbd "p") 'pass))
+            (keymap-set ordenada-app-map "p" #'pass))
 
           (with-eval-after-load 'auth-source
             (auth-source-pass-enable))
@@ -52,18 +52,18 @@ with pkgs.lib.ordenada;
                          'password-store-copy)
                      pass))
 
-          (define-key global-map (kbd "M-g P") #'ordenada-password-store-consult)
+          (keymap-global-set "M-g P" #'ordenada-password-store-consult)
 
           (with-eval-after-load 'password-store
             (defvar ordenada-password-store-embark-actions
               (let ((map (make-sparse-keymap)))
-                (define-key map "f" #'password-store-copy-field)
-                (define-key map "b" #'password-store-url)
-                (define-key map "e" #'password-store-edit)
-                (define-key map "g" #'password-store-generate)
-                (define-key map "r" #'password-store-rename)
-                (define-key map "d" #'password-store-remove)
-                (define-key map "i" #'password-store-insert)
+                (keymap-set map "f" #'password-store-copy-field)
+                (keymap-set map "b" #'password-store-url)
+                (keymap-set map "e" #'password-store-edit)
+                (keymap-set map "g" #'password-store-generate)
+                (keymap-set map "r" #'password-store-rename)
+                (keymap-set map "d" #'password-store-remove)
+                (keymap-set map "i" #'password-store-insert)
                 map)
               "Keymap for actions for pass entries."))
 

@@ -18,13 +18,13 @@ with pkgs.lib.ordenada;
       programs.emacs = mkElispConfig {
         name = "ordenada-ace-window";
         config = ''
-          (define-key global-map (kbd "M-o") 'ace-window)
+          (keymap-global-set "M-o" #'ace-window)
           (with-eval-after-load 'ace-window
-            (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-            (setq aw-background nil)
-            (setq aw-scope 'frame)
-            (setq aw-ignore-current nil)
-            (setq aw-display-mode-overlay nil))
+            (setopt aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+            (setopt aw-background nil)
+            (setopt aw-scope 'frame)
+            (setopt aw-ignore-current nil)
+            (setopt aw-display-mode-overlay nil))
         '';
         elispPackages = with pkgs.emacsPackages; [ ace-window ];
       };

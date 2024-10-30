@@ -18,7 +18,7 @@ with pkgs.lib.ordenada;
         config = ''
           (add-to-list 'auto-mode-alist '("\\.y[a]?ml\\'" . yaml-mode))
           (with-eval-after-load 'yaml-mode
-            (define-key yaml-mode-map (kbd "RET") 'newline-and-indent))
+            (keymap-set yaml-mode-map "RET" #'newline-and-indent))
         '';
         elispPackages = with pkgs.emacsPackages; [ yaml-mode ];
       };
