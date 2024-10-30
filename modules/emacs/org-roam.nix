@@ -15,9 +15,9 @@ in
     ordenada.features.emacs.org-roam = {
       enable = mkEnableOption "Emacs Org Roam feature";
       captureTemplates = mkOption {
-        type = types.lines;
+        type = types.listOf types.str;
         description = "The Org Roam capture templates";
-        default = "";
+        default = [ ];
       };
       directory = mkOption {
         type = types.str;
@@ -30,11 +30,11 @@ in
         default = "daily/";
       };
       dailiesCaptureTemplates = mkOption {
-        type = types.lines;
+        type = types.listOf types.str;
         description = "The Org Roam dailies capture templates";
-        default = "";
+        default = [ ];
       };
-      todoIntegration = mkEnableOption "todo integration in Org Roam.";
+      todoIntegration = mkEnableOption "todo integration in Org Roam";
     };
   };
   config = {
@@ -78,7 +78,10 @@ in
             (setopt org-roam-node-annotation-function
                     (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
             ${
-              if captureTemplates == "" then "" else ''(setq org-roam-capture-templates ${captureTemplates})''
+              if captureTemplates == [ ] then
+                ""
+              else
+                ''(setopt org-roam-capture-templates '(${toString captureTemplates}))''
             })
 
           (defun ordenada-org-roam-open-ref ()
@@ -128,10 +131,10 @@ in
           (with-eval-after-load 'org-roam-dailies
             (setopt org-roam-dailies-directory "${dailiesDirectory}")
             ${
-              if dailiesCaptureTemplates == "" then
+              if dailiesCaptureTemplates == [ ] then
                 ""
               else
-                ''(setq org-roam-dailies-capture-templates ${dailiesCaptureTemplates})''
+                ''(setopt org-roam-dailies-capture-templates '(${toString dailiesCaptureTemplates}))''
             })
 
           ${
