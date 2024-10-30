@@ -47,7 +47,9 @@ in
                   "Open marked files in Dired through an external program."
                   (interactive)
                   (let ((files (dired-get-marked-files)))
-                    (mapc 'embark-open-externally files)))
+                    (mapc #'embark-open-externally files)))
+
+                (autoload 'embark-open-externally "embark")
                 (with-eval-after-load 'dired
                   (keymap-set dired-mode-map "V" #'ordenada-dired-open-externally))
               ''
