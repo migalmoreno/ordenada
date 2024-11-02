@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.project = {
-      enable = lib.mkEnableOption "Emacs Project feature.";
+      enable = lib.mkEnableOption "Emacs Project feature";
       extraDominatingFiles = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         description = "List of extra dominating files used to identify projects.";

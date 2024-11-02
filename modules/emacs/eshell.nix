@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.eshell = {
-      enable = lib.mkEnableOption "the Emacs eshell feature";
+      enable = lib.mkEnableOption "the Emacs Eshell feature";
     };
   };
   config = {

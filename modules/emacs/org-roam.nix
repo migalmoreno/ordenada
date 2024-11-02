@@ -16,22 +16,22 @@ in
       enable = mkEnableOption "Emacs Org Roam feature";
       captureTemplates = mkOption {
         type = types.listOf types.str;
-        description = "The Org Roam capture templates";
+        description = "The Org Roam capture templates.";
         default = [ ];
       };
       directory = mkOption {
         type = types.str;
-        description = "The Org Roam directory";
+        description = "Org Roam directory.";
         default = "~/notes";
       };
       dailiesDirectory = mkOption {
         type = types.str;
-        description = "The Org Roam dailies directory";
+        description = "Org Roam dailies directory.";
         default = "daily/";
       };
       dailiesCaptureTemplates = mkOption {
         type = types.listOf types.str;
-        description = "The Org Roam dailies capture templates";
+        description = "Org Roam dailies capture templates.";
         default = [ ];
       };
       todoIntegration = mkEnableOption "todo integration in Org Roam";

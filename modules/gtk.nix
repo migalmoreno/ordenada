@@ -25,7 +25,7 @@ in
 {
   options = {
     ordenada.features.gtk = {
-      enable = lib.mkEnableOption "GTK feature.";
+      enable = lib.mkEnableOption "the GTK feature";
       defaultThemes = lib.mkOption {
         type = lib.types.attrsOf themeModule;
         description = "The default GTK themes.";

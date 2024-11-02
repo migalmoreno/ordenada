@@ -13,7 +13,7 @@ with pkgs.lib.ordenada;
       enable = lib.mkEnableOption "the Emacs EBDB feature";
       sources = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        description = "The list of EBDB database sources..";
+        description = "The list of EBDB database sources.";
         default = [ "${config.ordenada.features.xdg.userDirs.documents}/contacts" ];
       };
     };

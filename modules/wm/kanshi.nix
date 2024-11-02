@@ -14,6 +14,7 @@ with pkgs.lib.ordenada;
       settings = lib.mkOption {
         type = lib.types.listOf lib.types.attrs;
         description = "The list of profile settings to apply to Kanshi.";
+        default = [ ];
       };
     };
   };

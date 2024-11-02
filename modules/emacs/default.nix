@@ -49,10 +49,11 @@ in
     ordenada.features.emacs = {
       enable = mkEnableOption "the Emacs feature";
       package = mkPackageOption pkgs "emacs" { default = "emacs29-pgtk"; };
-      advancedUser = mkEnableOption "advanced user mode for Emacs features.";
+      advancedUser = mkEnableOption "advanced user mode for Emacs features";
       defaultThemes = mkOption {
         type = types.attrs;
         description = "The light theme to use for Emacs.";
+        default = { };
       };
       extraConfig = mkOption {
         type = types.lines;

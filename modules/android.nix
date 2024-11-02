@@ -33,6 +33,7 @@ in
           payload-dumper-go
           fdroidcl
         ];
+        wayland.windowManager.sway.config.floating.criteria = [ { app_id = "Waydroid"; } ];
       });
     }
   ];

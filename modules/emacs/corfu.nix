@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.corfu = {
-      enable = lib.mkEnableOption "the Emacs corfu feature";
+      enable = lib.mkEnableOption "the Emacs Corfu feature";
       globalModes = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         description = "List of modes where Corfu should be enabled.";

@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.shell = {
-      enable = lib.mkEnableOption "Emacs shell feature.";
+      enable = lib.mkEnableOption "Emacs shell feature";
     };
   };
   config = {

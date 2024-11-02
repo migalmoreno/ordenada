@@ -13,7 +13,7 @@ with pkgs.lib.ordenada;
       enable = lib.mkEnableOption "the XDG feature";
       baseDirs = lib.mkOption {
         type = lib.types.attrs;
-        description = "The XDG base directories";
+        description = "The XDG base directories.";
         default = with config.ordenada.features.userInfo; {
           configHome = "${homeDirectory}/.config";
           dataHome = "${homeDirectory}/.local/share";

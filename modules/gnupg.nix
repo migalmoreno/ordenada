@@ -14,6 +14,7 @@ with pkgs.lib.ordenada;
       sshKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         description = "List of SSH key fingerprints.";
+        default = [ ];
       };
       pinentryPackage = lib.mkOption {
         type = lib.types.package;

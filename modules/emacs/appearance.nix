@@ -20,7 +20,7 @@ in
       enable = mkEnableOption "the Emacs appearance feature";
       fringes = mkOption {
         type = types.int;
-        description = "The width of the window's frame fringes";
+        description = "The width of the window's frame fringes.";
         default = 8;
       };
       margin = mkOption {

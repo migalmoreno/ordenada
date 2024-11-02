@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.tramp = {
-      enable = lib.mkEnableOption "Emacs TRAMP feature.";
+      enable = lib.mkEnableOption "Emacs TRAMP feature";
     };
   };
   config = {

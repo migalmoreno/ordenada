@@ -32,6 +32,7 @@ with pkgs.lib.ordenada;
       toggleMap = lib.mkOption {
         type = lib.types.attrs;
         description = "The Emacs keymap for toggle keybindings.";
+        default = { };
       };
     };
   };

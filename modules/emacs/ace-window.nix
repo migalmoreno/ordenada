@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.ace-window = {
-      enable = lib.mkEnableOption "Emacs ace-window feature.";
+      enable = lib.mkEnableOption "Emacs ace-window feature";
     };
   };
   config = {

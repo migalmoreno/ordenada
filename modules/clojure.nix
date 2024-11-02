@@ -27,6 +27,8 @@ in
           replInCurrentWindow = mkEnableOption "showing the REPL in the current window";
         };
       };
+      description = "The CIDER settings.";
+      default = { };
     };
   };
   config = {

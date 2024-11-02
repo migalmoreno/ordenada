@@ -33,6 +33,7 @@ in
       fonts = {
         monospace = lib.mkOption {
           type = fontModule;
+          description = "The monospace font to use.";
           default = {
             name = "Iosevka";
             package = pkgs.iosevka;
@@ -41,6 +42,7 @@ in
         };
         serif = lib.mkOption {
           type = fontModule;
+          description = "The serif font to use.";
           default = {
             name = "IBM Plex Sans";
             package = pkgs.ibm-plex;
@@ -49,10 +51,12 @@ in
         };
         sans = lib.mkOption {
           type = fontModule;
+          description = "The sans serif font to use.";
           default = cfg.fonts.serif;
         };
         unicode = lib.mkOption {
           type = fontModule;
+          description = "The unicode font to use.";
           default = {
             name = "Noto Color Emoji";
             package = pkgs.noto-fonts-emoji;

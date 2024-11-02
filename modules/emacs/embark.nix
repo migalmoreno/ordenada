@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.emacs.embark = {
-      enable = lib.mkEnableOption "the Embark feature.";
+      enable = lib.mkEnableOption "the Emacs Embark feature";
     };
   };
   config = {
