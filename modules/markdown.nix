@@ -19,7 +19,7 @@ with pkgs.lib.ordenada;
       programs.emacs = mkElispConfig {
         name = "ordenada-markdown";
         config = ''
-          (with-eval-after-load 'markdown
+          (with-eval-after-load 'markdown-mode
             ${
               if user.features.markdown.headingsScaling then
                 ''
