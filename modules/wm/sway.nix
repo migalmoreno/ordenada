@@ -182,7 +182,7 @@ in
                 "type:keyboard" = {
                   xkb_layout = name;
                   xkb_options = lib.strings.concatStringsSep "," options;
-                } // (if variant != "" then { xkb_variant = variant; } else { });
+                } // (lib.optionalAttrs (variant != "") { xkb_variant = variant; });
                 "type:touchpad" = {
                   dwt = "enabled";
                   tap = "enabled";

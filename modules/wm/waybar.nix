@@ -213,7 +213,7 @@ in
               layer = "top";
               position = "top";
               height = height;
-            } // (if output != [ ] then { inherit output; } else { }) // extraSettings;
+            } // (lib.optionalAttrs (output != [ ]) { inherit output; }) // extraSettings;
             style = with user.features.theme.scheme.withHashtag; ''
               * {
                 font-family: ${user.features.fontutils.fonts.monospace.name}, FontAwesome;
