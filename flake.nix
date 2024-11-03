@@ -11,6 +11,7 @@
     nix-rice.url = "github:bertof/nix-rice";
     base16.url = "github:SenchoPens/base16.nix";
     arkenfox-nixos.url = "github:dwarfmaster/arkenfox-nixos";
+    systems.url = "github:nix-systems/default";
   };
   outputs =
     inputs@{
@@ -18,6 +19,7 @@
       nur,
       nix-rice,
       base16,
+      systems,
       ...
     }:
     let
@@ -27,18 +29,24 @@
       } ./lib { };
       pkgs = import nixpkgs {
         system = "x86_64-linux";
-        inherit overlays;
+        overlays = [ overlay ];
       };
       overlay = _final: prev: {
         lib = prev.lib // {
           inherit ordenada;
+          base16 = pkgs.callPackage base16.lib { };
         };
       };
-      overlays = [ overlay ];
+      eachSystem =
+        f: nixpkgs.lib.genAttrs (import systems) (system: f (import nixpkgs { inherit system; }));
     in
     rec {
       lib = ordenada;
       overlays.default = overlay;
+      packages = eachSystem (_: rec {
+        docs = pkgs.callPackage ./mkDocs.nix { inherit inputs; };
+        default = docs;
+      });
       nixosModules.ordenada =
         { pkgs, ... }:
         {
@@ -48,12 +56,7 @@
               overlays.default
               nur.overlay
               nix-rice.overlays.default
-              (final: prev: {
-                inherit inputs;
-                lib = prev.lib // {
-                  base16 = pkgs.callPackage base16.lib { };
-                };
-              })
+              (final: prev: { inherit inputs; })
             ];
           };
         };
