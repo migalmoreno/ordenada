@@ -1,13 +1,13 @@
 # -*- mode: org; org-html-head-include-default-style: nil; org-html-postamble: nil; org-export-with-author: nil; org-export-with-date: nil; -*-
 #+OPTIONS: toc:nil num:nil
-* Ordenada
+#+title: ordenada
 Ordenada is a Reproducible Development Environment for Nix. It's based on the [[https://nixos.org/][Nix]] package manager and it draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] configuration framework for [[https://guix.gnu.org/][GNU Guix]]. Its main goal is to serve as a layer of abstraction on top of the standard Nix configuration tools to easily build reproducible multi-user development environments.
 
 #+begin_quote
 NOTE: Ordenada is in current development and its API is subject to change
 #+end_quote
 
-** Installation
+* Installation
 You can install Ordenada into your NixOS configuration using [[https://nix.dev/concepts/flakes.html][Flakes]]. First, add its flake URL to your list of inputs.
 
 #+begin_src nix
@@ -43,7 +43,7 @@ Optionally, if you want to make use of Ordenada's utility library, to e.g. creat
 nixpkgs.overlays = [ ordenada.overlays.default ];
 #+end_src
 
-** Usage
+* Usage
 Ordenada's configuration is centered around users and features. Features are blocks of configuration that provide certain functionality, such as setting up your GnuPG keys, or configuring your window manager. These have many available options you can configure to fit your needs.
 
 In a typical single user setup, you just need to add a "global" attrset of features and add your user to the users attrset in the Ordenada configuration.
@@ -136,7 +136,7 @@ With the above setup, two users =john= and =alice= will be configured in the sys
 
 By default, settings for each configured global feature will be inherited by each user feature, so beware that if you write a user features attrset from scratch (e.g. =alice='s example above) you won't have to include all the global configuration again for a new user feature (like the  =home=, =bash=, and =emacs= features above). However, if you need the default values of the new user feature, i.e. those that are not explicitly set in the global feature, you'll need to explicitly inherit from the global feature, such as the case with the =gnupg= feature above.
 
-** Extending it
+* Extending it
 You can use Ordenada's utilities to extend its available features with your own. For instance, the following shows how to create a feature =example=.
 
 #+begin_src nix
@@ -192,3 +192,6 @@ in
 #+end_src
 
 The =example= feature above showcases many common workflows inside features. First, we define a list of options specific to this feature which we'll be able to access from anywhere in our configuration. Then, we add a "system" configuration which is conditional on the feature being enabled. Next, we have a "home" configuration that we call with the special utility =mkHomeConfig=, which allows us to configure home settings for all our Ordenada users. In this example, we're setting a home environment variable which will be set as long as the =acme= feature is enabled, which we check via the =hasFeature= utility. Then, we set an Emacs Lisp configuration via the =mkElispConfig= utility which will add a new Emacs configuration package specific to this feature. Note how we can interpolate values in our Emacs configuration with our user features.
+
+* Configuration Options
+See [[https://migalmoreno.com/projects/ordenada.html]] for the full list of configuration options.
