@@ -201,7 +201,6 @@ in
               floating = {
                 titlebar = false;
                 border = 2;
-                criteria = [ { app_id = "Waydroid"; } ];
               };
               colors =
                 with pkgs.lib.nix-rice.color;
