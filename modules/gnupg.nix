@@ -40,7 +40,7 @@ with pkgs.lib.ordenada;
       programs = {
         gpg = {
           enable = true;
-          homedir = "/home/${user.features.userInfo.username}/.local/share/gnupg";
+          homedir = "${user.features.xdg.baseDirs.dataHome}/gnupg";
         };
       };
     });
