@@ -11,7 +11,7 @@ let
       features = mkOption {
         type = types.attrs;
         description = "Attrs of Ordenada features for this user.";
-        default = { };
+        default = cfg;
       };
     };
   };
