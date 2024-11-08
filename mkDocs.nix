@@ -13,7 +13,7 @@ let
   cleanEval = lib.filterAttrsRecursive (n: v: n != "_module") eval;
   ordenadaPath = toString ./.;
   repoDeclaration = subpath: {
-    url = "https://git.migalmoreno.com/ordenada/tree/${subpath}";
+    url = "https://github.com/migalmoreno/ordenada/blob/master/${subpath}";
     name = "<ordenada/${subpath}>";
   };
   optionsDoc = pkgs.nixosOptionsDoc {
@@ -32,7 +32,7 @@ let
       };
   };
 in
-pkgs.runCommand "ordenada-documentation"
+pkgs.runCommand "ordenada-docs"
   {
     buildInputs = [
       pkgs.pandoc
@@ -56,5 +56,5 @@ pkgs.runCommand "ordenada-documentation"
     cat ${./README} $tmpdir/options.org > $out/index.org
     cat ${./README} > $out/readme.org
 
-    pandoc -f org -o $out/index.html $out/index.org
+    pandoc -f markdown+smart -o $out/index.html $out/index.md
   ''
