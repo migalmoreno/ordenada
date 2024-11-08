@@ -10,7 +10,7 @@ with pkgs.lib.ordenada;
 {
   options = {
     ordenada.features.compile = {
-      enable = lib.mkEnableOption "compile feature";
+      enable = lib.mkEnableOption "the compile feature";
     };
   };
   config = {
