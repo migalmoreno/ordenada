@@ -194,4 +194,4 @@ in
 The =example= feature above showcases many common workflows inside features. First, we define a list of options specific to this feature which we'll be able to access from anywhere in our configuration. Then, we add a "system" configuration which is conditional on the feature being enabled. Next, we have a "home" configuration that we call with the special utility =mkHomeConfig=, which allows us to configure home settings for all our Ordenada users. In this example, we're setting a home environment variable which will be set as long as the =acme= feature is enabled, which we check via the =hasFeature= utility. Then, we set an Emacs Lisp configuration via the =mkElispConfig= utility which will add a new Emacs configuration package specific to this feature. Note how we can interpolate values in our Emacs configuration with our user features.
 
 * Configuration Options
-See [[https://migalmoreno.com/projects/ordenada.html]] for the full list of configuration options.
+See [[https://migalmoreno.com/projects/ordenada.html#configuration-options][the project's homepage]] for the full list of configuration options.
