@@ -43,8 +43,8 @@
     rec {
       lib = ordenada;
       overlays.default = overlay;
-      packages = eachSystem (_: rec {
-        docs = pkgs.callPackage ./mkDocs.nix { inherit inputs; };
+      packages = eachSystem (pkgs': rec {
+        docs = pkgs'.callPackage ./mkDocs.nix { inherit pkgs; };
         default = docs;
       });
       nixosModules.ordenada =
