@@ -152,6 +152,28 @@ in
               font = user.features.fontutils.fonts.sans.name;
             };
           };
+        services.swaync = {
+          enable = true;
+          style = with user.features.theme.scheme.withHashtag; ''
+            @define-color noti-bg ${base01};
+            @define-color cc-bg ${base01};
+            @define-color noti-border-color ${base02};
+
+            .control-center {
+              font-family: ${user.features.fontutils.fonts.sans.name};
+              border-radius: 0;
+              padding: 10px;
+            }
+
+            .notification {
+              font-family: ${user.features.fontutils.fonts.sans.name};
+            }
+
+            .notification-content {
+              padding: 10px;
+            }
+          '';
+        };
         programs.swayr = {
           enable = true;
           systemd.enable = true;
