@@ -30,6 +30,7 @@ in
     ./embark.nix
     ./eshell.nix
     ./help.nix
+    ./gnus.nix
     ./keymaps.nix
     ./marginalia.nix
     ./modus-themes.nix
