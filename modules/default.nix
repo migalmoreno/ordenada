@@ -17,6 +17,7 @@
     ./firefox.nix
     ./fontutils.nix
     ./javascript.nix
+    ./mail.nix
     ./markdown.nix
     ./networking.nix
     ./nginx.nix
