@@ -33,6 +33,7 @@ in
     ./gnus.nix
     ./keymaps.nix
     ./marginalia.nix
+    ./message.nix
     ./modus-themes.nix
     ./orderless.nix
     ./org.nix
