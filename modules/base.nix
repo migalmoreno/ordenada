@@ -2,19 +2,22 @@
 let
   inherit (lib) mkOption types;
   cfg = config.ordenada.features;
-  user = types.submodule {
-    options = {
-      name = mkOption {
-        type = types.attrs;
-        description = "The username for this user.";
-      };
-      features = mkOption {
-        type = types.attrs;
-        description = "Attrs of Ordenada features for this user.";
-        default = cfg;
+  userModule =
+    { name, config, ... }:
+    {
+      options = {
+        name = mkOption {
+          type = types.str;
+          description = "The username for this user.";
+          default = name;
+        };
+        features = mkOption {
+          type = types.attrs;
+          description = "Attrs of Ordenada features for this user.";
+          default = cfg;
+        };
       };
     };
-  };
   userInfo = types.submodule {
     options = {
       username = mkOption {
@@ -43,7 +46,7 @@ in
 {
   options = {
     ordenada.users = mkOption {
-      type = types.attrsOf user;
+      type = types.attrsOf (types.submodule userModule);
       description = "Attrs of Ordenada users.";
       default = { };
     };
