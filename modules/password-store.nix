@@ -7,17 +7,25 @@
 
 with pkgs.lib.ordenada;
 
+let
+  inherit (lib) types mkOption mkEnableOption;
+in
 {
   options = {
     ordenada.features.password-store = {
-      enable = lib.mkEnableOption "the password-store feature";
+      enable = mkEnableOption "the password-store feature";
+      package = mkOption {
+        type = types.package;
+        default = pkgs.pass-wayland.withExtensions (exts: [ exts.pass-otp ]);
+        description = "The package to use for password-store.";
+      };
     };
   };
   config = {
     home-manager = mkHomeConfig config "password-store" (user: {
       programs.password-store = {
         enable = true;
-        package = pkgs.pass-wayland.withExtensions (exts: [ exts.pass-otp ]);
+        package = user.features.password-store.package;
         settings = {
           PASSWORD_STORE_DIR = "${user.features.xdg.baseDirs.stateHome}/password-store";
         };
