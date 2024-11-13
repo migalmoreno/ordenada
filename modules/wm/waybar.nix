@@ -159,6 +159,33 @@ let
         max-length = 50;
       };
     };
+    swaync =
+      let
+        swaync = pkgs.swaynotificationcenter;
+      in
+      {
+        name = "custom/swaync";
+        config = {
+          tooltip = false;
+          format = "{icon}";
+          format-icons = {
+            none = "";
+            notification = "";
+            inhibited-none = "";
+            inhibited-notification = "";
+            dnd-none = "";
+            dnd-notification = "";
+            dnd-inhibited-none = "";
+            dnd-inhibited-notification = "";
+          };
+          return-type = "json";
+          exec = "${swaync}/bin/swaync-client -swb";
+          on-click = "${swaync}/bin/swaync-client -t -sw";
+          on-click-right = "${swaync}/bin/swaync-client -d -sw";
+          on-click-middle = "${swaync}/bin/swaync-client -C -sw";
+          escape = true;
+        };
+      };
   };
   waybarModules = with defaultWaybarModules; [
     swayWorkspaces
@@ -168,6 +195,7 @@ let
     pulseaudio
     swayLanguage
     clock
+    swaync
   ];
 in
 {
