@@ -28,7 +28,7 @@ in
       signingKey = mkOption {
         type = types.nullOr types.str;
         description = "The GPG key fingerprint to use to sign commits.";
-        default = null;
+        default = config.ordenada.features.userInfo.gpgPrimaryKey;
       };
       gitLinkRemotes = mkOption {
         type = types.attrs;
