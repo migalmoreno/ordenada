@@ -40,6 +40,11 @@ let
         description = "Home directory of primary Ordenada user.";
         default = "/home/${cfg.userInfo.username}";
       };
+      gpgPrimaryKey = mkOption {
+        type = types.nullOr types.str;
+        description = "The primary GnuPG key for this user.";
+        default = null;
+      };
     };
   };
 in
