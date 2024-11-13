@@ -109,7 +109,7 @@ in
                 "trailhead.firstrun.branches" = "nofirstrun-empty";
                 "browser.shell.checkDefaultBrowser" = false;
               } // extraSettings;
-              search = lib.attrsets.recursiveUpdate {
+              search = lib.recursiveUpdate {
                 force = true;
                 default = "Google";
                 privateDefault = "Google";

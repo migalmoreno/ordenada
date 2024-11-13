@@ -74,7 +74,7 @@ in
           (with-eval-after-load 'git-link
             ${
               toString (
-                lib.attrsets.mapAttrsToList (url: fn: ''
+                lib.mapAttrsToList (url: fn: ''
                   (add-to-list 'git-link-remote-alist '("${url}" ${fn}))
                   (add-to-list 'git-link-commit-remote-alist '("${url}" ${fn}))
                 '') user.features.git.gitLinkRemotes

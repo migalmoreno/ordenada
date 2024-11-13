@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 {
   mkElispConfig =
@@ -28,15 +28,10 @@
         ${if addToInitEl then "(require '${pkg.pname})" else ""} 
       '';
     }
-    // (
-      if earlyInit != false then
-        {
-          init = {
-            enable = true;
-            earlyInit = earlyInit;
-          };
-        }
-      else
-        { }
-    );
+    // (lib.optionalAttrs earlyInit {
+      init = {
+        enable = true;
+        earlyInit = earlyInit;
+      };
+    });
 }
