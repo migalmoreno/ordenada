@@ -196,8 +196,7 @@ in
           '';
           config =
             with user.features.theme.scheme.withHashtag;
-            {
-              terminal = "alacritty";
+            lib.recursiveUpdate {
               defaultWorkspace = "workspace number 1";
               modifier = user.features.sway.modifier;
               input = with user.features.keyboard.layout; {
@@ -272,8 +271,7 @@ in
               };
               gaps.inner = 12;
               bars = [ ];
-            }
-            // cfg.extraConfig;
+            } cfg.extraConfig;
         };
       });
     }
