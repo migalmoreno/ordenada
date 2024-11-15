@@ -1,5 +1,6 @@
 {
   imports = [
+    ./age.nix
     ./android.nix
     ./base.nix
     ./bash.nix
