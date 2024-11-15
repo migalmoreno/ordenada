@@ -7,7 +7,7 @@
       config,
       elispPackages ? [ ],
       summary ? "No description provided",
-      earlyInit ? false,
+      earlyInit ? null,
       addToInitEl ? true,
     }:
     let
@@ -28,7 +28,7 @@
         ${if addToInitEl then "(require '${pkg.pname})" else ""} 
       '';
     }
-    // (lib.optionalAttrs earlyInit {
+    // (lib.optionalAttrs (earlyInit != null) {
       init = {
         enable = true;
         earlyInit = earlyInit;
