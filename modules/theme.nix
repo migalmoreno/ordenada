@@ -67,7 +67,7 @@ in
 {
   options = {
     ordenada.features.theme = {
-      enable = lib.mkEnableOption "the theme feature";
+      enable = mkEnableTrueOption "the theme feature";
       polarity = lib.mkOption {
         type = lib.types.enum [
           "dark"
