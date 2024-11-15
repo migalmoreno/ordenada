@@ -44,9 +44,9 @@ nixpkgs.overlays = [ ordenada.overlays.default ];
 #+end_src
 
 * Usage
-Ordenada's configuration is centered around users and features. Features are blocks of configuration that provide certain functionality, such as setting up your GnuPG keys, or configuring your window manager. These have many available options you can configure to fit your needs.
+Ordenada's configuration is centered around users and features. Features are blocks of configuration that provide certain functionality, such as setting up your email configuration, adding your GnuPG keys, or configuring your window manager. These have many available options you can configure to fit your needs. See the [[https://migalmoreno.com/projects/ordenada.html#configuration-options][full list of features and options]].
 
-In a typical single user setup, you just need to add a "global" attrset of features and add your user to the users attrset in the Ordenada configuration.
+In a typical single user setup, you just need to add a global attrset of features and add your user to the users attrset.
 
 #+begin_src nix
 { config, pkgs, ... }:
@@ -54,13 +54,14 @@ In a typical single user setup, you just need to add a "global" attrset of featu
 {
   ordenada = {
     users = {
-      user1 = { };
+      bob = { };
     };
     features = {
       userInfo = {
-        username = "user1";
+        username = "bob";
       };
       home.enable = true;
+      gnupg.enable = true;
       gtk = {
         enable = true;
         theme = {
@@ -71,21 +72,56 @@ In a typical single user setup, you just need to add a "global" attrset of featu
       emacs = {
         enable = true;
         all-the-icons.enable = true;
+        appearance.enable = true;
         eglot.enable = true;
         modus-themes = {
           enable = true;
           dark = true;
         };
       };
+      irc = {
+        enable = true;
+        accounts = {
+          libera = {
+            network = "irc.libera.chat";
+            nick = "bob";
+          };
+          oftc = {
+            network = "irc.oftc.net";
+            nick = "bob";
+          };
+        };
+      };
+      mail = {
+        enable = true;
+        accounts = {
+          personal = {
+            primary = true;
+            fqda = "bob@example.com";
+            extraConfig = {
+              imap = {
+                host = "mail.example.com";
+                port = 993;
+              };
+              smtp = {
+                host = "mail.example.com";
+                port = 465;
+              };
+            };
+          };
+        };
+      };
       sway.enable = true;
       waybar = {
-        enable = true;
+        enable; = true;
         modules = with config.ordenada.features.waybar.defaultModules; [
           swayWorkspaces
           swayWindow
           pulseaudio
           battery
+          swayLanguage
           clock
+          swaync
         ];
       };
     };
@@ -93,7 +129,7 @@ In a typical single user setup, you just need to add a "global" attrset of featu
 }
 #+end_src
 
-In more complex multi-user installations, you can modify the attrset of user features to match each user's needs. As shown in the example below, you could make user =john= augment the global list of features with ones specific to him. Alternatively, you could also create an attrset of user features from scratch and augment certain features as you go, like in the case of the =alice= user below.
+In more complex multi-user installations, you can modify the attrset of user features to match each user's needs. As shown in the example below, you could make user =bob= augment the global list of features with ones specific to him. Alternatively, you could also create an attrset of user features from scratch and augment certain features as you go, like in the case of the =alice= user below.
 
 #+begin_src nix
 { config, ... }:
@@ -101,7 +137,7 @@ In more complex multi-user installations, you can modify the attrset of user fea
 {
   ordenada = {
     users = {
-      john = {
+      bob = {
         features = config.ordenada.features // {
           emacs.spelling.enable = true;
           firefox.enable = false;
@@ -117,14 +153,16 @@ In more complex multi-user installations, you can modify the attrset of user fea
           bash.enable = true;
           emacs = with emacs; {
             enable = true;
-            inherit smartparens org-roam vertico;
+            dired.enable = true;
+            org-roam.enable = true;
+            inherit modus-themes eglot;
           };
         };
       };
     };
     features = {
       userInfo = {
-        username = "john";
+        username = "bob";
       };
       # < attrset of rest of global features >
     };
@@ -132,9 +170,9 @@ In more complex multi-user installations, you can modify the attrset of user fea
 }
 #+end_src
 
-With the above setup, two users =john= and =alice= will be configured in the system. Note that users inherit all "global" features by default. =john= will end up with an augmented global features setup while =alice= will only have the features =home=, =bash=, the inherited global =gnupg= feature, =emacs=, and the inherited global attrset of =emacs= features (=emacs.smartparens=, =emacs.org-roam=, and =emacs.vertico=)  .
+With the above setup, two users =bob= and =alice= will be configured in the system. =bob= will end up with an augmented global features setup while =alice= will only have the features =home=, =bash=, the inherited global =gnupg= feature,  and =emacs= along with =emacs.dired=, =emacs.org-roam= and the inherited  global =emacs.modus-themes= and =emacs.eglot= features.
 
-By default, settings for each configured global feature will be inherited by each user feature, so beware that if you write a user features attrset from scratch (e.g. =alice='s example above) you won't have to include all the global configuration again for a new user feature (like the  =home=, =bash=, and =emacs= features above). However, if you need the default values of the new user feature, i.e. those that are not explicitly set in the global feature, you'll need to explicitly inherit from the global feature, such as the case with the =gnupg= feature above.
+By default, users inherit all global features with all the configured settings. Thus, if you want to write a user features attrset from scratch (e.g. =alice='s example above) you won't have to include all the global configuration again for a new user feature (e.g.  =home=, =bash=, and =emacs= features above). However, if you want to apply the feature default settings to the user feature (i.e. those that are not explicitly set in the global feature) you'll need to explicitly inherit from the global feature, such as the case with the =gnupg= feature above.
 
 * Extending it
 You can use Ordenada's utilities to extend its available features with your own. For instance, the following shows how to create a feature =example=.
@@ -191,7 +229,7 @@ in
 }
 #+end_src
 
-The =example= feature above showcases many common workflows inside features. First, we define a list of options specific to this feature which we'll be able to access from anywhere in our configuration. Then, we add a "system" configuration which is conditional on the feature being enabled. Next, we have a "home" configuration that we call with the special utility =mkHomeConfig=, which allows us to configure home settings for all our Ordenada users. In this example, we're setting a home environment variable which will be set as long as the =acme= feature is enabled, which we check via the =hasFeature= utility. Then, we set an Emacs Lisp configuration via the =mkElispConfig= utility which will add a new Emacs configuration package specific to this feature. Note how we can interpolate values in our Emacs configuration with our user features.
+The =example= feature above showcases many common workflows inside features. First, we define a list of options specific to this feature which we'll be able to access from anywhere in our configuration. Then, we add a system configuration which is conditional on the feature being enabled. Next, we have a home configuration that we call with the special utility =mkHomeConfig=, which allows us to configure home settings for all our Ordenada users. In this example, we're setting a home environment variable which will be set as long as the =acme= feature is enabled, which we check via the =hasFeature= utility. Finally, we set an Emacs Lisp configuration via the =mkElispConfig= utility which will add a new Emacs configuration package specific to this feature.
 
 * Configuration Options
 See [[https://migalmoreno.com/projects/ordenada.html#configuration-options][the project's homepage]] for the full list of configuration options.
