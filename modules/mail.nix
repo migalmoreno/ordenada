@@ -14,7 +14,7 @@ let
     options = {
       primary = mkEnableOption "this account as the primary mail account";
       flavor = mkOption {
-        description = "A pre-defined mail account flavour.";
+        description = "A pre-defined mail account flavor.";
         type = types.str;
         default = "plain";
       };
