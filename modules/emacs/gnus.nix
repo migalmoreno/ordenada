@@ -47,7 +47,7 @@ in
       };
       messageArchiveGroup = mkOption {
         type = types.nullOr (types.listOf types.str);
-        description = "Group name where to save messages the you've written.";
+        description = "Group name where to save the messages you've written.";
         default = null;
       };
       key = mkOption {
