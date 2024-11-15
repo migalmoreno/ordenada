@@ -11,24 +11,20 @@ let
   inherit (lib) mkEnableOption mkOption types;
 in
 {
-  options.ordenada.features.clojure = {
-    enable = mkEnableOption "the Clojure feature";
-    cider = mkOption {
-      type = types.submodule {
-        options = {
-          popReplOnConnect = mkOption {
-            type = types.either (types.strMatching "display-only") types.bool;
-            description = ''
-              If true, pop a REPL buffer and focus on it, if "display-only" pop it but
-              don't focus on it, and if false create it but don't display it.
-            '';
-            default = "display-only";
-          };
-          replInCurrentWindow = mkEnableOption "showing the REPL in the current window";
-        };
+  options.ordenada.features = {
+    clojure = {
+      enable = mkEnableOption "the Clojure feature";
+    };
+    emacs.cider = {
+      popReplOnConnect = mkOption {
+        type = types.either (types.strMatching "display-only") types.bool;
+        description = ''
+          If true, pop a REPL buffer and focus on it, if "display-only" pop it but
+          don't focus on it, and if false create it but don't display it.
+        '';
+        default = "display-only";
       };
-      description = "The CIDER settings.";
-      default = { };
+      replInCurrentWindow = mkEnableOption "showing the REPL in the current window";
     };
   };
   config = {
@@ -46,7 +42,7 @@ in
       '';
       programs.emacs = mkElispConfig {
         name = "ordenada-clojure";
-        config = with user.features.clojure; ''
+        config = with user.features.emacs.cider; ''
           (defgroup ordenada-clojure nil
             "General Clojure programming utilities."
             :group 'ordenada)
@@ -67,14 +63,14 @@ in
 
           (with-eval-after-load 'cider-repl
             (setopt cider-repl-pop-to-buffer-on-connect ${
-              if cider.popReplOnConnect == "display-only" then
+              if popReplOnConnect == "display-only" then
                 "'display-only"
-              else if cider.popReplOnConnect then
+              else if popReplOnConnect then
                 "t"
               else
                 "nil"
             })
-            (setopt cider-repl-display-in-current-window ${if cider.replInCurrentWindow then "t" else "nil"})
+            (setopt cider-repl-display-in-current-window ${if replInCurrentWindow then "t" else "nil"})
             (setopt cider-repl-display-help-banner nil))
 
           (with-eval-after-load 'ordenada-keymaps
