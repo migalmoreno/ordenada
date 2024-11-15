@@ -13,6 +13,7 @@
     ./gnupg.nix
     ./gtk.nix
     ./home.nix
+    ./irc.nix
     ./keyboard.nix
     ./firefox.nix
     ./fontutils.nix
