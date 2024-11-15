@@ -20,7 +20,6 @@
     ./mail.nix
     ./markdown.nix
     ./networking.nix
-    ./nginx.nix
     ./nix.nix
     ./password-store.nix
     ./pipewire.nix
