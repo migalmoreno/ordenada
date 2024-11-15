@@ -48,6 +48,7 @@ in
       accounts = mkOption {
         type = types.attrsOf accountModule;
         description = "The list of mail accounts.";
+        default = { };
       };
       mbsync = {
         enable = mkOption {

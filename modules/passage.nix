@@ -38,7 +38,7 @@ in
       };
       identitiesFile = mkOption {
         type = types.str;
-        default = "${config.features.xdg.baseDirs.stateHome}/passage/identities";
+        default = "${config.ordenada.features.xdg.baseDirs.stateHome}/passage/identities";
         description = "The identities file to be used by passage.";
       };
     };
