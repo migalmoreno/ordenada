@@ -238,9 +238,9 @@ in
             enable = true;
             systemd.enable = true;
             settings.primary = {
+              inherit height;
               layer = "top";
               position = "top";
-              height = height;
             } // (lib.optionalAttrs (output != [ ]) { inherit output; }) // extraSettings;
             style = with user.features.theme.scheme.withHashtag; ''
               * {
