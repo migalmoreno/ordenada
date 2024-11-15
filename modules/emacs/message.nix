@@ -8,7 +8,7 @@
 with pkgs.lib.ordenada;
 
 let
-  inherit (lib) mkEnableOption mkOption;
+  inherit (lib) mkEnableOption;
 in
 {
   options = {
@@ -102,7 +102,7 @@ in
                 (setq mml-secure-openpgp-signers
                       '("${user.features.userInfo.gpgPrimaryKey}"))
                 (add-hook '${
-                  if hasFeature "emacs.gnus" then "gnus-" else ""
+                  if hasFeature "emacs.gnus" user then "gnus-" else ""
                 }message-setup-hook #'mml-secure-message-sign-pgpmime)
               ''
             else
