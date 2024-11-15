@@ -23,6 +23,7 @@
     ./markdown.nix
     ./networking.nix
     ./nix.nix
+    ./passage.nix
     ./password-store.nix
     ./pipewire.nix
     ./qemu.nix
