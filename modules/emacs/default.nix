@@ -124,6 +124,11 @@ in
               (setopt save-place-file
                       (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                               "/emacs/places"))
+              (setopt recentf-save-file
+                      (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                                  "/emacs/recentf"))
+              (recentf-mode 1)
+              (run-with-idle-timer 30 t #'recentf-save-list)
               (setopt history-length 10000)
               (setopt savehist-file
                       (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
