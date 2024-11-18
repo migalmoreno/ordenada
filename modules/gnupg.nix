@@ -7,22 +7,25 @@
 
 with pkgs.lib.ordenada;
 
+let
+  inherit (lib) mkEnableOption mkOption types;
+in
 {
   options = {
     ordenada.features.gnupg = {
-      enable = lib.mkEnableOption "the GnuPG feature";
-      sshKeys = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
+      enable = mkEnableOption "the GnuPG feature";
+      sshKeys = mkOption {
+        type = types.listOf types.str;
         description = "List of SSH key fingerprints.";
         default = [ ];
       };
-      pinentryPackage = lib.mkOption {
-        type = lib.types.package;
+      pinentryPackage = mkOption {
+        type = types.nullOr types.package;
         description = "The package for pinentry input.";
-        default = pkgs.pinentry-bemenu;
+        default = null;
       };
-      defaultTtl = lib.mkOption {
-        type = lib.types.int;
+      defaultTtl = mkOption {
+        type = types.int;
         description = "The cache TTL for GnuPG operations.";
         default = 86400;
       };
@@ -34,8 +37,7 @@ with pkgs.lib.ordenada;
         enable = true;
         defaultCacheTtl = defaultTtl;
         enableSshSupport = true;
-        pinentryPackage = pinentryPackage;
-        sshKeys = sshKeys;
+        inherit pinentryPackage sshKeys;
       };
       programs = {
         gpg = {
