@@ -1,9 +1,9 @@
 # -*- mode: org; org-html-head-include-default-style: nil; org-html-postamble: nil; org-export-with-author: nil; org-export-with-date: nil; -*-
 #+OPTIONS: toc:nil num:nil
-#+title: Ordenada
+#+title: ordenada
 Ordenada is a configuration framework based on the [[https://nixos.org/][Nix]] package manager that aims to make it easy to build reproducible development environments. It draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] project for [[https://guix.gnu.org/][GNU Guix]].
 
-Ordenada's configuration is centered around users and features. Features are blocks of configuration that provide a given functionality for a user, such as setting up your email, adding your GnuPG keys, or configuring your window manager. Normally, you only need to enable them and all the required settings will automatically be configured for you, although there are many available options you can tweak to fit your needs. See the [[https://migalmoreno.com/projects/ordenada.html#configuration-options][full list of features and options]].
+Ordenada's configuration is centered around users and features. Features are blocks of configuration that provide certain functionality for a user, such as setting up your email, adding your GnuPG keys, or configuring your window manager. Normally, you only need to enable them and all the required settings will automatically be configured for you, although there are many available options you can tweak to fit your needs. See the [[https://migalmoreno.com/projects/ordenada.html#configuration-options][full list of features and options]].
 
 #+begin_quote
 NOTE: Ordenada is in current development and its API is subject to change
@@ -113,7 +113,7 @@ In a typical single user setup, you just need to add a global set of =features= 
       };
       sway.enable = true;
       waybar = {
-        enable; = true;
+        enable = true;
         modules = with config.ordenada.features.waybar.defaultModules; [
           swayWorkspaces
           swayWindow
@@ -129,7 +129,7 @@ In a typical single user setup, you just need to add a global set of =features= 
 }
 #+end_src
 
-In more complex multi-user installations, you can modify the set of user features to match each user's needs. As shown in the example below, you could make user =bob= augment the global features with ones specific to him. Alternatively, you could also create an set of user features from scratch and augment certain features as you go, like in the case of the =alice= user below.
+In more complex multi-user installations, you can modify the set of user features to match each user's needs. As shown in the example below, you could make user =bob= augment the global features with ones specific to him. Alternatively, you could also create a set of user features from scratch and augment certain features as you go, like in the case of the =alice= user below.
 
 #+begin_src nix
 { config, ... }:
