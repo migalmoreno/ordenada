@@ -1,4 +1,11 @@
-{ lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+
+with pkgs.lib.ordenada;
 
 let
   inherit (lib) types mkOption;
@@ -6,6 +13,7 @@ in
 {
   options = {
     ordenada.features.keyboard = {
+      enable = mkEnableTrueOption "the keyboard feature";
       layout = mkOption {
         description = "The keyboard layout.";
         type = types.submodule {
@@ -13,7 +21,7 @@ in
             name = mkOption {
               type = types.str;
               description = "The XKB name of the keyboard layout.";
-              default = "en";
+              default = "us";
             };
             variant = mkOption {
               type = types.str;
@@ -33,5 +41,13 @@ in
         };
       };
     };
+  };
+  config = {
+    home-manager = mkHomeConfig config "keyboard" (user: {
+      home.keyboard = with user.features.keyboard; {
+        inherit options variant;
+        layout = name;
+      };
+    });
   };
 }
