@@ -46,7 +46,14 @@ in
         description = "The GTK theme.";
         default = cfg.gtk.defaultThemes.${cfg.theme.polarity};
       };
-      cursorTheme = lib.mkOption {
+      iconTheme = mkOption {
+        type = themeModule;
+        description = "The icon theme.";
+        default = {
+          name = "Adwaita";
+          package = pkgs.adwaita-icon-theme;
+        };
+      };
       cursorTheme = mkOption {
         type = themeModule;
         description = "The cursor theme.";
@@ -67,7 +74,6 @@ in
       user: with user.features.gtk; {
         home.packages = with pkgs; [
           dconf
-          adwaita-icon-theme
           gnome-tweaks
         ];
         home.pointerCursor = lib.mkDefault {
