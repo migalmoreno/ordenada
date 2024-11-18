@@ -299,22 +299,10 @@ in
             (with-eval-after-load 'erc-status-sidebar
               (advice-add 'erc-status-sidebar-default-chan-format
                           :around #'ordenada-erc-status-add-padding)
-              (setq erc-status-sidebar-mode-line-format ${
-                if sidebarModeLineFormat == null then
-                  "nil"
-                else
-                  ''
-                    "${sidebarModeLineFormat}"
-                  ''
-              })
-              (setq erc-status-sidebar-header-line-format ${
-                if sidebarHeaderLineFormat == null then
-                  "nil"
-                else
-                  ''
-                    "${sidebarHeaderLineFormat}"
-                  ''
-              })
+              (setq erc-status-sidebar-mode-line-format
+              ${mkNilOr sidebarModeLineFormat ''"${sidebarModeLineFormat}"''})
+              (setq erc-status-sidebar-header-line-format
+              ${mkNilOr sidebarHeaderLineFormat ''"${sidebarHeaderLineFormat}"''})
               (setopt erc-status-sidebar-width ${toString sidebarWidth}))
 
             (with-eval-after-load 'erc
@@ -326,38 +314,28 @@ in
                 (keymap-set map "C-c C-s" #'ordenada-erc-status-sidebar-toggle))
               (setopt erc-default-server "${defaultServer}")
               (setopt erc-default-port ${toString defaultPort})
-              ${if nick != null then ''(setopt erc-nick "${nick}")'' else ""}
+              ${mkIf (nick != null) ''(setopt erc-nick "${nick}")''}
               ${
-                if fullName != null then
-                  ''
-                    (setopt erc-user-full-name "${fullName}")
-                  ''
-                else
-                  ""
+                mkIf (fullName != null) ''
+                  (setopt erc-user-full-name "${fullName}")
+                ''
               }
-              (setopt erc-hide-list '(${toString (map (x: ''"${x}"'') hideList)}))
+              (setopt erc-hide-list ${mkList hideList})
               (setopt erc-hide-prompt t)
               (setopt erc-hide-timestamps t)
               (setopt erc-echo-timestamps nil)
-              ${
-                if killBuffersOnQuit then
-                  ''
-                    (setopt erc-kill-buffer-on-part t)
-                    (setopt erc-kill-server-buffer-on-quit t)
-                    (setopt erc-kill-queries-on-quit t)
-                  ''
-                else
-                  ""
-              }
+              ${mkIf killBuffersOnQuit ''
+                (setopt erc-kill-buffer-on-part t)
+                (setopt erc-kill-server-buffer-on-quit t)
+                (setopt erc-kill-queries-on-quit t)
+              ''}
               (setopt erc-rename-buffers t)
-              (setopt erc-header-line-format ${
-                if headerLineFormat == null then "nil" else ''"${headerLineFormat}"''
-              })
-              (setopt erc-auto-query ${if autoQuery == null then "nil" else "'${autoQuery}"})
-              (setopt erc-query-display ${if queryDisplay == null then "nil" else "'${queryDisplay}"})
-              (setopt erc-join-buffer ${if joinBuffer == null then "nil" else "'${joinBuffer}"})
+              (setopt erc-header-line-format ${mkNilOr headerLineFormat ''"${headerLineFormat}"''})
+              (setopt erc-auto-query ${mkNilOr autoQuery "'${autoQuery}"})
+              (setopt erc-query-display ${mkNilOr queryDisplay "'${queryDisplay}"})
+              (setopt erc-join-buffer ${mkNilOr joinBuffer "'${joinBuffer}"})
               (setopt erc-timestamp-format "%H:%M")
-              (setopt erc-prompt-for-password ${if promptForPassword then "t" else "nil"})
+              (setopt erc-prompt-for-password ${mkBoolean promptForPassword})
 
               (add-to-list 'erc-modules 'keep-place)
               (add-to-list 'erc-modules 'notifications)
@@ -365,8 +343,6 @@ in
                 (setopt erc-track-exclude-server-buffer t)
                 (setopt erc-track-enable-keybindings t)
                 (setopt erc-track-shorten-start 8)
-                (setopt erc-track-exclude-types '(${toString (map (x: ''"${x}"'') trackExcludeTypes)})))
-
               (with-eval-after-load 'erc-join
                 (setopt erc-autojoin-timing 'connect)
                 (setopt erc-autojoin-delay 5)
@@ -378,6 +354,7 @@ in
                   )
                 })))
 
+                (setopt erc-track-exclude-types ${mkList trackExcludeTypes}))
               (with-eval-after-load 'erc-backends
                 (setopt erc-server-reconnect-timeout 3)
                 (setopt erc-server-reconnect-attempts t))
@@ -385,48 +362,28 @@ in
               (add-to-list 'erc-modules 'services)
               (with-eval-after-load 'erc-services
                 (setopt erc-prompt-for-nickserv-password nil))
-              ${
-                if hasFeature "emacs.spelling" user then
-                  ''
-                    (add-to-list 'erc-modules 'spelling)
-                  ''
-                else
-                  ""
-              }
-              ${
-                if log then
-                  ''
-                    (add-to-list 'erc-modules 'log)
-                    (with-eval-after-load 'erc-log
-                      (setopt erc-log-insert-log-on-open t)
-                      (setopt erc-log-channels-directory
-                              (expand-file-name "emacs/erc-logs"
-                                                (xdg-cache-home))))
-                  ''
-                else
-                  ""
-              }
-              ${
-                if alignNicknames then
-                  ''
-                    (with-eval-after-load 'erc-fill
-                      (setopt erc-fill-function 'erc-fill-static)
-                      (setopt erc-fill-static-center 14)
-                      (setopt erc-fill-column 82))
-                  ''
-                else
-                  ""
-              }
-              ${
-                if showImages then
-                  ''
-                    (add-to-list 'erc-modules 'image)
-                    (with-eval-after-load 'erc-image
-                      (setopt erc-image-inline-rescale 100))
-                  ''
-                else
-                  ""
-              })
+              ${mkIf (hasFeature "emacs.spelling" user) ''
+                (add-to-list 'erc-modules 'spelling)
+              ''}
+              ${mkIf log ''
+                (add-to-list 'erc-modules 'log)
+                (with-eval-after-load 'erc-log
+                  (setopt erc-log-insert-log-on-open t)
+                  (setopt erc-log-channels-directory
+                          (expand-file-name "emacs/erc-logs"
+                                            (xdg-cache-home))))
+              ''}
+              ${mkIf alignNicknames ''
+                (with-eval-after-load 'erc-fill
+                  (setopt erc-fill-function 'erc-fill-static)
+                  (setopt erc-fill-static-center ${toString alignNicknamesColumn})
+                  (setopt erc-fill-column 82))
+              ''}
+              ${mkIf showImages ''
+                (add-to-list 'erc-modules 'image)
+                (with-eval-after-load 'erc-image
+                  (setopt erc-image-inline-rescale 100))
+              ''})
           '';
           elispPackages = with pkgs.emacsPackages; [ erc-hl-nicks ] ++ lib.optional showImages erc-image;
         };

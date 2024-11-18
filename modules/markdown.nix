@@ -20,15 +20,10 @@ with pkgs.lib.ordenada;
         name = "ordenada-markdown";
         config = ''
           (with-eval-after-load 'markdown-mode
-            ${
-              if user.features.markdown.headingsScaling then
-                ''
-                  (setopt markdown-header-scaling t)
-                  (setopt markdown-header-scaling-values '(1.2 1.1 1.1 1.0 1.0 0.9))
-                ''
-              else
-                ""
-            }
+            ${mkIf user.features.markdown.headingsScaling ''
+              (setopt markdown-header-scaling t)
+              (setopt markdown-header-scaling-values '(1.2 1.1 1.1 1.0 1.0 0.9))
+            ''}
             (setopt markdown-hide-urls t)
             (setopt markdown-hide-markup t)
             (setopt markdown-command "${pkgs.pandoc}/bin/pandoc")

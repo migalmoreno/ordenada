@@ -43,7 +43,7 @@ with pkgs.lib.ordenada;
             (require 'ebdb-message)
             (require 'ebdb-ispell)
             (require 'ebdb-gnus)
-            (setq ebdb-sources '(${toString (map (x: ''"${x}"'') user.features.emacs.ebdb.sources)}))
+            (setq ebdb-sources ${mkList user.features.emacs.ebdb.sources})
             (setq ebdb-default-country nil)
             (setq ebdb-default-window-size 0.4)
             (setq ebdb-dedicated-window 'ebdb)

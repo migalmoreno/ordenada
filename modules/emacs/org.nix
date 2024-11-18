@@ -56,7 +56,7 @@ in
               (keymap-set org-mode-map "M-n" #'org-metaright)
               (keymap-set org-mode-map "M-p" #'org-metaleft)
               (setopt org-startup-folded 'content)
-              (setopt org-startup-indented ${if startupIndented then "t" else "nil"})
+              (setopt org-startup-indented ${mkBoolean startupIndented})
               (setopt org-startup-with-inline-images t)
               (setopt org-extend-today-until 0)
               (setopt org-use-fast-todo-selection 'expert)
@@ -138,25 +138,20 @@ in
               (setopt org-export-preserve-breaks t))
 
             (add-hook 'org-mode-hook #'org-appear-mode)
-            ${
-              if orgModern then
-                ''
-                  (autoload 'global-org-modern-mode "org-modern")
-                  (if after-init-time
-                      (global-org-modern-mode)
-                      (add-hook 'after-init-hook #'global-org-modern-mode))
-                  (with-eval-after-load 'org-modern
-                    (setopt org-modern-todo nil)
-                    (setopt org-modern-timestamp nil)
-                    (setopt org-modern-statistics nil)
-                    (setopt org-modern-tag nil)
-                    (setopt org-modern-priority nil)
-                    (setopt org-modern-hide-stars nil)
-                    (setopt org-hide-leading-stars t))
-                ''
-              else
-                ""
-            }
+            ${mkIf orgModern ''
+              (autoload 'global-org-modern-mode "org-modern")
+              (if after-init-time
+                  (global-org-modern-mode)
+                  (add-hook 'after-init-hook #'global-org-modern-mode))
+              (with-eval-after-load 'org-modern
+                (setopt org-modern-todo nil)
+                (setopt org-modern-timestamp nil)
+                (setopt org-modern-statistics nil)
+                (setopt org-modern-tag nil)
+                (setopt org-modern-priority nil)
+                (setopt org-modern-hide-stars nil)
+                (setopt org-hide-leading-stars t))
+            ''}
             (add-hook 'org-mode-hook #'olivetti-mode)
             (add-hook 'org-mode-hook #'prettify-symbols-mode)
             (add-hook 'org-mode-hook #'variable-pitch-mode)

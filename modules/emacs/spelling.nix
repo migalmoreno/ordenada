@@ -69,20 +69,14 @@ in
           (with-eval-after-load 'ispell
             (setopt ispell-program-name "${ispellProgram}")
             ${
-              if ispellStandardDictionary != "" then
-                ''
-                  (setopt ispell-dictionary "${ispellStandardDictionary}")
-                ''
-              else
-                ""
+              mkIf (ispellStandardDictionary != "") ''
+                (setopt ispell-dictionary "${ispellStandardDictionary}")
+              ''
             }
             ${
-              if ispellPersonalDictionary != "" then
-                ''
-                  (setopt ispell-personal-dictionary "${ispellPersonalDictionary}")
-                ''
-              else
-                ""
+              mkIf (ispellPersonalDictionary != "") ''
+                (setopt ispell-personal-dictionary "${ispellPersonalDictionary}")
+              ''
             })
           (with-eval-after-load 'flyspell
             (setopt flyspell-issue-welcome-flag nil)

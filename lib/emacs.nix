@@ -1,6 +1,20 @@
 { lib, pkgs, ... }:
 
 {
+  mkIf = p: v: if p then v else "";
+  mkNilOr = v: v': if v == null then "nil" else v';
+  mkAlist = v: ''
+        '(${
+          toString (
+            lib.mapAttrsToList (key: val: ''
+              ("${key}" "${val}")
+            '') v
+          )
+        }
+    )
+  '';
+  mkList = v: '''(${toString (map (x: ''"${x}"'') v)})'';
+  mkBoolean = v: if v then "t" else "nil";
   mkElispConfig =
     {
       name,

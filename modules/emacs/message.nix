@@ -44,33 +44,27 @@ in
                                               control-code)))
                 (user-error "%s is not specified in
           `ordenada-notmuch-patch-control-codes'" control-code)))
-
-          ${
-            if hasFeature "emacs.gnus" user then
-              ''
-                (defun rde-message-add-gcc-header ()
-                  "Prompt for a Gcc header from `rde-gnus-topic-alist'.
-                This will allow a message to be stored in the right directory
-                of the IMAP server (usually \"Sent\").
-                If this header is missing, the outgoing message will go through,
-                but it won't appear on the right Maildir directory."
-                   (if (gnus-alive-p)
-                       (unless (message-fetch-field "Gcc")
-                         (message-add-header
-                          (format "Gcc: %s"
-                                  (let ((groups
-                                         (cl-remove-if-not
-                                          (lambda (group)
-                                            (string-match (rx "Sent" eol) group))
-                                          (rde-gnus--get-topic-groups))))
-                                    (if (> 1 (length groups))
-                                        (completing-read "Account: " groups)
-                                      (car groups))))))
-                     (error "Gnus is not running.  No GCC header will be inserted")))
-              ''
-            else
-              ""
-          }
+          ${mkIf (hasFeature "emacs.gnus" user) ''
+            (defun rde-message-add-gcc-header ()
+              "Prompt for a Gcc header from `rde-gnus-topic-alist'.
+            This will allow a message to be stored in the right directory
+            of the IMAP server (usually \"Sent\").
+            If this header is missing, the outgoing message will go through,
+            but it won't appear on the right Maildir directory."
+               (if (gnus-alive-p)
+                   (unless (message-fetch-field "Gcc")
+                     (message-add-header
+                      (format "Gcc: %s"
+                              (let ((groups
+                                     (cl-remove-if-not
+                                      (lambda (group)
+                                        (string-match (rx "Sent" eol) group))
+                                      (rde-gnus--get-topic-groups))))
+                                (if (> 1 (length groups))
+                                    (completing-read "Account: " groups)
+                                  (car groups))))))
+                 (error "Gnus is not running.  No GCC header will be inserted")))
+          ''}
           (with-eval-after-load 'message
             (setopt message-hidden-headers '())
             (setopt message-kill-buffer-on-exit t)
@@ -82,31 +76,22 @@ in
             (setopt message-auto-save-directory
                     (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                             "/emacs/mail-drafts"))
+          ${mkIf (hasFeature "mail.msmtp" user) ''
+            (setopt sendmail-program
+                    "${user.features.mail.msmtp.package}/bin/msmtp")
+            (setopt message-send-mail-function
+                    #'message-send-mail-with-sendmail)
+            (setopt message-sendmail-f-is-evil t)
+            (setopt message-sendmail-extra-arguments
+                    '("--read-envelope-from"))
+          ''}
           ${
-            if hasFeature "mail.msmtp" user then
-              ''
-                (setopt sendmail-program
-                        "${user.features.mail.msmtp.package}/bin/msmtp")
-                (setopt message-send-mail-function
-                        #'message-send-mail-with-sendmail)
-                (setopt message-sendmail-f-is-evil t)
-                (setopt message-sendmail-extra-arguments
-                        '("--read-envelope-from"))
-              ''
-            else
-              ""
-          }
-          ${
-            if user.features.userInfo.gpgPrimaryKey != null then
-              ''
-                (setq mml-secure-openpgp-signers
-                      '("${user.features.userInfo.gpgPrimaryKey}"))
-                (add-hook '${
-                  if hasFeature "emacs.gnus" user then "gnus-" else ""
-                }message-setup-hook #'mml-secure-message-sign-pgpmime)
-              ''
-            else
-              ""
+            mkIf (user.features.userInfo.gpgPrimaryKey != null) ''
+              (setq mml-secure-openpgp-signers
+                    '("${user.features.userInfo.gpgPrimaryKey}"))
+              (add-hook '${mkIf (hasFeature "emacs.gnus" user) "gnus-"}message-setup-hook
+                        #'mml-secure-message-sign-pgpmime)
+            ''
           })
         '';
       };

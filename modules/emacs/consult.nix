@@ -24,47 +24,42 @@ with pkgs.lib.ordenada;
           (defcustom ordenada-consult nil
             "Tweaks to Consult configuration."
             :group 'ordenada)
-          ${
-            if initialNarrowing then
-              ''
-                (defcustom ordenada-completion-initial-narrow-alist '()
-                  "Alist of MODE . KEY to present an initial completion narrowing via
-                              `consult'."
-                  :group 'ordenada-consult
-                  :type 'list)
+          ${mkIf initialNarrowing ''
+            (defcustom ordenada-completion-initial-narrow-alist '()
+              "Alist of MODE . KEY to present an initial completion narrowing via
+                          `consult'."
+              :group 'ordenada-consult
+              :type 'list)
 
-                (defun ordenada-completion--mode-buffers (&rest modes)
-                  "Return a list of buffers that are derived from MODES in `buffer-list'."
-                  (cl-remove-if-not
-                   (lambda (buffer)
-                     (with-current-buffer buffer
-                       (cl-some 'derived-mode-p modes)))
-                   (buffer-list)))
+            (defun ordenada-completion--mode-buffers (&rest modes)
+              "Return a list of buffers that are derived from MODES in `buffer-list'."
+              (cl-remove-if-not
+               (lambda (buffer)
+                 (with-current-buffer buffer
+                   (cl-some 'derived-mode-p modes)))
+               (buffer-list)))
 
-                (defun ordenada-completion-initial-narrow ()
-                  "Set initial narrow source for buffers under a specific mode."
-                  (let* ((buffer-mode-assoc ordenada-completion-initial-narrow-alist)
-                         (key (and (eq this-command 'consult-buffer)
-                                   (or (alist-get
-                                        (buffer-local-value
-                                         'major-mode
-                                         (window-buffer (minibuffer-selected-window)))
-                                        buffer-mode-assoc)
-                                       (cdr (cl-find-if
-                                             (lambda (mode)
-                                               (with-current-buffer
-                                                   (window-buffer (minibuffer-selected-window))
-                                                 (derived-mode-p (car mode))))
-                                             buffer-mode-assoc))))))
-                    (when key
-                      (setq unread-command-events
-                            (append unread-command-events (list key 32))))))
+            (defun ordenada-completion-initial-narrow ()
+              "Set initial narrow source for buffers under a specific mode."
+              (let* ((buffer-mode-assoc ordenada-completion-initial-narrow-alist)
+                     (key (and (eq this-command 'consult-buffer)
+                               (or (alist-get
+                                    (buffer-local-value
+                                     'major-mode
+                                     (window-buffer (minibuffer-selected-window)))
+                                    buffer-mode-assoc)
+                                   (cdr (cl-find-if
+                                         (lambda (mode)
+                                           (with-current-buffer
+                                               (window-buffer (minibuffer-selected-window))
+                                             (derived-mode-p (car mode))))
+                                         buffer-mode-assoc))))))
+                (when key
+                  (setq unread-command-events
+                        (append unread-command-events (list key 32))))))
 
-                (add-hook 'minibuffer-setup-hook #'ordenada-completion-initial-narrow)
-              ''
-            else
-              ""
-          }
+            (add-hook 'minibuffer-setup-hook #'ordenada-completion-initial-narrow)
+          ''}
           (defun ordenada-goto-line-relative ()
             "Just a wrapper around `consult-goto-line', which uses
           relative line numbers, when narrowing is active."

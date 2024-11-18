@@ -76,12 +76,10 @@ in
             (setopt org-roam-node-annotation-function
                     (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
             ${
-              if captureTemplates == [ ] then
-                ""
-              else
-                ''(setopt org-roam-capture-templates '(${toString captureTemplates}))''
+              mkIf (
+                captureTemplates != [ ]
+              ) ''(setopt org-roam-capture-templates '(${toString captureTemplates}))''
             })
-
           (defun ordenada-org-roam-open-ref ()
             "Prompt you for a list of all ROAM_REFS in the current buffer."
             (interactive)
@@ -129,88 +127,81 @@ in
           (with-eval-after-load 'org-roam-dailies
             (setopt org-roam-dailies-directory "${dailiesDirectory}")
             ${
-              if dailiesCaptureTemplates == [ ] then
-                ""
-              else
-                ''(setopt org-roam-dailies-capture-templates '(${toString dailiesCaptureTemplates}))''
+              mkIf (
+                dailiesCaptureTemplates != [ ]
+              ) ''(setopt org-roam-dailies-capture-templates '(${toString dailiesCaptureTemplates}))''
             })
+          ${mkIf todoIntegration ''
+            (defun ordenada-org-roam-get-filetags ()
+              "Return the top-level tags for the current org-roam node."
+              (split-string
+               (or (cadr (assoc "FILETAGS"
+                                (org-collect-keywords '("filetags"))))
+                   "")
+               ":" 'omit-nulls))
 
-          ${
-            if todoIntegration then
-              ''
-                (defun ordenada-org-roam-get-filetags ()
-                  "Return the top-level tags for the current org-roam node."
-                  (split-string
-                   (or (cadr (assoc "FILETAGS"
-                                    (org-collect-keywords '("filetags"))))
-                       "")
-                   ":" 'omit-nulls))
+            (defun ordenada-org-roam-todo-p ()
+              "Return non-nil if the current buffer has any to-do entry."
+              (org-element-map
+                  (org-element-parse-buffer 'headline)
+                  'headline
+                (lambda (h)
+                  (eq (org-element-property :todo-type h) 'todo))
+                nil 'first-match))
 
-                (defun ordenada-org-roam-todo-p ()
-                  "Return non-nil if the current buffer has any to-do entry."
-                  (org-element-map
-                      (org-element-parse-buffer 'headline)
-                      'headline
-                    (lambda (h)
-                      (eq (org-element-property :todo-type h) 'todo))
-                    nil 'first-match))
+            (defun ordenada-org-roam-update-todo-tag ()
+              "Update the \"todo\" tag in the current buffer."
+              (when (and (not (active-minibuffer-window))
+                         (org-roam-file-p))
+                (org-with-point-at 1
+                  (let* ((tags (ordenada-org-roam-get-filetags))
+                         (is-todo (ordenada-org-roam-todo-p)))
+                    (cond ((and is-todo (not (member "todo" tags)))
+                           (org-roam-tag-add '("todo")))
+                          ((and (not is-todo) (member "todo" tags))
+                           (org-roam-tag-remove '("todo"))))))))
 
-                (defun ordenada-org-roam-update-todo-tag ()
-                  "Update the \"todo\" tag in the current buffer."
-                  (when (and (not (active-minibuffer-window))
-                             (org-roam-file-p))
-                    (org-with-point-at 1
-                      (let* ((tags (ordenada-org-roam-get-filetags))
-                             (is-todo (ordenada-org-roam-todo-p)))
-                        (cond ((and is-todo (not (member "todo" tags)))
-                               (org-roam-tag-add '("todo")))
-                              ((and (not is-todo) (member "todo" tags))
-                               (org-roam-tag-remove '("todo"))))))))
+            (defun ordenada-org-roam-list-todo-files ()
+              "Return a list of org-roam files containing the \"todo\" tag."
+              (org-roam-db-sync)
+              (let ((todo-nodes (cl-remove-if-not
+                                 (lambda (n)
+                                   (member "todo" (org-roam-node-tags n)))
+                                 (org-roam-node-list))))
+                (delete-dups (mapcar 'org-roam-node-file todo-nodes))))
 
-                (defun ordenada-org-roam-list-todo-files ()
-                  "Return a list of org-roam files containing the \"todo\" tag."
-                  (org-roam-db-sync)
-                  (let ((todo-nodes (cl-remove-if-not
-                                     (lambda (n)
-                                       (member "todo" (org-roam-node-tags n)))
-                                     (org-roam-node-list))))
-                    (delete-dups (mapcar 'org-roam-node-file todo-nodes))))
+            (defun ordenada-org-roam-update-todo-files (&rest _)
+              "Update the value of `org-agenda-files'."
+              (setq org-agenda-files (ordenada-org-roam-list-todo-files)))
 
-                (defun ordenada-org-roam-update-todo-files (&rest _)
-                  "Update the value of `org-agenda-files'."
-                  (setq org-agenda-files (ordenada-org-roam-list-todo-files)))
+            (defun ordenada-org-roam-ref-add (ref node)
+              "Add REF to NODE.
+            If NODE doesn't exist, create a new org-roam node with REF."
+              (interactive
+               (list
+                (read-string "Ref: ")
+                (org-roam-node-read)))
+              (if-let ((file (org-roam-node-file node)))
+                  (with-current-buffer (or (find-buffer-visiting file)
+                                           (find-file-noselect file))
+                    (org-roam-property-add "ROAM_REFS" ref)
+                    (save-buffer)
+                    (kill-current-buffer))
+                (org-roam-capture-
+                 :keys "r"
+                 :node node
+                 :info `(:ref ,ref)
+                 :templates org-roam-capture-templates
+                 :props '(:finalize find-file))))
 
-                (defun ordenada-org-roam-ref-add (ref node)
-                  "Add REF to NODE.
-                If NODE doesn't exist, create a new org-roam node with REF."
-                  (interactive
-                   (list
-                    (read-string "Ref: ")
-                    (org-roam-node-read)))
-                  (if-let ((file (org-roam-node-file node)))
-                      (with-current-buffer (or (find-buffer-visiting file)
-                                               (find-file-noselect file))
-                        (org-roam-property-add "ROAM_REFS" ref)
-                        (save-buffer)
-                        (kill-current-buffer))
-                    (org-roam-capture-
-                     :keys "r"
-                     :node node
-                     :info `(:ref ,ref)
-                     :templates org-roam-capture-templates
-                     :props '(:finalize find-file))))
+            (with-eval-after-load 'org-roam
+              (add-hook 'org-roam-find-file-hook #'ordenada-org-roam-update-todo-tag)
+              (add-hook 'before-save-hook #'ordenada-org-roam-update-todo-tag))
+            (advice-add 'org-agenda :before #'ordenada-org-roam-update-todo-files)
 
-                (with-eval-after-load 'org-roam
-                  (add-hook 'org-roam-find-file-hook #'ordenada-org-roam-update-todo-tag)
-                  (add-hook 'before-save-hook #'ordenada-org-roam-update-todo-tag))
-                (advice-add 'org-agenda :before #'ordenada-org-roam-update-todo-files)
-
-                (with-eval-after-load 'org
-                  (add-to-list 'org-tags-exclude-from-inheritance "todo"))
-              ''
-            else
-              ""
-          }
+            (with-eval-after-load 'org
+              (add-to-list 'org-tags-exclude-from-inheritance "todo"))
+          ''}
         '';
         elispPackages = with pkgs.emacsPackages; [ org-roam ];
       };

@@ -70,7 +70,7 @@ in
               else
                 "nil"
             })
-            (setopt cider-repl-display-in-current-window ${if replInCurrentWindow then "t" else "nil"})
+            (setopt cider-repl-display-in-current-window ${mkBoolean replInCurrentWindow})
             (setopt cider-repl-display-help-banner nil))
 
           (with-eval-after-load 'ordenada-keymaps

@@ -40,8 +40,8 @@ in
           (require 'age)
           (age-file-enable)
           (setopt age-program "${lib.getExe package}")
-          (setopt age-default-identity '(${toString (map (x: ''"${x}"'') identities)}))
-          (setopt age-default-recipient '(${toString (map (x: ''"${x}"'') recipients)}))
+          (setopt age-default-identity ${mkList identities})
+          (setopt age-default-recipient ${mkList recipients})
         '';
         elispPackages = with pkgs.emacsPackages; [ age ];
       };

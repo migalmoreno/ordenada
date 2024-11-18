@@ -136,25 +136,15 @@ in
             (with-eval-after-load 'ordenada-keymaps
               (keymap-set ordenada-app-map "${key}" 'gnus))
             (setopt mail-user-agent 'gnus-user-agent)
-            ${
-              if hasFeature "emacs.dired" user then
-                ''
-                  (add-hook 'dired-mode-hook #'turn-on-gnus-dired-mode)
-                ''
-              else
-                ""
-            }
+            ${mkIf (hasFeature "emacs.dired" user) ''
+              (add-hook 'dired-mode-hook #'turn-on-gnus-dired-mode)
+            ''}
             (with-eval-after-load 'gnus
               (setopt gnus-use-full-window nil)
               (setopt gnus-use-cache t)
-              ${
-                if user.features.emacs.advancedUser then
-                  ''
-                    (setq gnus-novice-user nil)
-                  ''
-                else
-                  ""
-              }
+              ${mkIf user.features.emacs.advancedUser ''
+                (setq gnus-novice-user nil)
+              ''}
               (setopt gnus-interactive-exit nil)
               (setopt gnus-thread-sort-functions
                       '(gnus-thread-sort-by-most-recent-date
@@ -183,22 +173,16 @@ in
               (setopt gnus-article-save-directory "${directory}/news")
               (setopt gnus-large-newsgroup 100)
               ${
-                if messageArchiveMethod != null then
-                  ''
-                    (setopt gnus-message-archive-method
-                            '(${toString messageArchiveMethod}))
-                  ''
-                else
-                  ""
+                mkIf (messageArchiveMethod != null) ''
+                  (setopt gnus-message-archive-method
+                          '(${toString messageArchiveMethod}))
+                ''
               }
               ${
-                if messageArchiveGroup != null then
-                  ''
-                    (setopt gnus-message-archive-group
-                            '(${toString messageArchiveGroup}))
-                  ''
-                else
-                  ""
+                mkIf (messageArchiveGroup != null) ''
+                  (setopt gnus-message-archive-group
+                          '(${toString messageArchiveGroup}))
+                ''
               }
               (setopt gnus-update-message-archive-method t)
               (setopt gnus-posting-styles '(${
@@ -222,18 +206,15 @@ in
               } ${toString postingStyles}))
               (setopt gnus-select-method '(nnnil))
               (setopt gnus-secondary-select-methods '(${
-                if hasFeature "mail.mbsync" user then
-                  toString (
-                    lib.mapAttrsToList (
-                      name: acc: with accounts.email; ''
-                        (nnmaildir "${name}"
-                         (directory
-                          "${maildirBasePath}/${accounts.${name}.maildir.path}"))
-                      ''
-                    ) user.features.mail.accounts
-                  )
-                else
-                  ""
+                mkIf (hasFeature "mail.mbsync" user) toString (
+                  lib.mapAttrsToList (
+                    name: acc: with accounts.email; ''
+                      (nnmaildir "${name}"
+                       (directory
+                        "${maildirBasePath}/${accounts.${name}.maildir.path}"))
+                    ''
+                  ) user.features.mail.accounts
+                )
               }
               (nntp "gwene" (nntp-address "news.gwene.org"))
               (nnfolder "archive"

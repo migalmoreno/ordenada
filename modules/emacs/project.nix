@@ -50,16 +50,16 @@ with pkgs.lib.ordenada;
             "Determine the PROJECT root."
             (cdr project))
 
-          (setopt ordenada-project-dominating-files '(${
-            toString (map (x: ''"${x}"'') user.features.emacs.project.extraDominatingFiles)
-          }))
+          (setopt ordenada-project-dominating-files
+                  ${mkList user.features.emacs.project.extraDominatingFiles})
           (add-hook 'project-find-functions #'ordenada-project-custom-root)
           (add-hook 'project-find-functions #'project-try-vc)
           (with-eval-after-load 'project
             (keymap-set project-prefix-map "F" #'consult-find)
             (keymap-set project-prefix-map "R" #'consult-ripgrep)
             (setopt project-switch-use-entire-map t)
-            (setopt project-list-file (expand-file-name "emacs/projects" (xdg-cache-home))))
+            (setopt project-list-file
+                   (expand-file-name "emacs/projects" (xdg-cache-home))))
         '';
       };
     });

@@ -23,7 +23,7 @@ with pkgs.lib.ordenada;
             (keymap-set ordenada-app-map "D" #'daemons))
           (add-hook 'daemons-mode-hook #'eldoc-mode)
           (with-eval-after-load 'daemons
-            (setopt daemons-list-fill-frame ${if user.features.emacs.daemons.fillFrame then "t" else "nil"})
+            (setopt daemons-list-fill-frame ${mkBoolean daemons.fillFrame})
             (setopt daemons-systemd-is-user t))
         '';
         elispPackages = with pkgs.emacsPackages; [ daemons ];

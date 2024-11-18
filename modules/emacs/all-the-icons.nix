@@ -24,24 +24,14 @@ with pkgs.lib.ordenada;
               (setopt all-the-icons-scale-factor 1.0)
               (setopt all-the-icons-default-adjust 0)
               (setopt all-the-icons-octicon-scale-factor 0.9))
-            ${
-              if hasFeature "emacs.completion" user then
-                ''
-                  (autoload 'all-the-icons-completion-mode "all-the-icons-completion")
-                  (all-the-icons-completion-mode)
-                ''
-              else
-                ""
-            }
+            ${mkIf (hasFeature "emacs.completion" user) ''
+              (autoload 'all-the-icons-completion-mode "all-the-icons-completion")
+              (all-the-icons-completion-mode)
+            ''}
 
-            ${
-              if hasFeature "emacs.marginalia" user then
-                ''
-                  (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
-                ''
-              else
-                ""
-            }
+            ${mkIf (hasFeature "emacs.marginalia" user) ''
+              (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
+            ''}
           '';
           elispPackages =
             with pkgs.emacsPackages;

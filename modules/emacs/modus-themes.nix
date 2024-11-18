@@ -37,7 +37,7 @@ in
       home-manager = mkHomeConfig config "emacs.modus-themes" (user: {
         programs.emacs = mkElispConfig {
           name = "ordenada-modus-themes";
-          config = ''
+          config = with user.features.emacs.appearance; ''
             (eval-when-compile
               (require 'modus-themes)
               (require 'cl-seq))
@@ -101,18 +101,11 @@ in
                      ((,c :foreground ,bg-changed-fringe :background ,bg-main)))
                    `(aw-leading-char-face
                      ((,c :height 1.0 :foreground ,blue-cooler)))))))
-            ${
-              if hasFeature "emacs.appearance" user then
-                with user.features.emacs.appearance;
-                ''
-                  (setopt ordenada-modus-themes-header-line-padding ${toString headerLinePadding})
-                  (setopt ordenada-modus-themes-tab-bar-padding ${toString tabBarPadding})
-                  (setopt ordenada-modus-themes-mode-line-padding ${toString modeLinePadding})
-
-                ''
-              else
-                ""
-            }
+            ${mkIf (hasFeature "emacs.appearance" user) ''
+              (setopt ordenada-modus-themes-header-line-padding ${toString headerLinePadding})
+              (setopt ordenada-modus-themes-tab-bar-padding ${toString tabBarPadding})
+              (setopt ordenada-modus-themes-mode-line-padding ${toString modeLinePadding})
+            ''}
             (advice-add 'enable-theme
                         :after #'ordenada-modus-themes-run-after-enable-theme-hook)
             (add-hook 'ordenada-modus-themes-after-enable-theme-hook #'ordenada-modus-themes-set-custom-faces)

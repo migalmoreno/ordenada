@@ -54,30 +54,25 @@ in
           (with-eval-after-load 'ordenada-keymaps
             (keymap-set ordenada-app-map "${keymaps.appMap.calendar}" #'calendar))
           (with-eval-after-load 'calendar
-            ${if hasFeature "emacs.calendar" user then "(require 'ebdb)" else ""}
+            ${mkIf (hasFeature "emacs.calendar" user) "(require 'ebdb)"}
             (setopt diary-file "${calendar.diaryFile}")
             (setopt calendar-week-start-day 1)
             (setopt calendar-view-diary-initially-flag t)
             (setopt calendar-date-style '${calendar.dateStyle})
             (setopt calendar-mark-diary-entries-flag t)
-            ${
-              if calendar.weekNumbers then
-                ''
-                  (setopt calendar-intermonth-header
-                          (propertize "WK" 'font-lock-face
-                                      'font-lock-function-name-face))
-                  (setopt calendar-intermonth-text
-                          '(propertize
-                            (format "%2d"
-                                    (car
-                                     (calendar-iso-from-absolute
-                                      (calendar-absolute-from-gregorian
-                                       (list month day year)))))
-                            'font-lock-face 'font-lock-function-name-face))
-                ''
-              else
-                ""
-            })
+            ${mkIf calendar.weekNumbers ''
+              (setopt calendar-intermonth-header
+                      (propertize "WK" 'font-lock-face
+                                  'font-lock-function-name-face))
+              (setopt calendar-intermonth-text
+                      '(propertize
+                        (format "%2d"
+                                (car
+                                 (calendar-iso-from-absolute
+                                  (calendar-absolute-from-gregorian
+                                   (list month day year)))))
+                        'font-lock-face 'font-lock-function-name-face))
+            ''})
             (appt-activate 1)
             (with-eval-after-load 'ordenada-keymaps
               (keymap-set ordenada-app-map "${keymaps.appMap.appt}" #'ordenada-calendar-appt-map)

@@ -83,28 +83,23 @@ in
               (minions-mode))
             (with-eval-after-load 'minions
               (setopt minions-mode-line-lighter ";"))
-            ${
-              if headerLineAsModeLine then
-                ''
-                  (setq minions-mode-line-minor-modes-map
-                        (let ((map (make-sparse-keymap)))
-                          (define-key map [header-line down-mouse-1]
-                                      #'minions-minor-modes-menu)
-                          map))
-                  (defun ordenada-appearance--move-mode-line-to-header ()
-                    "Move mode-line to header-line.
-                  This function is needed for various modes to set up the mode-line late."
-                    (setq-local header-line-format mode-line-format)
-                    (setq-local mode-line-format nil))
+            ${mkIf headerLineAsModeLine ''
+              (setq minions-mode-line-minor-modes-map
+                    (let ((map (make-sparse-keymap)))
+                      (define-key map [header-line down-mouse-1]
+                                  #'minions-minor-modes-menu)
+                      map))
+              (defun ordenada-appearance--move-mode-line-to-header ()
+                "Move mode-line to header-line.
+              This function is needed for various modes to set up the mode-line late."
+                (setq-local header-line-format mode-line-format)
+                (setq-local mode-line-format nil))
 
-                  (add-hook 'calendar-initial-window-hook
-                            #'ordenada-appearance--move-mode-line-to-header)
-                  (setq-default header-line-format mode-line-format)
-                  (setq-default mode-line-format nil)
-                ''
-              else
-                ""
-            }'';
+              (add-hook 'calendar-initial-window-hook
+                        #'ordenada-appearance--move-mode-line-to-header)
+              (setq-default header-line-format mode-line-format)
+              (setq-default mode-line-format nil)
+            ''}'';
           elispPackages = with pkgs.emacsPackages; [ minions ];
           earlyInit = ''
             (push '(menu-bar-lines . 0) default-frame-alist)
