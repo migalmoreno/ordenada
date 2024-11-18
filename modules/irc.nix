@@ -274,6 +274,15 @@ in
               "Add left padding on the sidebar formatted channels list."
               (concat " " (funcall fun channame num-messages erc-face)))
 
+            (defun erc-cmd-LATEST (&optional channel)
+              "Manually retrieve latest messages from an IRCv3 bouncer."
+              (interactive "sTarget Channel: ")
+              (let ((channel (if (> (length channel) 0)
+                                 channel
+                               (erc-default-target))))
+                (erc-cmd-QUOTE
+                 (format "CHATHISTORY LATEST %s * %s" channel 1000))))
+
             (with-eval-after-load 'ordenada-keymaps
               (keymap-set ordenada-app-map "${key}" #'ordenada-erc-connect))
 
