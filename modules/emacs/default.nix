@@ -45,6 +45,7 @@ in
     ./spelling.nix
     ./vertico.nix
     ./vterm.nix
+    ./time.nix
     ./tramp.nix
   ];
   options = {
