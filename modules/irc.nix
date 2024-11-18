@@ -114,6 +114,11 @@ in
           description = "Buffer behavior when using the /QUERY command to talk to someone.";
         };
         alignNicknames = mkEnableTrueOption "aligning nicks in ERC buffers";
+        alignNicknamesColumn = mkOption {
+          type = types.int;
+          default = 20;
+          description = "Column around which nicknames will be aligned.";
+        };
         showImages = mkEnableOption "showing images in ERC buffers";
         log = mkEnableOption "logging ERC sessions";
         trackExcludeTypes = mkOption {
