@@ -47,6 +47,7 @@ in
     ./vterm.nix
     ./time.nix
     ./tramp.nix
+    ./which-key.nix
   ];
   options = {
     ordenada.features.emacs = {
