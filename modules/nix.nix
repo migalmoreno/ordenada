@@ -61,7 +61,7 @@ in
             '';
           elispPackages =
             with pkgs.emacsPackages;
-            [ nix-mode ] ++ (if user.features.nix.polymode then [ polymode ] else [ ]);
+            [ nix-mode ] ++ (lib.optional user.features.nix.polymode [ polymode ]);
         };
       });
     }
