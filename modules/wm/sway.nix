@@ -100,81 +100,11 @@ in
           };
         };
         home.packages = with pkgs; [
-          wev
-          wl-clipboard
-          libxkbcommon
           grimScriptRegionClipboard
           wf-recorder
           wfRecorderScriptRegion
           convertToGif
         ];
-        programs.swaylock =
-          with user.features.theme.scheme;
-          let
-            transparent = "00000000";
-          in
-          {
-            enable = true;
-            package = pkgs.swaylock-effects;
-            settings = {
-              clock = true;
-              indicator = true;
-              indicator-thickness = 7;
-              effect-vignette = "0.5:0.5";
-              hide-keyboard-layout = true;
-              image = "${user.features.theme.wallpaper}";
-              color = base00;
-              inside-color = base00;
-              inside-clear-color = base00;
-              inside-caps-lock-color = base00;
-              inside-ver-color = base00;
-              inside-wrong-color = base00;
-              key-hl-color = base0B;
-              layout-bg-color = base00;
-              layout-border-color = base01;
-              layout-text-color = base05;
-              line-uses-inside = false;
-              line-uses-ring = false;
-              line-color = transparent;
-              line-ver-color = transparent;
-              line-clear-color = transparent;
-              line-wrong-color = transparent;
-              ring-color = base01;
-              ring-clear-color = base0A;
-              ring-caps-lock-color = base01;
-              ring-ver-color = base0B;
-              ring-wrong-color = base08;
-              separator-color = transparent;
-              text-color = base05;
-              text-clear-color = base05;
-              text-caps-lock-color = base05;
-              text-ver-color = base05;
-              text-wrong-color = base05;
-              font = user.features.fontutils.fonts.sans.name;
-            };
-          };
-        services.swaync = {
-          enable = true;
-          style = with user.features.theme.scheme.withHashtag; ''
-            @define-color noti-bg ${base01};
-            @define-color cc-bg ${base01};
-            @define-color noti-border-color ${base02};
-
-            .control-center {
-              font-family: ${user.features.fontutils.fonts.sans.name};
-              border-radius: 0;
-              padding: 10px;
-            }
-
-            .notification {
-              font-family: ${user.features.fontutils.fonts.sans.name};
-            }
-
-            .notification-content {
-              padding: 10px;
-            }
-          '';
-        };
         programs.swayr = {
           enable = true;
           systemd.enable = true;
