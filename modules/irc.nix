@@ -8,7 +8,7 @@
 with pkgs.lib.ordenada;
 
 let
-  cfg = config.ordenada;
+  cfg = config.ordenada.features.emacs;
   inherit (lib) mkEnableOption mkOption types;
   ercBufferBehavior = types.nullOr (
     types.enum [
@@ -35,7 +35,7 @@ let
         };
         port = mkOption {
           type = types.int;
-          default = cfg.features.emacs.erc.defaultPort;
+          default = cfg.erc.defaultPort;
           description = "Port number to use for the IRC connection on this account.";
         };
         client = mkOption {
@@ -136,12 +136,12 @@ in
         };
         sidebarHeaderLineFormat = mkOption {
           type = types.nullOr types.str;
-          default = if cfg.features.emacs.appearance.headerLineAsModeLine then " ERC Status" else null;
+          default = if cfg.appearance.headerLineAsModeLine then " ERC Status" else null;
           description = "The header line format for the ERC status side bar.";
         };
         sidebarModeLineFormat = mkOption {
           type = types.nullOr types.str;
-          default = if cfg.features.emacs.appearance.headerLineAsModeLine then null else "ERC Status";
+          default = if cfg.appearance.headerLineAsModeLine then null else "ERC Status";
           description = "The header line format for the ERC status side bar.";
         };
         sidebarWidth = mkOption {
@@ -161,7 +161,8 @@ in
   config = {
     home-manager = mkHomeConfig config "irc" (user: {
       programs.emacs =
-        with user.features.emacs.erc;
+        with user.features.emacs;
+        with erc;
         mkElispConfig {
           name = "ordenada-erc";
           config = ''
@@ -177,28 +178,23 @@ in
               "A list of `ordenada-erc-user' structs that hold IRC accounts."
               :type '(repeat ordenada-erc-user)
               :group 'ordenada-erc)
-            ${
-              if hasFeature "emacs.consult" user && user.features.emacs.consult.initialNarrowing then
-                ''
-                  (autoload 'erc-buffer-list "erc")
-                  (defvar ordenada-erc-buffer-source
-                    `(:name "ERC"
-                      :narrow ?i
-                      :category buffer
-                      :state ,'consult--buffer-state
-                      :items ,(lambda () (mapcar 'buffer-name (erc-buffer-list))))
-                    "Source for ERC buffers to be set in
-                    `consult-buffer-sources'.")
-                  (with-eval-after-load 'consult
-                    (add-to-list 'consult-buffer-sources ordenada-erc-buffer-source
-                                 'append))
-                  (with-eval-after-load 'ordenada-completion
-                      (add-to-list 'ordenada-completion-initial-narrow-alist
-                                   '(erc-mode . ?i)))
-                ''
-              else
-                ""
-            }
+            ${mkIf ((hasFeature "emacs.consult" user) && consult.initialNarrowing) ''
+              (autoload 'erc-buffer-list "erc")
+              (defvar ordenada-erc-buffer-source
+                `(:name "ERC"
+                  :narrow ?i
+                  :category buffer
+                  :state ,'consult--buffer-state
+                  :items ,(lambda () (mapcar 'buffer-name (erc-buffer-list))))
+                "Source for ERC buffers to be set in
+                `consult-buffer-sources'.")
+              (with-eval-after-load 'consult
+                (add-to-list 'consult-buffer-sources ordenada-erc-buffer-source
+                             'append))
+              (with-eval-after-load 'ordenada-completion
+                  (add-to-list 'ordenada-completion-initial-narrow-alist
+                               '(erc-mode . ?i)))
+            ''}
             (defun ordenada-erc-connect (user)
               "Connect USER to irc network via tls."
               (interactive
