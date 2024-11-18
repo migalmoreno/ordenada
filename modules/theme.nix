@@ -79,7 +79,7 @@ in
       scheme = lib.mkOption {
         type = lib.types.attrs;
         description = "The theme color scheme.";
-        default = if cfg.polarity == "light" then defaultThemeSchemes.light else defaultThemeSchemes.dark;
+        default = with defaultThemeSchemes; if cfg.polarity == "light" then light else dark;
       };
       defaultWallpapers = lib.mkOption {
         type = lib.types.attrs;
@@ -89,8 +89,7 @@ in
       wallpaper = lib.mkOption {
         type = lib.types.pathInStore;
         description = "The theme wallpaper.";
-        default =
-          if cfg.polarity == "light" then defaultThemeWallpapers.light else defaultThemeWallpapers.dark;
+        default = with defaultThemeWallpapers; if cfg.polarity == "light" then light else dark;
       };
     };
   };
