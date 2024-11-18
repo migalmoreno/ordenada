@@ -8,16 +8,17 @@
 with pkgs.lib.ordenada;
 
 let
+  inherit (lib) mkOption mkEnableOption types;
   cfg = config.ordenada.features;
-  themeModule = lib.types.submodule {
+  themeModule = types.submodule {
     options = {
-      name = lib.mkOption {
+      name = mkOption {
         description = "Name of the theme.";
-        type = lib.types.str;
+        type = types.str;
       };
-      package = lib.mkOption {
+      package = mkOption {
         description = "Theme package.";
-        type = lib.types.package;
+        type = types.package;
       };
     };
   };
@@ -25,9 +26,9 @@ in
 {
   options = {
     ordenada.features.gtk = {
-      enable = lib.mkEnableOption "the GTK feature";
-      defaultThemes = lib.mkOption {
-        type = lib.types.attrsOf themeModule;
+      enable = mkEnableOption "the GTK feature";
+      defaultThemes = mkOption {
+        type = types.attrsOf themeModule;
         description = "The default GTK themes.";
         default = {
           light = {
@@ -40,12 +41,13 @@ in
           };
         };
       };
-      theme = lib.mkOption {
+      theme = mkOption {
         type = themeModule;
         description = "The GTK theme.";
-        default = config.ordenada.features.gtk.defaultThemes.${cfg.theme.polarity};
+        default = cfg.gtk.defaultThemes.${cfg.theme.polarity};
       };
       cursorTheme = lib.mkOption {
+      cursorTheme = mkOption {
         type = themeModule;
         description = "The cursor theme.";
         default = {
@@ -53,8 +55,8 @@ in
           package = pkgs.bibata-cursors;
         };
       };
-      cursorSize = lib.mkOption {
-        type = lib.types.int;
+      cursorSize = mkOption {
+        type = types.int;
         description = "The cursor size.";
         default = 24;
       };
@@ -74,8 +76,7 @@ in
         };
         gtk = {
           enable = true;
-          theme = theme;
-          cursorTheme = cursorTheme;
+          inherit theme cursorTheme iconTheme;
         };
       }
     );
