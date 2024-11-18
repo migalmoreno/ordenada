@@ -129,6 +129,7 @@ in
           ];
           description = "List of message types to ignore from notifications.";
         };
+        autojoin = mkEnableTrueOption "joining channels automatically";
         autojoinChannels = mkOption {
           type = types.attrsOf (types.listOf types.str);
           default = { };
@@ -356,18 +357,24 @@ in
                 (setopt erc-track-exclude-server-buffer t)
                 (setopt erc-track-enable-keybindings t)
                 (setopt erc-track-shorten-start 8)
-              (with-eval-after-load 'erc-join
-                (setopt erc-autojoin-timing 'connect)
-                (setopt erc-autojoin-delay 5)
-                (setopt erc-autojoin-channels-alist '(${
-                  toString (
-                    lib.mapAttrsToList (
-                      name: chans: ''("${name}" ${toString (map (chan: ''"${chan}"'') chans)})''
-                    ) autojoinChannels
-                  )
-                })))
-
                 (setopt erc-track-exclude-types ${mkList trackExcludeTypes}))
+              ${
+                if autojoin then
+                  ''
+                    (with-eval-after-load 'erc-join
+                      (setopt erc-autojoin-timing 'connect)
+                      (setopt erc-autojoin-delay 5)
+                      (setopt erc-autojoin-channels-alist '(${
+                        toString (
+                          lib.mapAttrsToList (
+                            name: chans: ''("${name}" ${toString (map (chan: ''"${chan}"'') chans)})''
+                          ) autojoinChannels
+                        )
+                      })))
+                  ''
+                else
+                  "(erc-autojoin-mode 0)"
+              }
               (with-eval-after-load 'erc-backends
                 (setopt erc-server-reconnect-timeout 3)
                 (setopt erc-server-reconnect-attempts t))
