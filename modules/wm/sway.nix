@@ -158,11 +158,9 @@ in
                 with pkgs.lib.nix-rice.color;
                 let
                   background = base00;
-                  focused =
-                    if user.features.theme.polarity == "dark" then
-                      toRgbHex (darken 50 (hexToRgba base0D))
-                    else
-                      toRgbHex (brighten 50 (hexToRgba base0D));
+                  focused = toRgbHex (
+                    (if user.features.theme.polarity == "dark" then darken else brighten) 50 (hexToRgba base0D)
+                  );
                   indicator = focused;
                   unfocused = base01;
                   text = base05;
