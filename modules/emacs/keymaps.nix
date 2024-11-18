@@ -7,30 +7,34 @@
 
 with pkgs.lib.ordenada;
 
+let
+  inherit (lib) types mkOption;
+in
 {
   options = {
     ordenada.features.emacs.keymaps = {
       enable = mkEnableTrueOption "the Emacs keymaps feature";
-      appMapPrefix = lib.mkOption {
-        type = lib.types.str;
+      appMapPrefix = mkOption {
+        type = types.str;
         description = "The prefix key used for ordenada-app-map.";
         default = "a";
       };
       toggleMapPrefix = lib.mkOption {
-        type = lib.types.str;
+        type = types.str;
         description = "The prefix key used for ordenada-toggle-map.";
         default = "t";
       };
       appMap = lib.mkOption {
-        type = lib.types.attrs;
+        type = with types; attrsOf str;
         default = with config.ordenada.features.emacs; {
           calendar = calendar.calendarKey;
           appt = calendar.apptKey;
+          daemons = daemons.key;
         };
         description = "The Emacs keymap for application keybindings.";
       };
-      toggleMap = lib.mkOption {
-        type = lib.types.attrs;
+      toggleMap = mkOption {
+        type = types.attrs;
         description = "The Emacs keymap for toggle keybindings.";
         default = { };
       };
