@@ -38,7 +38,12 @@ let
           default = cfg.features.emacs.erc.defaultPort;
           description = "Port number to use for the IRC connection on this account.";
         };
-        tls = mkEnableTrueOption "using TLS for the IRC network connection.";
+        client = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Client name used for the IRC connection on this account.";
+        };
+        tls = mkEnableTrueOption "using TLS for the IRC network connection";
         bouncer = mkEnableOption "considering this account as connected to an IRC bouncer server";
       };
     };
@@ -167,7 +172,7 @@ in
             (defgroup ordenada-erc nil
               "Extra customizations for ERC."
               :group 'ordenada)
-            (cl-defstruct ordenada-erc-user id network port nick tls-p bouncer-p)
+            (cl-defstruct ordenada-erc-user id network port nick tls-p bouncer-p client)
             (defcustom ordenada-erc-users '()
               "A list of `ordenada-erc-user' structs that hold IRC accounts."
               :type '(repeat ordenada-erc-user)
@@ -233,7 +238,9 @@ in
                                             (cl-find irc-network ordenada-erc-users
                                                      :key 'ordenada-erc-user-network
                                                      :test 'string=))))
-                    (setq username (format "%s/%s" irc-network-nick irc-network))))
+                    (setq username (concat (format "%s/%s" irc-network-nick irc-network)
+                                           (when (ordenada-erc-user-client user)
+                                             (concat "@" (ordenada-erc-user-client user)))))))
                 (funcall (if (ordenada-erc-user-tls-p user) #'erc-tls #'erc)
                          :server network
                          :port (ordenada-erc-user-port user)
@@ -284,6 +291,7 @@ in
                          :port ${toString acc.port}
                          :nick "${acc.nick}"
                          :tls-p ${if acc.tls then "t" else "nil"}
+                         :client ${if acc.client == null then "nil" else ''"${acc.client}"''}
                          :bouncer-p ${if acc.bouncer then "t" else "nil"})
                       '') user.features.irc.accounts
                     )
