@@ -4,5 +4,6 @@
     ./kanshi.nix
     ./sway.nix
     ./waybar.nix
+    ./wlogout.nix
   ];
 }
