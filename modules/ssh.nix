@@ -52,6 +52,8 @@ in
         openssh.authorizedKeys.keys = user.features.ssh.userAuthorizedKeys;
       });
       home-manager = mkHomeConfig config "ssh" (user: {
+        services.ssh-agent.enable =
+          !config.home-manager.users.${user.name}.services.gpg-agent.enableSshSupport;
         programs.ssh = {
           enable = true;
           matchBlocks = user.features.ssh.matchBlocks;
