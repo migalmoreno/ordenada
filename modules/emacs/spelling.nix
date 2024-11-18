@@ -52,6 +52,11 @@ in
         description = "Dictionary server to use.";
         default = "dict.org";
       };
+      dictionaryKey = mkOption {
+        type = types.str;
+        description = "Keybinding used to launch the dictionary search.";
+        default = "w";
+      };
     };
   };
   config = {
@@ -84,7 +89,7 @@ in
           (with-eval-after-load 'dictionary
             (setopt dictionary-server "${dictionaryServer}"))
           (with-eval-after-load 'ordenada-keymaps
-            (keymap-set ordenada-app-map "d" 'dictionary-search))
+            (keymap-set ordenada-app-map "${dictionaryKey}" #'dictionary-search))
         '';
       };
     });
