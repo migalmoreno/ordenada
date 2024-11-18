@@ -152,7 +152,7 @@ in
         };
         sidebarWidth = mkOption {
           type = types.int;
-          default = 22;
+          default = 30;
           description = "The width of the ERC status sidebar.";
         };
         promptForPassword = mkEnableOption "prompting for password upon connecting to an IRC network";
