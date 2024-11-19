@@ -301,9 +301,9 @@ in
                          :network "${acc.network}"
                          :port ${toString acc.port}
                          :nick "${acc.nick}"
-                         :tls-p ${if acc.tls then "t" else "nil"}
-                         :client ${if acc.client == null then "nil" else ''"${acc.client}"''}
-                         :bouncer-p ${if acc.bouncer then "t" else "nil"})
+                         :tls-p ${mkBoolean acc.tls}
+                         :client ${mkNilOr acc.client ''"${acc.client}"''}
+                         :bouncer-p ${mkBoolean acc.bouncer})
                       '') user.features.irc.accounts
                     )
                   }))
