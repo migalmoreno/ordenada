@@ -141,6 +141,15 @@ in
                 else
                   ""
               }
+
+              ${
+                if hasFeature "swaync" user then
+                  ''
+                    systemctl --user restart swaync
+                  ''
+                else
+                  ""
+              }
             ''
           );
         in
