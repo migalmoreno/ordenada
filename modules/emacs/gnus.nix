@@ -206,14 +206,16 @@ in
               } ${toString postingStyles}))
               (setopt gnus-select-method '(nnnil))
               (setopt gnus-secondary-select-methods '(${
-                mkIf (hasFeature "mail.mbsync" user) toString (
-                  lib.mapAttrsToList (
-                    name: acc: with accounts.email; ''
-                      (nnmaildir "${name}"
-                       (directory
-                        "${maildirBasePath}/${accounts.${name}.maildir.path}"))
-                    ''
-                  ) user.features.mail.accounts
+                mkIf (hasFeature "mail.mbsync" user) (
+                  toString (
+                    lib.mapAttrsToList (
+                      name: acc: with accounts.email; ''
+                        (nnmaildir "${name}"
+                         (directory
+                          "${maildirBasePath}/${accounts.${name}.maildir.path}"))
+                      ''
+                    ) user.features.mail.accounts
+                  )
                 )
               }
               (nntp "gwene" (nntp-address "news.gwene.org"))
