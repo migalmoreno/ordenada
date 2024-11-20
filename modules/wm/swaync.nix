@@ -33,6 +33,8 @@ in
           @define-color noti-bg ${base01};
           @define-color cc-bg ${base01};
           @define-color noti-border-color ${base02};
+          @define-color text-color ${base05};
+          @define-color text-color-disabled ${base06};
 
           .control-center {
             font-family: ${user.features.fontutils.fonts.sans.name};
