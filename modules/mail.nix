@@ -105,23 +105,6 @@ in
         inherit (user.features.mail) mbsync msmtp;
       };
       services.imapnotify.enable = user.features.mail.imapnotify.enable;
-      systemd.user.services = lib.mkIf user.features.mail.imapnotify.enable (
-        builtins.listToAttrs (
-          map (
-            name: with user.features; {
-              name = "imapnotify-${name}";
-              value = {
-                Service = {
-                  Environment = with config.home-manager.users.${user.name}.programs; [
-                    "GNUPGHOME=${gpg.homedir}"
-                    "PASSWORD_STORE_DIR=${password-store.settings.PASSWORD_STORE_DIR}"
-                  ];
-                };
-              };
-            }
-          ) (builtins.attrNames user.features.mail.accounts)
-        )
-      );
       accounts.email = {
         maildirBasePath = "${user.features.xdg.baseDirs.stateHome}/mail";
         accounts = lib.mapAttrs (
@@ -135,7 +118,16 @@ in
             };
             address = acc.fqda;
             realName = acc.fullName;
-            passwordCommand = "${user.features.password-store.package}/bin/pass show mail/${acc.fqda}";
+            passwordCommand =
+              with config.home-manager.users.${user.name}.programs;
+              (toString (
+                pkgs.writeShellScript "imapnotify-pass" ''
+                  export GNUPGHOME=${gpg.homedir}
+                  export PASSWORD_STORE_DIR=${password-store.settings.PASSWORD_STORE_DIR}
+                  ${user.features.password-store.package}/bin/pass show mail/${acc.fqda}
+                  ${gpg.package}/bin/gpg-connect-agent updatestartuptty /bye > /dev/null
+                ''
+              ));
             gpg = lib.mkIf (user.features.userInfo.gpgPrimaryKey != null) {
               key = user.features.userInfo.gpgPrimaryKey;
               signByDefault = true;
