@@ -9,7 +9,7 @@ with pkgs.lib.ordenada;
 
 {
   options.ordenada.features.yaml = {
-    enable = lib.mkEnableOption "YAML feature";
+    enable = lib.mkEnableOption "the YAML feature";
   };
   config = {
     home-manager = mkHomeConfig config "yaml" (user: {
