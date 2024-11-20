@@ -123,6 +123,7 @@ in
       home-manager = mkHomeConfig config "theme" (
         user:
         let
+          systemctl = "XDG_RUNTIME_DIR=\${XDG_RUNTIME_DIR:-/run/user/$UID} systemctl";
           themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
             with user.features;
             ''
@@ -133,23 +134,12 @@ in
               else
                 sudo /nix/var/nix/profiles/system/specialisation/${themeToToggle}/bin/switch-to-configuration switch
               fi
-              ${
-                if hasFeature "emacs" user then
-                  ''
-                    ${emacs.package}/bin/emacsclient -e "(load-theme '${emacs.defaultThemes.${themeToToggle}} t)"
-                  ''
-                else
-                  ""
-              }
-
-              ${
-                if hasFeature "swaync" user then
-                  ''
-                    systemctl --user restart swaync
-                  ''
-                else
-                  ""
-              }
+              ${mkIf (hasFeature "emacs" user) ''
+                ${emacs.package}/bin/emacsclient -e "(load-theme '${emacs.defaultThemes.${themeToToggle}} t)"
+              ''}
+              ${mkIf (hasFeature "swaync" user) ''
+                ${systemctl} --user restart swaync
+              ''}
             ''
           );
         in
