@@ -84,8 +84,6 @@ in
         [[ $(tty) == ${cfg.autoStartTty} ]] && exec ${cfg.package}/bin/sway
       '';
       environment.sessionVariables.NIXOS_OZONE_WL = "1";
-      security.pam.services.swaylock = { };
-      programs.gdk-pixbuf.modulePackages = [ pkgs.librsvg ];
     })
     {
       home-manager = mkHomeConfig config "sway" (user: {
