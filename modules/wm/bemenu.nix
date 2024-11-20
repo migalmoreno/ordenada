@@ -29,6 +29,11 @@ in
   options = {
     ordenada.features.bemenu = {
       enable = mkEnableOption "the bemenu feature";
+      package = mkOption {
+        type = types.package;
+        default = pkgs.bemenu;
+        description = "The bemenu package to use.";
+      };
       height = mkOption {
         type = types.int;
         description = "The height of the bemenu prompt.";
@@ -41,6 +46,7 @@ in
       user: with config.home-manager.users.${user.name}.programs.bemenu; {
         programs.bemenu = {
           enable = true;
+          package = user.features.bemenu.package;
           settings = with user.features.theme.scheme.withHashtag; {
             line-height = 34;
             ignorecase = true;
@@ -64,7 +70,9 @@ in
         };
         services.gpg-agent.pinentryPackage = lib.mkForce (
           pkgs.writeShellScriptBin "pinentry-bemenu" ''
-            BEMENU_OPTS= ${pkgs.pinentry-bemenu}/bin/pinentry-bemenu ${
+            PATH="$PATH:${pkgs.coreutils}/bin:${package}/bin"
+            unset BEMENU_OPTS
+            "${pkgs.pinentry-bemenu}/bin/pinentry-bemenu" ${
               mkBemenuOpts (
                 removeAttrs settings [
                   "cw"
@@ -77,7 +85,7 @@ in
         );
         wayland.windowManager.sway.config.menu = ''
           ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
-           --dmenu="${pkgs.bemenu}/bin/bemenu ${mkBemenuOpts settings}"
+           --dmenu="${package}/bin/bemenu ${mkBemenuOpts settings}"
         '';
       }
     );
