@@ -45,7 +45,7 @@
     // (lib.optionalAttrs (earlyInit != null) {
       init = {
         enable = true;
-        earlyInit = earlyInit;
+        inherit earlyInit;
       };
     });
 }
