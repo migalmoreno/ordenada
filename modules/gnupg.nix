@@ -36,6 +36,9 @@ in
       services.gpg-agent = with user.features.gnupg; {
         enable = true;
         defaultCacheTtl = defaultTtl;
+        defaultCacheTtlSsh = defaultTtl;
+        maxCacheTtl = defaultTtl;
+        maxCacheTtlSsh = defaultTtl;
         enableSshSupport = true;
         inherit pinentryPackage sshKeys;
       };
