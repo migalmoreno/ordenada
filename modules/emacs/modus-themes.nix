@@ -70,6 +70,12 @@ in
               "Run `ordenada-modus-themes-after-enable-theme-hook'."
               (run-hooks 'ordenada-modus-themes-after-enable-theme-hook))
 
+            (defun ordenada-modus-themes--dark-theme-p (&optional theme)
+              "Indicate if there is a curently-active dark THEME."
+              (if theme
+                  (eq theme '${lightTheme})
+                  (eq (car custom-enabled-themes) '${darkTheme})))
+
             (defun ordenada-modus-themes-set-custom-faces (&optional _theme)
               "set faces based on the current theme."
               (interactive)
