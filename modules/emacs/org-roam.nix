@@ -14,6 +14,11 @@ in
   options = {
     ordenada.features.emacs.org-roam = {
       enable = mkEnableOption "Emacs Org Roam feature";
+      package = mkOption {
+        type = types.package;
+        description = "The Org Roam package.";
+        default = pkgs.emacsPackages.org-roam;
+      };
       captureTemplates = mkOption {
         type = types.listOf types.str;
         description = "The Org Roam capture templates.";
@@ -203,7 +208,7 @@ in
               (add-to-list 'org-tags-exclude-from-inheritance "todo"))
           ''}
         '';
-        elispPackages = with pkgs.emacsPackages; [ org-roam ];
+        elispPackages = [ user.features.emacs.org-roam.package ];
       };
     });
   };
