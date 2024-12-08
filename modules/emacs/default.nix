@@ -38,6 +38,7 @@ in
     ./orderless.nix
     ./org.nix
     ./org-roam.nix
+    ./pdf-tools.nix
     ./programming.nix
     ./project.nix
     ./shell.nix
