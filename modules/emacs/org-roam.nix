@@ -76,6 +76,12 @@ in
                      (file-relative-name (org-roam-node-file node)
                                          org-roam-directory))))
                 (error "")))
+
+            (advice-add 'org-roam-db-update-file :around
+                        (defun ordenada-org-roam-db-update-file (fn &rest args)
+                          (emacsql-with-transaction (org-roam-db)
+                            (apply fn args))))
+
             (setopt org-roam-node-display-template
                     (concat "''${type:15} ''${title:80} " (propertize "''${tags:20}" 'face 'org-tag)))
             (setopt org-roam-node-annotation-function
