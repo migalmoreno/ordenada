@@ -25,7 +25,7 @@
       addToInitEl ? true,
     }:
     let
-      pkg = pkgs.emacsPackages.trivialBuild {
+      pkg = pkgs.emacsPackages.melpaBuild {
         pname = name;
         version = "0.1.0";
         src = pkgs.writeText "${name}.el" ''
@@ -33,7 +33,7 @@
 
           ${config}
           (provide '${name})'';
-        propagatedBuildInputs = elispPackages;
+        packageRequires = elispPackages;
       };
     in
     {
