@@ -35,7 +35,20 @@ with pkgs.lib.ordenada;
                              nil
                              (window-parameters (mode-line-format . none)))))
         '';
-        elispPackages = with pkgs.emacsPackages; [ embark ];
+        elispPackages = [
+          (pkgs.emacs.pkgs.overrideScope (
+            final: prev: with prev.elpaPackages; {
+              embark = embark.overrideAttrs (
+                lib.const {
+                  packageRequires = [
+                    compat
+                    org
+                  ];
+                }
+              );
+            }
+          )).embark
+        ];
       };
     });
   };
