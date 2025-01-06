@@ -25,8 +25,24 @@ with pkgs.lib.ordenada;
               (setopt all-the-icons-default-adjust 0)
               (setopt all-the-icons-octicon-scale-factor 0.9))
             ${mkIf (hasFeature "emacs.completion" user) ''
+              (eval-when-compile (require 'compat))
               (autoload 'all-the-icons-completion-mode "all-the-icons-completion")
               (all-the-icons-completion-mode)
+              (define-minor-mode all-the-icons-completion-mode
+                "Add icons to completion candidates."
+                :global t
+                (if all-the-icons-completion-mode
+                  (progn
+                    (advice-add (compat-function completion-metadata-get)
+                                :around
+                                #'all-the-icons-completion-completion-metadata-get)
+                    (advice-add #'completion-metadata-get
+                                :around
+                                #'all-the-icons-completion-completion-metadata-get))
+                  (advice-remove #'completion-metadata-get
+                                 #'all-the-icons-completion-completion-metadata-get)
+                  (advice-remove (compat-function completion-metadata-get)
+                                 #'all-the-icons-completion-completion-metadata-get)))
             ''}
 
             ${mkIf (hasFeature "emacs.marginalia" user) ''
