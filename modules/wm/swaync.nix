@@ -20,7 +20,7 @@ in
       };
       package = mkOption {
         type = types.package;
-        default = pkgs.swaync;
+        default = pkgs.swaynotificationcenter;
         description = "The swaync package.";
       };
     };
