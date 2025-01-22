@@ -10,13 +10,14 @@ with pkgs.lib.ordenada;
 {
   options.ordenada.features.javascript = {
     enable = lib.mkEnableOption "the JavaScript feature";
+    node = lib.mkPackageOption pkgs "nodejs" { };
   };
   config = {
     home-manager = mkHomeConfig config "javascript" (user: {
       home.packages = with pkgs; [
         jq
-        nodejs
-        yarn
+        user.features.javascript.node
+        (yarn.override { nodejs = null; })
         nodePackages.prettier
       ];
       programs.emacs = mkElispConfig {
