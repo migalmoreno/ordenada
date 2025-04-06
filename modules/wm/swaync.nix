@@ -29,6 +29,15 @@ in
     home-manager = mkHomeConfig config "swaync" (user: {
       services.swaync = {
         enable = true;
+        settings = {
+          widgets = [
+            "inhibitors"
+            "title"
+            "dnd"
+            "mpris"
+            "notifications"
+          ];
+        };
         style = with user.features.theme.scheme.withHashtag; ''
           @define-color noti-bg ${base01};
           @define-color cc-bg ${base01};
