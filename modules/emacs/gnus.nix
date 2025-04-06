@@ -186,7 +186,7 @@ in
                   lib.mapAttrsToList (name: acc: ''
                     ("${name}"
                      (address "${acc.fqda}")
-                     ("Gcc" "nnmaildir+${name}:sent"))
+                     ("Gcc" "nnmaildir+${name}:Sent"))
                     ${
                       if hasFeature "mail.msmtp" user then
                         with accounts.email.accounts.${name}.smtp;
