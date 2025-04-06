@@ -29,7 +29,7 @@ in
           description = "The name of the file where the Emacs diary is located.";
           default = "${config.ordenada.features.xdg.userDirs.documents}/diary";
         };
-        weekNumbers = mkEnableOption "show week numbers in the Emacs calendar";
+        weekNumbers = mkEnableOption "showing week numbers in the Emacs calendar";
         calendarKey = mkOption {
           type = types.str;
           description = "Keybinding to launch the Emacs Calendar.";

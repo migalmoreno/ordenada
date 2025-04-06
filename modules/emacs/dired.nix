@@ -21,7 +21,7 @@ in
     ordenada.features.emacs.dired = {
       enable = lib.mkEnableOption "the Emacs Dired feature";
       groupDirsFirst = mkEnableTrueOption "sorting directories first in Dired listing";
-      killOnNewBuffer = lib.mkEnableOption "killing current Dired buffer on opening new buffer";
+      killOnNewBuffer = lib.mkEnableOption "killing current Dired buffer on opening a new buffer";
       extraSwitches = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         description = "The list of extra switches passed to ls for Dired.";
