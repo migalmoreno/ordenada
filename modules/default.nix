@@ -25,6 +25,7 @@
     ./nix.nix
     ./passage.nix
     ./password-store.nix
+    ./playerctl.nix
     ./pipewire.nix
     ./qemu.nix
     ./ssh.nix
