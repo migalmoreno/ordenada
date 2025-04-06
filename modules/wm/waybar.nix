@@ -161,7 +161,7 @@ let
     };
     swaync =
       let
-        swaync = pkgs.swaynotificationcenter;
+        swaync = "${pkgs.swaynotificationcenter}/bin/swaync-client";
       in
       {
         name = "custom/swaync";
@@ -179,10 +179,10 @@ let
             dnd-inhibited-notification = "";
           };
           return-type = "json";
-          exec = "${swaync}/bin/swaync-client -swb";
-          on-click = "${swaync}/bin/swaync-client -t -sw";
-          on-click-right = "${swaync}/bin/swaync-client -d -sw";
-          on-click-middle = "${swaync}/bin/swaync-client -C -sw";
+          exec = "${swaync} -swb";
+          on-click = "${swaync} -t -sw";
+          on-click-right = "${swaync} -d -sw";
+          on-click-middle = "${swaync} -C -sw";
           escape = true;
         };
       };
@@ -237,11 +237,14 @@ in
           programs.waybar = with user.features.waybar; {
             enable = true;
             systemd.enable = true;
-            settings.primary = {
-              inherit height;
-              layer = "top";
-              position = "top";
-            } // (lib.optionalAttrs (output != [ ]) { inherit output; }) // extraSettings;
+            settings.primary =
+              {
+                inherit height;
+                layer = "top";
+                position = "top";
+              }
+              // (lib.optionalAttrs (output != [ ]) { inherit output; })
+              // extraSettings;
             style = with user.features.theme.scheme.withHashtag; ''
               * {
                 font-family: ${user.features.fontutils.fonts.monospace.name}, FontAwesome;
