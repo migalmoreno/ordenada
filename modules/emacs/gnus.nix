@@ -172,18 +172,14 @@ in
               (setopt gnus-kill-files-directory "${directory}/news")
               (setopt gnus-article-save-directory "${directory}/news")
               (setopt gnus-large-newsgroup 100)
-              ${
-                mkIf (messageArchiveMethod != null) ''
-                  (setopt gnus-message-archive-method
-                          '(${toString messageArchiveMethod}))
-                ''
-              }
-              ${
-                mkIf (messageArchiveGroup != null) ''
-                  (setopt gnus-message-archive-group
-                          '(${toString messageArchiveGroup}))
-                ''
-              }
+              ${mkIf (messageArchiveMethod != null) ''
+                (setopt gnus-message-archive-method
+                        '(${toString messageArchiveMethod}))
+              ''}
+              ${mkIf (messageArchiveGroup != null) ''
+                (setopt gnus-message-archive-group
+                        '(${toString messageArchiveGroup}))
+              ''}
               (setopt gnus-update-message-archive-method t)
               (setopt gnus-posting-styles '(${
                 toString (
