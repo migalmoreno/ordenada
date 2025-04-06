@@ -70,6 +70,7 @@ in
         description = "List of extra Emacs packages.";
         default = [ ];
       };
+      autoUpdateBuffers = mkEnableTrueOption "automatically updating buffers";
     };
   };
   config = {
@@ -156,8 +157,10 @@ in
               (keymap-global-set "M-l" #'downcase-dwim)
               (keymap-global-set "M-u" #'upcase-dwim)
 
-              (setq global-auto-revert-non-file-buffers t)
-              (global-auto-revert-mode 1)
+              ${mkIf autoUpdateBuffers ''
+                (setopt global-auto-revert-non-file-buffers t)
+                (global-auto-revert-mode 1)
+              ''}
 
               (with-eval-after-load 'mwheel
                 (setopt mouse-wheel-scroll-amount '(1 ((shift) . 1)
