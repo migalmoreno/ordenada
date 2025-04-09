@@ -36,7 +36,7 @@ in
           };
         };
         default = {
-          name = "en";
+          name = "us";
           options = [ "ctrl:nocaps" ];
         };
       };
