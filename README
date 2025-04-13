@@ -231,5 +231,8 @@ in
 
 The =example= feature above showcases a common feature definition workflow. First, we define a list of options for this feature that we'll be able to access from anywhere in our configuration. Then, we add a system configuration if the feature is enabled. Next, we add a home configuration via the special utility =mkHomeConfig=, which allows us to configure home settings for all our Ordenada users. In this example, we set a home environment variable as long as the =acme= feature is enabled (checked with the =hasFeature= utility). Finally, we add Emacs Lisp configuration through the =mkElispConfig= utility which will add a new Emacs configuration package for this feature with interpolated feature options (=user.features.example.message=).
 
+* Community
+Join the =#ordenada= IRC channel at [[https://libera.chat/][Libera.Chat]] for general project support.
+
 * Configuration Options
 See [[https://migalmoreno.com/projects/ordenada.html#configuration-options][the project's homepage]] for the full list of configuration options.
