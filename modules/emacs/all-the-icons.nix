@@ -51,7 +51,11 @@ with pkgs.lib.ordenada;
           '';
           elispPackages =
             with pkgs.emacsPackages;
-            [ all-the-icons ] ++ lib.optional (hasFeature "emacs.completion" user) all-the-icons-completion;
+            [
+              all-the-icons
+              compat
+            ]
+            ++ lib.optional (hasFeature "emacs.completion" user) all-the-icons-completion;
         };
       }
     );
