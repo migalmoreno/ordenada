@@ -1,5 +1,4 @@
 {
-  description = "Ordenada is a Reproducible Development Environment for Nix";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
@@ -54,7 +53,7 @@
           config = {
             nixpkgs.overlays = [
               overlays.default
-              nur.overlay
+              nur.overlays.default
               nix-rice.overlays.default
               (final: prev: { inherit inputs; })
             ];
