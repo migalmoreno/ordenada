@@ -31,6 +31,8 @@ in
             (with-eval-after-load 'bluetooth
               (keymap-set bluetooth-mode-map "C" #'bluetooth-connect-profile)
               (setopt bluetooth-battery-display-warning nil))
+
+            (advice-add 'bluetooth-pa--authorize-service :override #'ignore)
           '';
           elispPackages = with pkgs.emacsPackages; [ bluetooth ];
         };
