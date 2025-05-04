@@ -79,6 +79,7 @@ in
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
+      hardware.graphics.enable = true;
       security.polkit.enable = true;
       environment.loginShellInit = lib.mkIf (cfg.autoStartTty != null) ''
         [[ $(tty) == ${cfg.autoStartTty} ]] && exec ${cfg.package}/bin/sway
