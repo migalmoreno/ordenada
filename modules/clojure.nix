@@ -82,10 +82,7 @@ in
 
           (with-eval-after-load 'ob-core
             (require 'ob-clojure)
-            (require 'ob-java)
-            (setq org-babel-default-header-args:clojure
-                  '((:results . "scalar")
-                    (:session . ""))))
+            (require 'ob-java))
 
           (with-eval-after-load 'ob-clojure
             (setopt org-babel-clojure-backend 'cider))
