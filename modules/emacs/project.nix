@@ -52,8 +52,9 @@ with pkgs.lib.ordenada;
 
           (setopt ordenada-project-dominating-files
                   ${mkList user.features.emacs.project.extraDominatingFiles})
-          (add-hook 'project-find-functions #'ordenada-project-custom-root)
-          (add-hook 'project-find-functions #'project-try-vc)
+          (add-hook 'project-find-functions #'project-try-vc -90)
+          (add-hook 'project-find-functions #'ordenada-project-custom-root 50)
+
           (with-eval-after-load 'project
             (keymap-set project-prefix-map "F" #'consult-find)
             (keymap-set project-prefix-map "R" #'consult-ripgrep)
