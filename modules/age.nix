@@ -8,7 +8,12 @@
 with pkgs.lib.ordenada;
 
 let
-  inherit (lib) types mkOption mkEnableOption;
+  inherit (lib)
+    types
+    mkOption
+    mkEnableOption
+    mkPackageOption
+    ;
 in
 {
   options.ordenada.features.age = {
