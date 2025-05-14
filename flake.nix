@@ -19,6 +19,7 @@
       nix-rice,
       base16,
       systems,
+      home-manager,
       ...
     }:
     let
@@ -49,7 +50,10 @@
       nixosModules.ordenada =
         { pkgs, ... }:
         {
-          imports = [ ./modules ];
+          imports = [
+            ./modules
+            home-manager.nixosModules.home-manager
+          ];
           config = {
             nixpkgs.overlays = [
               overlays.default
