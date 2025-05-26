@@ -9,4 +9,5 @@
       description = "Whether to enable ${name}.";
       type = lib.types.bool;
     };
+    ## TODO: Implement `setGlobal` here
 }

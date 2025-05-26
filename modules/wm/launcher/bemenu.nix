@@ -1,31 +1,21 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
 
 with pkgs.lib.ordenada;
 
 let
   inherit (lib) mkEnableOption mkOption types;
-  mkBemenuOpts =
-    opts:
-    toString (
-      lib.mapAttrsToList (
-        name: value:
-        "--${name} ${
-          if builtins.isInt value then
-            (toString value)
-          else if builtins.isBool value then
-            ""
-          else
-            "'${value}'"
-        }"
-      ) opts
-    );
-in
-{
+  cfg = config.ordenada.features.bemenu;
+  mkBemenuOpts = opts:
+    toString (lib.mapAttrsToList (name: value:
+      "--${name} ${
+        if builtins.isInt value then
+          (toString value)
+        else if builtins.isBool value then
+          ""
+        else
+          "'${value}'"
+      }") opts);
+in {
   options = {
     ordenada.features.bemenu = {
       enable = mkEnableOption "the bemenu feature";
@@ -42,8 +32,12 @@ in
     };
   };
   config = {
-    home-manager = mkHomeConfig config "bemenu" (
-      user: with config.home-manager.users.${user.name}.programs.bemenu; {
+    ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.launcher === null`
+    ##       and print a warning if so
+    ordenada.globals.launcher = "${cfg.package}/bin/bemenu";
+
+    home-manager = mkHomeConfig config "bemenu" (user:
+      with config.home-manager.users.${user.name}.programs.bemenu; {
         programs.bemenu = {
           enable = true;
           package = user.features.bemenu.package;
@@ -65,7 +59,8 @@ in
             cb = base01;
             hf = base01;
             hb = base0D;
-            fn = with user.features.fontutils.fonts.monospace; "${name} ${toString size}";
+            fn = with user.features.fontutils.fonts.monospace;
+              "${name} ${toString size}";
           };
         };
         services.gpg-agent.pinentry.package = lib.mkForce (
@@ -73,21 +68,13 @@ in
             PATH="$PATH:${pkgs.coreutils}/bin:${package}/bin"
             unset BEMENU_OPTS
             "${pkgs.pinentry-bemenu}/bin/pinentry-bemenu" ${
-              mkBemenuOpts (
-                removeAttrs settings [
-                  "cw"
-                  "hp"
-                  "ch"
-                ]
-              )
+              mkBemenuOpts (removeAttrs settings [ "cw" "hp" "ch" ])
             }
-          ''
-        );
+          '');
         wayland.windowManager.sway.config.menu = ''
           ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
            --dmenu="${package}/bin/bemenu ${mkBemenuOpts settings}"
         '';
-      }
-    );
+      });
   };
 }

@@ -9,6 +9,7 @@ with pkgs.lib.ordenada;
 
 let
   inherit (lib) mkOption mkEnableOption types;
+  cfg = config.ordenada.features.waybar;
   waybarModule = lib.types.submodule {
     options = {
       name = mkOption {
@@ -202,6 +203,11 @@ in
   options = {
     ordenada.features.waybar = {
       enable = mkEnableOption "the Waybar feature";
+      package = mkOption {
+        type = types.package;
+        default = pkgs.waybar;
+        description = "The waybar package to use.";
+      };
       defaultModules = mkOption {
         type = types.attrsOf waybarModule;
         default = defaultWaybarModules;
@@ -230,6 +236,10 @@ in
     };
   };
   config = {
+    ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.bar === null`
+    ##       and print a warning if so
+    ordenada.globals.bar = "${cfg.package}/bin/waybar";
+
     home-manager = mkHomeConfig config "waybar" (
       user:
       lib.mkMerge [
@@ -237,6 +247,7 @@ in
           programs.waybar = with user.features.waybar; {
             enable = true;
             systemd.enable = true;
+            package = user.features.waybar.package;
             settings.primary =
               {
                 inherit height;
