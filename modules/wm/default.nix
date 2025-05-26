@@ -17,7 +17,7 @@ in
     ordenada.globals.wayland = mkOption {
       type = types.nullOr types.bool;
       description = "Whether or not the WM is running under wayland.";
-      default = null;
+      default = false;
     };
     ordenada.globals.wm = mkOption {
       type = types.nullOr types.str;
