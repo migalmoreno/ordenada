@@ -44,11 +44,6 @@ in {
         description = "The Sway package to use.";
         default = pkgs.sway;
       };
-      autoStartTty = mkOption {
-        type = types.nullOr types.str;
-        description = "The tty to launch Sway in.";
-        default = null;
-      };
       modifier = mkOption {
         type = types.str;
         description = "The modifier to bind Sway keys to.";
@@ -74,9 +69,6 @@ in {
       ordenada.globals.wayland = true;
 
       security.polkit.enable = true;
-      environment.loginShellInit = lib.mkIf (cfg.autoStartTty != null) ''
-        [[ $(tty) == ${cfg.autoStartTty} ]] && exec ${cfg.package}/bin/sway
-      '';
       environment.sessionVariables.NIXOS_OZONE_WL = "1";
     }
     ]))
