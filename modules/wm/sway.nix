@@ -71,6 +71,7 @@ in {
       ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.wm === null`
       ##       and print a warning if so
       ordenada.globals.wm = "${cfg.package}/bin/sway";
+      ordenada.globals.wayland = true;
 
       security.polkit.enable = true;
       environment.loginShellInit = lib.mkIf (cfg.autoStartTty != null) ''

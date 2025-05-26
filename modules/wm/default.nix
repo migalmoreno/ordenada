@@ -14,6 +14,11 @@ in
     ./wlogout.nix
   ];
   options = {
+    ordenada.globals.wayland = mkOption {
+      type = types.nullOr types.bool;
+      description = "Whether or not the WM is running under wayland.";
+      default = null;
+    };
     ordenada.globals.wm = mkOption {
       type = types.nullOr types.str;
       description = "The system wide used window manager.";

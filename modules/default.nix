@@ -3,7 +3,6 @@
     ./age.nix
     ./android.nix
     ./base.nix
-    ./bash.nix
     ./bluetooth.nix
     ./clojure.nix
     ./compile.nix
@@ -28,6 +27,7 @@
     ./playerctl.nix
     ./pipewire.nix
     ./qemu.nix
+    ./shell
     ./ssh.nix
     ./tailscale.nix
     ./theme.nix
