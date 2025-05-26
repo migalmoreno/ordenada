@@ -8,16 +8,22 @@
 with pkgs.lib.ordenada;
 
 let
+  inherit (lib) mkOption types;
   cfg = config.ordenada.features.home;
 in
 {
   options = {
     ordenada.features.home = {
       enable = mkEnableTrueOption "the home feature";
-      extraGroups = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
+      extraGroups = mkOption {
+        type = types.listOf types.str;
         description = "The extra list of groups.";
         default = [ ];
+      };
+      autoStartWmOnTty = mkOption {
+        type = types.nullOr types.str;
+        description = "The tty to launch the WM in.";
+        default = null;
       };
     };
   };
@@ -26,6 +32,10 @@ in
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "backup";
+      
+      environment.loginShellInit = lib.mkIf (cfg.autoStartWmOnTty != null) ''
+        [[ $(tty) == ${cfg.autoStartWmOnTty} ]] && exec ${config.ordenada.globals.wm}
+      '';
     })
     {
       home-manager = mkHomeConfig config "home" (user: {
