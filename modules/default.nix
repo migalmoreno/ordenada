@@ -28,6 +28,7 @@
     ./pipewire.nix
     ./qemu.nix
     ./shell
+    ./scripts
     ./ssh.nix
     ./tailscale.nix
     ./theme.nix
