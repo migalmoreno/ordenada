@@ -1,7 +1,6 @@
 {
   imports = [
     ./base.nix
-    ./clojure.nix
     ./docker.nix
     ./development
     ./emacs
@@ -10,10 +9,8 @@
     ./home.nix
     ./irc.nix
     ./firefox.nix
-    ./javascript.nix
     ./mail.nix
-    ./markdown.nix
-    ./nix.nix
+    ./lang
     ./playerctl.nix
     ./qemu.nix
     ./shell
@@ -24,6 +21,5 @@
     ./theme.nix
     ./wm
     ./xdg.nix
-    ./yaml.nix
   ];
 }
