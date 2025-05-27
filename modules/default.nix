@@ -1,24 +1,25 @@
 {
   imports = [
-    ./base.nix
     ./browser
     ./development
     ./editor
-    ./git.nix
-    ./gtk.nix
-    ./home.nix
-    ./mail.nix
     ./messaging
     ./lang
-    ./playerctl.nix
     ./shell
     ./scripts
     ./security
     ./system
-    ./tailscale.nix
-    ./theme.nix
     ./virtualization
     ./wm
+
+    ./base.nix
+    ./git.nix
+    ./gtk.nix
+    ./home.nix
+    ./mail.nix
+    ./playerctl.nix
+    ./tailscale.nix
+    ./theme.nix
     ./xdg.nix
   ];
 }
