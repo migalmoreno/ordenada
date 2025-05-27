@@ -1,7 +1,6 @@
 {
   imports = [
     ./base.nix
-    ./docker.nix
     ./development
     ./emacs
     ./git.nix
@@ -12,13 +11,13 @@
     ./mail.nix
     ./lang
     ./playerctl.nix
-    ./qemu.nix
     ./shell
     ./scripts
     ./security
     ./system
     ./tailscale.nix
     ./theme.nix
+    ./virtualization
     ./wm
     ./xdg.nix
   ];
