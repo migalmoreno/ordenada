@@ -1,13 +1,13 @@
 {
   imports = [
     ./base.nix
+    ./browser
     ./development
     ./editor
     ./git.nix
     ./gtk.nix
     ./home.nix
     ./irc.nix
-    ./firefox.nix
     ./mail.nix
     ./lang
     ./playerctl.nix
