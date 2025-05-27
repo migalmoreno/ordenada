@@ -7,8 +7,8 @@
     ./git.nix
     ./gtk.nix
     ./home.nix
-    ./irc.nix
     ./mail.nix
+    ./messaging
     ./lang
     ./playerctl.nix
     ./shell
