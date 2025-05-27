@@ -2,7 +2,7 @@
   imports = [
     ./base.nix
     ./development
-    ./emacs
+    ./editor
     ./git.nix
     ./gtk.nix
     ./home.nix
