@@ -1,11 +1,9 @@
 {
   imports = [
-    ./android.nix
     ./base.nix
     ./clojure.nix
-    ./compile.nix
-    ./direnv.nix
     ./docker.nix
+    ./development
     ./emacs
     ./git.nix
     ./gtk.nix
