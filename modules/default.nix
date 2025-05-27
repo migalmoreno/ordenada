@@ -1,6 +1,5 @@
 {
   imports = [
-    ./age.nix
     ./android.nix
     ./base.nix
     ./bluetooth.nix
@@ -10,7 +9,6 @@
     ./docker.nix
     ./emacs
     ./git.nix
-    ./gnupg.nix
     ./gtk.nix
     ./home.nix
     ./irc.nix
@@ -22,14 +20,12 @@
     ./markdown.nix
     ./networking.nix
     ./nix.nix
-    ./passage.nix
-    ./password-store.nix
     ./playerctl.nix
     ./pipewire.nix
     ./qemu.nix
     ./shell
     ./scripts
-    ./ssh.nix
+    ./security
     ./tailscale.nix
     ./theme.nix
     ./wm
