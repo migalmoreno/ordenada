@@ -2,7 +2,6 @@
   imports = [
     ./android.nix
     ./base.nix
-    ./bluetooth.nix
     ./clojure.nix
     ./compile.nix
     ./direnv.nix
@@ -12,20 +11,17 @@
     ./gtk.nix
     ./home.nix
     ./irc.nix
-    ./keyboard.nix
     ./firefox.nix
-    ./fontutils.nix
     ./javascript.nix
     ./mail.nix
     ./markdown.nix
-    ./networking.nix
     ./nix.nix
     ./playerctl.nix
-    ./pipewire.nix
     ./qemu.nix
     ./shell
     ./scripts
     ./security
+    ./system
     ./tailscale.nix
     ./theme.nix
     ./wm
