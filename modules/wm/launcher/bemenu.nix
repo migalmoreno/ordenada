@@ -50,12 +50,22 @@ in {
         description = "The height of the bemenu prompt.";
         default = 34;
       };
+      enableLauncher = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global launcher.";
+        default = true;
+      };
+      enablePinentry = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global pinentry.";
+        default = true;
+      };
     };
   };
   config = lib.mkIf cfg.enable {
     ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.launcher === null`
     ##       and print a warning if so
-    ordenada.globals.launcher = ''
+    ordenada.globals.launcher = lib.mkIf cfg.enableLauncher ''
       ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
         --dmenu="${cfg.package}/bin/bemenu ${mkBemenuOpts menuSettings}"
     '';
