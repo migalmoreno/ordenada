@@ -15,6 +15,27 @@ let
         else
           "'${value}'"
       }") opts);
+  menuSettings = with config.ordenada.features.theme.scheme.withHashtag; {
+    line-height = 34;
+    ignorecase = true;
+    hp = 10;
+    cw = 1;
+    ch = 20;
+    tf = base05;
+    tb = base02;
+    ff = base05;
+    fb = base01;
+    nf = base05;
+    nb = base01;
+    af = base05;
+    ab = base01;
+    cf = base05;
+    cb = base01;
+    hf = base01;
+    hb = base0D;
+    fn = with config.ordenada.features.fontutils.fonts.monospace;
+      "${name} ${toString size}";
+  };
 in {
   options = {
     ordenada.features.bemenu = {
@@ -31,37 +52,20 @@ in {
       };
     };
   };
-  config = {
+  config = lib.mkIf cfg.enable {
     ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.launcher === null`
     ##       and print a warning if so
-    ordenada.globals.launcher = "${cfg.package}/bin/bemenu";
+    ordenada.globals.launcher = ''
+      ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
+        --dmenu="${cfg.package}/bin/bemenu ${mkBemenuOpts menuSettings}"
+    '';
 
     home-manager = mkHomeConfig config "bemenu" (user:
       with config.home-manager.users.${user.name}.programs.bemenu; {
         programs.bemenu = {
           enable = true;
           package = user.features.bemenu.package;
-          settings = with user.features.theme.scheme.withHashtag; {
-            line-height = 34;
-            ignorecase = true;
-            hp = 10;
-            cw = 1;
-            ch = 20;
-            tf = base05;
-            tb = base02;
-            ff = base05;
-            fb = base01;
-            nf = base05;
-            nb = base01;
-            af = base05;
-            ab = base01;
-            cf = base05;
-            cb = base01;
-            hf = base01;
-            hb = base0D;
-            fn = with user.features.fontutils.fonts.monospace;
-              "${name} ${toString size}";
-          };
+          settings = menuSettings;
         };
         services.gpg-agent.pinentry.package = lib.mkForce (
           pkgs.writeShellScriptBin "pinentry-bemenu" ''
@@ -71,10 +75,6 @@ in {
               mkBemenuOpts (removeAttrs settings [ "cw" "hp" "ch" ])
             }
           '');
-        wayland.windowManager.sway.config.menu = ''
-          ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
-           --dmenu="${package}/bin/bemenu ${mkBemenuOpts settings}"
-        '';
       });
   };
 }
