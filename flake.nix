@@ -11,6 +11,7 @@
     base16.url = "github:SenchoPens/base16.nix";
     arkenfox-nixos.url = "github:dwarfmaster/arkenfox-nixos";
     systems.url = "github:nix-systems/default";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
   outputs =
     inputs@{
@@ -18,49 +19,62 @@
       nur,
       nix-rice,
       base16,
-      systems,
       home-manager,
+      flake-parts,
       ...
     }:
     let
       ordenada = nixpkgs.lib.callPackagesWith {
         inherit (nixpkgs) lib;
-        inherit pkgs;
+        pkgs = pkgs';
       } ./lib { };
-      pkgs = import nixpkgs {
+      pkgs' = import nixpkgs {
         system = "x86_64-linux";
         overlays = [ overlay ];
       };
       overlay = _final: prev: {
         lib = prev.lib // {
           inherit ordenada;
-          base16 = pkgs.callPackage base16.lib { };
+          base16 = pkgs'.callPackage base16.lib { };
         };
       };
-      eachSystem =
-        f: nixpkgs.lib.genAttrs (import systems) (system: f (import nixpkgs { inherit system; }));
     in
-    rec {
-      lib = ordenada;
-      overlays.default = overlay;
-      packages = eachSystem (pkgs': rec {
-        docs = pkgs'.callPackage ./mkDocs.nix { inherit pkgs; };
-        default = docs;
-      });
-      nixosModules.ordenada =
-        { pkgs, ... }:
-        {
-          imports = [
-            ./modules
-            home-manager.nixosModules.home-manager
-          ];
-          config = {
-            nixpkgs.overlays = [
-              overlays.default
-              nur.overlays.default
-              nix-rice.overlays.default
-              (final: prev: { inherit inputs; })
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = import inputs.systems;
+      flake = {
+        overlays.default = overlay;
+        lib = ordenada;
+        nixosModules.ordenada =
+          { pkgs, ... }:
+          {
+            imports = [
+              ./modules
+              home-manager.nixosModules.home-manager
             ];
+            config = {
+              nixpkgs.overlays = [
+                overlay
+                nur.overlays.default
+                nix-rice.overlays.default
+                (final: prev: { inherit inputs; })
+              ];
+            };
+          };
+      };
+      perSystem =
+        {
+          config,
+          pkgs,
+          system,
+          modulesPath,
+          ...
+        }:
+        {
+          packages = rec {
+            docs = pkgs.callPackage ./mkDocs.nix {
+              pkgs = pkgs';
+            };
+            default = docs;
           };
         };
     };
