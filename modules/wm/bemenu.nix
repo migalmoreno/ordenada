@@ -68,7 +68,7 @@ in
             fn = with user.features.fontutils.fonts.monospace; "${name} ${toString size}";
           };
         };
-        services.gpg-agent.pinentryPackage = lib.mkForce (
+        services.gpg-agent.pinentry.package = lib.mkForce (
           pkgs.writeShellScriptBin "pinentry-bemenu" ''
             PATH="$PATH:${pkgs.coreutils}/bin:${package}/bin"
             unset BEMENU_OPTS
