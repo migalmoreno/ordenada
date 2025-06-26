@@ -34,6 +34,7 @@
           ${config}
           (provide '${name})'';
         packageRequires = elispPackages;
+        ignoreCompilationError = true;
       };
     in
     {
