@@ -64,7 +64,7 @@ in
             (setopt org-roam-db-location
                     (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                             "/emacs/org-roam.db"))
-            (org-roam-db-autosync-enable)
+            (add-hook 'after-init-hook #'org-roam-db-autosync-mode)
             (cl-defmethod org-roam-node-type ((node org-roam-node))
               "Return the TYPE of NODE, where the TYPE is a directory of
           the node, relative to `org-roam-directory'."
