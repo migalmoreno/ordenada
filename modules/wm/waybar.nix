@@ -62,7 +62,7 @@ let
         };
       };
     };
-    pulseaudio = lib.mkIf (config.services.pipewire.pulse.enable || config.services.pulseaudio.enable) {
+    pulseaudio = lib.mkIf config.ordenada.features.pipewire.enable {
       name = "pulseaudio";
       config = {
         format = "{volume}% {icon}";
