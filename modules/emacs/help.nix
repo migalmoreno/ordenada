@@ -51,9 +51,9 @@ with pkgs.lib.ordenada;
               (define-key map [remap describe-command] #'helpful-command)))
           (add-hook 'helpful-mode-hook #'visual-line-mode)
           (with-eval-after-load 'helpful
-            (keymap-set helpful-mode-map "q" #'kill-this-buffer))
+            (keymap-set helpful-mode-map "q" #'kill-current-buffer))
           (with-eval-after-load 'help-mode
-            (keymap-set help-mode-map "q" #'kill-this-buffer)
+            (keymap-set help-mode-map "q" #'kill-current-buffer)
             (setopt help-window-select t))
         '';
         elispPackages = with pkgs.emacsPackages; [ helpful ];
