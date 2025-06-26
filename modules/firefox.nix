@@ -52,9 +52,9 @@ in
           "0100".enable = true;
           "0300".enable = true;
           "0800".enable = true;
+          "0900".enable = true;
           "1700".enable = true;
           "2600".enable = true;
-          "5000".enable = true;
         };
       };
     };
