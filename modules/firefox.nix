@@ -111,11 +111,14 @@ in
               } // extraSettings;
               search = lib.recursiveUpdate {
                 force = true;
-                default = "Google";
-                privateDefault = "Google";
                 engines = {
-                  "Bing".metaData.hidden = true;
-                  "Amazon.com".metaData.hidden = true;
+                  "google".metaData.hidden = true;
+                  "bing".metaData.hidden = true;
+                  "amazondotcom-us".metaData.hidden = true;
+                  "ddg".metaData.hidden = true;
+                  "wikipedia".metaData.hidden = true;
+                  "ecosia".metaData.hidden = true;
+                  "qwant".metaData.hidden = true;
                 };
               } extraSearchConfig;
               extensions.packages =
