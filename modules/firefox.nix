@@ -118,7 +118,7 @@ in
                   "Amazon.com".metaData.hidden = true;
                 };
               } extraSearchConfig;
-              extensions =
+              extensions.packages =
                 with nurPkgs.repos.rycee.firefox-addons;
                 [
                   ublock-origin
