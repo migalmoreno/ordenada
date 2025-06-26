@@ -53,7 +53,7 @@ in
   options = {
     ordenada.features.emacs = {
       enable = mkEnableOption "the Emacs feature";
-      package = mkPackageOption pkgs "emacs" { default = "emacs29-pgtk"; };
+      package = mkPackageOption pkgs "emacs" { default = "emacs30-pgtk"; };
       advancedUser = mkEnableOption "advanced user mode for Emacs features";
       defaultThemes = mkOption {
         type = types.attrs;
