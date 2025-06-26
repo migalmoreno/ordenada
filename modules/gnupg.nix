@@ -34,13 +34,14 @@ in
   config = {
     home-manager = mkHomeConfig config "gnupg" (user: {
       services.gpg-agent = with user.features.gnupg; {
+        inherit sshKeys;
         enable = true;
         defaultCacheTtl = defaultTtl;
         defaultCacheTtlSsh = defaultTtl;
         maxCacheTtl = defaultTtl;
         maxCacheTtlSsh = defaultTtl;
         enableSshSupport = true;
-        inherit pinentryPackage sshKeys;
+        pinentry.package = pinentryPackage;
       };
       programs = {
         gpg = {
