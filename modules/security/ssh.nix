@@ -7,9 +7,6 @@
 
 with pkgs.lib.ordenada;
 
-let
-  cfg = config.ordenada.features.ssh;
-in
 {
   options = {
     ordenada.features.ssh = {
@@ -23,7 +20,7 @@ in
       authorizedKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         description = "List of user authorized SSH keys.";
-        default = cfg.rootAuthorizedKeys;
+        default = [ ];
       };
     };
   };

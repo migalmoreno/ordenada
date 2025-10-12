@@ -236,10 +236,7 @@ in
     };
   };
   config = {
-    ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.bar === null`
-    ##       and print a warning if so
     ordenada.globals.bar = "${cfg.package}/bin/waybar";
-
     home-manager = mkHomeConfig config "waybar" (
       user:
       lib.mkMerge [

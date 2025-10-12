@@ -52,7 +52,7 @@ with pkgs.lib.ordenada;
             (setq ebdb-completion-display-record nil)
             (setq ebdb-complete-mail-allow-cycling nil)
             (setq ebdb-save-on-exit t)
-            (keymap-set ebdb-mode-map "q" #'kill-this-buffer))
+            (keymap-set ebdb-mode-map "q" #'kill-current-buffer))
         '';
         elispPackages = with pkgs.emacsPackages; [ ebdb ];
       };
