@@ -5,10 +5,14 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
-  inherit (lib) mkEnableOption mkOption types;
+  inherit (lib)
+    mkEnableOption
+    mkOption
+    mkPackageOption
+    types
+    ;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.bemenu;
   mkBemenuOpts =
     opts:
@@ -47,29 +51,23 @@ let
   };
 in
 {
-  options = {
-    ordenada.features.bemenu = {
-      enable = mkEnableOption "the bemenu feature";
-      package = mkOption {
-        type = types.package;
-        default = pkgs.bemenu;
-        description = "The bemenu package to use.";
-      };
-      height = mkOption {
-        type = types.int;
-        description = "The height of the bemenu prompt.";
-        default = 34;
-      };
-      enableLauncher = mkOption {
-        type = types.bool;
-        description = "Whether to enable this feature as the global launcher.";
-        default = true;
-      };
-      enablePinentry = mkOption {
-        type = types.bool;
-        description = "Whether to enable this feature as the global pinentry.";
-        default = true;
-      };
+  options.ordenada.features.bemenu = {
+    enable = mkEnableOption "the bemenu feature";
+    package = mkPackageOption pkgs "bemenu" { };
+    height = mkOption {
+      type = types.int;
+      description = "The height of the bemenu prompt.";
+      default = 34;
+    };
+    enableLauncher = mkOption {
+      type = types.bool;
+      description = "Whether to enable this feature as the global launcher.";
+      default = true;
+    };
+    enablePinentry = mkOption {
+      type = types.bool;
+      description = "Whether to enable this feature as the global pinentry.";
+      default = true;
     };
   };
   config = lib.mkIf cfg.enable {

@@ -5,16 +5,13 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
   cfg = config.ordenada.features.pipewire;
 in
 {
-  options = {
-    ordenada.features.pipewire = {
-      enable = lib.mkEnableOption "the Pipewire feature";
-    };
+  options.ordenada.features.pipewire = {
+    enable = lib.mkEnableOption "the Pipewire feature";
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {

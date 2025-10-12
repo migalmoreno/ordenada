@@ -5,57 +5,55 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (lib)
+    mkEnableOption
+    mkOption
+    mkPackageOption
+    types
+    ;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.firefox;
   nurPkgs = import pkgs.inputs.nur {
     inherit pkgs;
     nurpkgs = pkgs;
   };
-  inherit (lib) mkOption mkEnableOption types;
 in
 {
-  options = {
-    ordenada.features.firefox = {
-      enable = mkEnableOption "the Firefox feature";
-      package = mkOption {
-        type = types.package;
-        description = "The Firefox package to use.";
-        default = pkgs.firefox-wayland;
-      };
-      extraSearchConfig = mkOption {
-        type = types.attrs;
-        description = "Extra search engines configuration.";
-        default = { };
-      };
-      extraPolicies = mkOption {
-        type = types.attrs;
-        description = "Attrset of extra Firefox policies.";
-        default = { };
-      };
-      extraSettings = mkOption {
-        type = types.attrs;
-        description = "User.js extra settings for the default Firefox profile.";
-        default = { };
-      };
-      extraAddons = mkOption {
-        type = types.listOf types.package;
-        description = "Extra Firefox add-ons to install.";
-        default = [ ];
-      };
-      arkenfoxSettings = mkOption {
-        type = types.attrs;
-        description = "Arkenfox user.js settings.";
-        default = {
-          "0000".enable = true;
-          "0100".enable = true;
-          "0300".enable = true;
-          "0800".enable = true;
-          "0900".enable = true;
-          "1700".enable = true;
-          "2600".enable = true;
-        };
+  options.ordenada.features.firefox = {
+    enable = mkEnableOption "the Firefox feature";
+    package = mkPackageOption pkgs "firefox-wayland" { };
+    extraSearchConfig = mkOption {
+      type = types.attrs;
+      description = "Extra search engines configuration.";
+      default = { };
+    };
+    extraPolicies = mkOption {
+      type = types.attrs;
+      description = "Attrset of extra Firefox policies.";
+      default = { };
+    };
+    extraSettings = mkOption {
+      type = types.attrs;
+      description = "User.js extra settings for the default Firefox profile.";
+      default = { };
+    };
+    extraAddons = mkOption {
+      type = types.listOf types.package;
+      description = "Extra Firefox add-ons to install.";
+      default = [ ];
+    };
+    arkenfoxSettings = mkOption {
+      type = types.attrs;
+      description = "Arkenfox user.js settings.";
+      default = {
+        "0000".enable = true;
+        "0100".enable = true;
+        "0300".enable = true;
+        "0800".enable = true;
+        "0900".enable = true;
+        "1700".enable = true;
+        "2600".enable = true;
       };
     };
   };

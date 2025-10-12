@@ -5,21 +5,18 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
   inherit (lib) mkEnableOption mkOption types;
+  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
   cfg = config.ordenada.features.docker;
 in
 {
-  options = {
-    ordenada.features.docker = {
-      enable = mkEnableOption "the Docker feature";
-      key = mkOption {
-        type = types.str;
-        default = "D";
-        description = "Keybinding to launch Emacs Docker interface.";
-      };
+  options.ordenada.features.docker = {
+    enable = mkEnableOption "the Docker feature";
+    key = mkOption {
+      type = types.str;
+      default = "D";
+      description = "Keybinding to launch Emacs Docker interface.";
     };
   };
   config = lib.mkMerge [

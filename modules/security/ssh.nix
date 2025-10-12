@@ -5,23 +5,23 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
+let
+  inherit (lib) mkEnableOption mkOption types;
+  inherit (pkgs.lib.ordenada) mkEnableTrueOption mkHomeConfig;
+in
 {
-  options = {
-    ordenada.features.ssh = {
-      enable = lib.mkEnableOption "the SSH feature";
-      daemon = mkEnableTrueOption "the SSH server daemon";
-      matchBlocks = lib.mkOption {
-        type = lib.types.attrs;
-        description = "The SSH stanzas to use in the client configuration.";
-        default = { };
-      };
-      authorizedKeys = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        description = "List of user authorized SSH keys.";
-        default = [ ];
-      };
+  options.ordenada.features.ssh = {
+    enable = mkEnableOption "the SSH feature";
+    daemon = mkEnableTrueOption "the SSH server daemon";
+    matchBlocks = mkOption {
+      type = types.attrs;
+      description = "The SSH stanzas to use in the client configuration.";
+      default = { };
+    };
+    authorizedKeys = mkOption {
+      type = types.listOf types.str;
+      description = "List of user authorized SSH keys.";
+      default = [ ];
     };
   };
   config = lib.mkMerge [

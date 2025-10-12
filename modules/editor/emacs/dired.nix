@@ -5,9 +5,15 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (lib) mkEnableOption mkOption types;
+  inherit (pkgs.lib.ordenada)
+    elisp
+    hasFeature
+    mkElispConfig
+    mkEnableTrueOption
+    mkHomeConfig
+    ;
   userSwitches =
     if config.ordenada.features.emacs.advancedUser then [ "-A --time-style=long-iso" ] else [ "-a" ];
   listingSwitches =
@@ -17,28 +23,28 @@ let
     ++ (if extraSwitches != [ ] then userSwitches else [ ]);
 in
 {
-  options = {
-    ordenada.features.emacs.dired = {
-      enable = lib.mkEnableOption "the Emacs Dired feature";
-      groupDirsFirst = mkEnableTrueOption "sorting directories first in the Dired listing";
-      killOnNewBuffer = lib.mkEnableOption "killing the current Dired buffer on opening a new buffer";
-      extraSwitches = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        description = "The list of extra switches passed to ls for Dired.";
-        default = [ "-h" ];
-      };
+  options.ordenada.features.emacs.dired = {
+    enable = mkEnableOption "the Emacs Dired feature";
+    groupDirsFirst = mkEnableTrueOption "sorting directories first in the Dired listing";
+    killOnNewBuffer = mkEnableOption "killing the current Dired buffer on opening a new buffer";
+    extraSwitches = mkOption {
+      type = types.listOf types.str;
+      description = "The list of extra switches passed to ls for Dired.";
+      default = [ "-h" ];
     };
   };
-  config = {
-    home-manager = mkHomeConfig config "emacs.dired" (user: {
-      home.packages = with pkgs; [
-        zip
-        unzip
-        rsync
-      ];
-      programs.emacs = mkElispConfig {
-        name = "ordenada-dired";
-        config = with user.features.emacs; ''
+  config.home-manager = mkHomeConfig config "emacs.dired" (user: {
+    home.packages = with pkgs; [
+      zip
+      unzip
+      rsync
+    ];
+    programs.emacs = mkElispConfig {
+      name = "ordenada-dired";
+      config =
+        with user.features.emacs;
+        with elisp;
+        ''
           (eval-when-compile (require 'dired))
           ${mkIf (hasFeature "emacs.embark" user) ''
             (defun ordenada-dired-open-externally ()
@@ -82,11 +88,10 @@ in
           (with-eval-after-load 'ls-lisp
             (setopt ls-lisp-use-insert-directory-program nil))
         '';
-        elispPackages = with pkgs.emacsPackages; [
-          all-the-icons-dired
-          dired-rsync
-        ];
-      };
-    });
-  };
+      elispPackages = with pkgs.emacsPackages; [
+        all-the-icons-dired
+        dired-rsync
+      ];
+    };
+  });
 }

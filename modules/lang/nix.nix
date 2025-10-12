@@ -5,15 +5,15 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (lib) mkEnableOption;
+  inherit (pkgs.lib.ordenada) elisp mkElispConfig mkHomeConfig;
   cfg = config.ordenada.features.nix;
 in
 {
   options.ordenada.features.nix = {
-    enable = lib.mkEnableOption "the Nix feature";
-    polymode = lib.mkEnableOption "Polymode support for Nix multi-line strings";
+    enable = mkEnableOption "the Nix feature";
+    polymode = mkEnableOption "Polymode support for Nix multi-line strings";
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
@@ -34,7 +34,7 @@ in
         programs.emacs = mkElispConfig {
           name = "ordenada-nix";
           config = # elisp
-            ''
+            with elisp; ''
               (add-hook 'nix-mode-hook #'eglot-ensure)
               (with-eval-after-load 'eglot
                 (add-to-list 'eglot-server-programs '(nix-mode . ("nil"))))

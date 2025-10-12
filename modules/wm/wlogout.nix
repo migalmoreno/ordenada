@@ -5,26 +5,19 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
-  inherit (lib) mkOption types;
+  inherit (lib) mkOption mkPackageOption types;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.swaylock;
 in
 {
-  options = {
-    ordenada.features.wlogout = {
-      enable = mkOption {
-        type = types.bool;
-        default = config.ordenada.features.sway.enable;
-        description = "Whether to enable the wlogout feature.";
-      };
-      package = mkOption {
-        type = types.package;
-        default = pkgs.wlogout;
-        description = "The wlogout package.";
-      };
+  options.ordenada.features.wlogout = {
+    enable = mkOption {
+      type = types.bool;
+      default = config.ordenada.features.sway.enable;
+      description = "Whether to enable the wlogout feature.";
     };
+    package = mkPackageOption pkgs "wlogout" { };
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable { programs.gdk-pixbuf.modulePackages = [ pkgs.librsvg ]; })

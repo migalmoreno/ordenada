@@ -5,20 +5,22 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
+let
+  inherit (lib) mkEnableOption;
+  inherit (pkgs.lib.ordenada) elisp mkHomeConfig mkElispConfig;
+in
 {
-  options = {
-    ordenada.features.emacs.consult = {
-      enable = lib.mkEnableOption "the Emacs consult feature";
-      initialNarrowing = lib.mkEnableOption "the initial narrowing of mini-buffer items";
-    };
+  options.ordenada.features.emacs.consult = {
+    enable = mkEnableOption "the Emacs consult feature";
+    initialNarrowing = mkEnableOption "the initial narrowing of mini-buffer items";
   };
-  config = {
-    home-manager = mkHomeConfig config "emacs.consult" (user: {
-      programs.emacs = mkElispConfig {
-        name = "ordenada-consult";
-        config = with user.features.emacs.consult; ''
+  config.home-manager = mkHomeConfig config "emacs.consult" (user: {
+    programs.emacs = mkElispConfig {
+      name = "ordenada-consult";
+      config =
+        with user.features.emacs.consult;
+        with elisp;
+        ''
           (eval-when-compile
             (require 'consult))
           (defcustom ordenada-consult nil
@@ -120,11 +122,10 @@ with pkgs.lib.ordenada;
           (with-eval-after-load 'xref
             (setopt xref-show-xrefs-function #'consult-xref))
         '';
-        elispPackages = with pkgs.emacsPackages; [
-          consult
-          embark-consult
-        ];
-      };
-    });
-  };
+      elispPackages = with pkgs.emacsPackages; [
+        consult
+        embark-consult
+      ];
+    };
+  });
 }

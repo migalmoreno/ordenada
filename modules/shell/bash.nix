@@ -5,17 +5,14 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
   cfg = config.ordenada.features.bash;
 in
 {
-  options = {
-    ordenada.features.bash = {
-      enable = lib.mkEnableOption "the Bash feature";
-      package = lib.mkPackageOption pkgs "bash" { default = "bashInteractive"; };
-    };
+  options.ordenada.features.bash = {
+    enable = lib.mkEnableOption "the Bash feature";
+    package = lib.mkPackageOption pkgs "bash" { default = "bashInteractive"; };
   };
   config = lib.mkIf cfg.enable {
     ordenada.globals.shell = "${cfg.package}/bin/bash";

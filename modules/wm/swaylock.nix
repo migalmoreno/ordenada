@@ -5,26 +5,19 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
-  inherit (lib) mkOption types;
+  inherit (lib) mkOption mkPackageOption types;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.swaylock;
 in
 {
-  options = {
-    ordenada.features.swaylock = {
-      enable = mkOption {
-        type = types.bool;
-        default = config.ordenada.features.sway.enable;
-        description = "Whether to enable the swaylock feature.";
-      };
-      package = mkOption {
-        type = types.package;
-        default = pkgs.swaylock;
-        description = "The swaylock package.";
-      };
+  options.ordenada.features.swaylock = {
+    enable = mkOption {
+      type = types.bool;
+      default = config.ordenada.features.sway.enable;
+      description = "Whether to enable the swaylock feature.";
     };
+    package = mkPackageOption pkgs "swaylock" { };
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable { security.pam.services.swaylock = { }; })

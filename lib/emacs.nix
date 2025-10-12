@@ -1,20 +1,25 @@
 { lib, pkgs, ... }:
 
-{
-  mkIf = p: v: if p then v else "";
-  mkNilOr = v: v': if v == null then "nil" else v';
-  mkAlist = v: ''
-        '(${
-          toString (
-            lib.mapAttrsToList (key: val: ''
-              ("${key}" "${val}")
-            '') v
-          )
-        }
-    )
-  '';
-  mkList = v: '''(${toString (map (x: ''"${x}"'') v)})'';
-  mkBoolean = v: if v then "t" else "nil";
+rec {
+  string = {
+    mkIf = p: v: if p then v else "";
+    mkList = v: '''(${toString (map (x: ''"${x}"'') v)})'';
+  };
+  elisp = {
+    inherit (string) mkIf mkList;
+    mkNilOr = v: v': if v == null then "nil" else v';
+    mkAlist = v: ''
+          '(${
+            toString (
+              lib.mapAttrsToList (key: val: ''
+                ("${key}" "${val}")
+              '') v
+            )
+          }
+      )
+    '';
+    mkBoolean = v: if v then "t" else "nil";
+  };
   mkElispConfig =
     {
       name,

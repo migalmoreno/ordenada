@@ -185,20 +185,17 @@ You can use Ordenada's utilities to extend its available features with your own.
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (pkgs.lib.ordenada) hasFeature mkHomeConfig mkElispConfig;
   cfg = config.ordenada.features.example;
 in
 {
-  options = {
-    ordenada.features.example = {
-      enable = lib.mkEnableOption "the example feature";
-      message = lib.mkOption {
-        type = lib.types.str;
-        description = "The message to show.";
-        default = "";
-      };
+  options.ordenada.features.example = {
+    enable = lib.mkEnableOption "the example feature";
+    message = lib.mkOption {
+      type = lib.types.str;
+      description = "The message to show.";
+      default = "";
     };
   };
   config = (

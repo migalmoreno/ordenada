@@ -5,23 +5,23 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
+let
+  inherit (lib) mkEnableOption;
+  inherit (pkgs.lib.ordenada) hasFeature mkElispConfig mkHomeConfig;
+in
 {
-  options = {
-    ordenada.features.emacs = {
-      rainbow-delimiters = {
-        enable = lib.mkEnableOption "the Emacs rainbow-delimiters feature";
-      };
-      apheleia = {
-        enable = lib.mkEnableOption "the Emacs Apheleia feature";
-      };
-      eglot = {
-        enable = lib.mkEnableOption "the Emacs Eglot feature";
-      };
-      flymake = {
-        enable = lib.mkEnableOption "the Emacs Flymake feature";
-      };
+  options.ordenada.features.emacs = {
+    rainbow-delimiters = {
+      enable = mkEnableOption "the Emacs rainbow-delimiters feature";
+    };
+    apheleia = {
+      enable = mkEnableOption "the Emacs Apheleia feature";
+    };
+    eglot = {
+      enable = mkEnableOption "the Emacs Eglot feature";
+    };
+    flymake = {
+      enable = mkEnableOption "the Emacs Flymake feature";
     };
   };
   config = lib.mkMerge [

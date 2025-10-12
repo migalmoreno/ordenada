@@ -1,4 +1,5 @@
 { config, lib, ... }:
+
 let
   inherit (lib) mkOption types;
   cfg = config.ordenada.features;
@@ -49,13 +50,13 @@ let
   };
 in
 {
-  options = {
-    ordenada.users = mkOption {
+  options.ordenada = {
+    users = mkOption {
       type = types.attrsOf (types.submodule userModule);
       description = "Attrs of Ordenada users.";
       default = { };
     };
-    ordenada.features.userInfo = mkOption {
+    features.userInfo = mkOption {
       type = userInfo;
       description = "User information for Ordenada.";
       default = { };

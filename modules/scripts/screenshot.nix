@@ -5,10 +5,9 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
   inherit (lib) mkEnableOption;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.scripts.screenshot;
   grimScript =
     {

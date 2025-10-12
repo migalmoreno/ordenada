@@ -5,26 +5,23 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
   inherit (lib) mkOption types;
+  inherit (pkgs.lib.ordenada) mkEnableTrueOption mkHomeConfig;
   cfg = config.ordenada.features.home;
 in
 {
-  options = {
-    ordenada.features.home = {
-      enable = mkEnableTrueOption "the home feature";
-      extraGroups = mkOption {
-        type = types.listOf types.str;
-        description = "The extra list of groups.";
-        default = [ ];
-      };
-      autoStartWmOnTty = mkOption {
-        type = types.nullOr types.str;
-        description = "The tty to launch the WM in.";
-        default = null;
-      };
+  options.ordenada.features.home = {
+    enable = mkEnableTrueOption "the home feature";
+    extraGroups = mkOption {
+      type = types.listOf types.str;
+      description = "The extra list of groups.";
+      default = [ ];
+    };
+    autoStartWmOnTty = mkOption {
+      type = types.nullOr types.str;
+      description = "The tty to launch the WM in.";
+      default = null;
     };
   };
   config = lib.mkMerge [

@@ -5,16 +5,13 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.qemu;
 in
 {
-  options = {
-    ordenada.features.qemu = {
-      enable = lib.mkEnableOption "the QEMU feature";
-    };
+  options.ordenada.features.qemu = {
+    enable = lib.mkEnableOption "the QEMU feature";
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {

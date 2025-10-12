@@ -5,10 +5,14 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
-  inherit (lib) types mkOption mkEnableOption;
+  inherit (lib)
+    mkEnableOption
+    mkPackageOption
+    mkOption
+    types
+    ;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada;
   accountModule = types.submodule {
     options = {
@@ -42,112 +46,96 @@ let
   };
 in
 {
-  options = {
-    ordenada.features.mail = {
-      enable = mkEnableOption "the mail feature";
-      accounts = mkOption {
-        type = types.attrsOf accountModule;
-        description = "The list of mail accounts.";
-        default = { };
+  options.ordenada.features.mail = {
+    enable = mkEnableOption "the mail feature";
+    accounts = mkOption {
+      type = types.attrsOf accountModule;
+      description = "The list of mail accounts.";
+      default = { };
+    };
+    mbsync = {
+      enable = mkOption {
+        type = types.bool;
+        default = config.ordenada.features.mail.enable;
+        description = "Whether to enable the mbsync mail feature.";
+        example = true;
       };
-      mbsync = {
-        enable = mkOption {
-          type = types.bool;
-          default = config.ordenada.features.mail.enable;
-          description = "Whether to enable the mbsync mail feature.";
-          example = true;
-        };
-        package = mkOption {
-          type = types.package;
-          default = pkgs.isync;
-          description = "The mbsync package to use.";
-        };
+      package = mkPackageOption pkgs "isync" { };
+    };
+    msmtp = {
+      enable = mkOption {
+        type = types.bool;
+        default = config.ordenada.features.mail.enable;
+        description = "Whether to enable the msmtp mail feature.";
+        example = true;
       };
-      msmtp = {
-        enable = mkOption {
-          type = types.bool;
-          default = config.ordenada.features.mail.enable;
-          description = "Whether to enable the msmtp mail feature.";
-          example = true;
-        };
-        package = mkOption {
-          type = types.package;
-          default = pkgs.msmtp;
-          description = "The msmtp package to use.";
-        };
+      package = mkPackageOption pkgs "msmtp" { };
+    };
+    imapnotify = {
+      enable = mkOption {
+        type = types.bool;
+        default = config.ordenada.features.mail.enable;
+        description = "Whether to enable the imapnotify mail feature.";
+        example = true;
       };
-      imapnotify = {
-        enable = mkOption {
-          type = types.bool;
-          default = config.ordenada.features.mail.enable;
-          description = "Whether to enable the imapnotify mail feature.";
-          example = true;
-        };
-        package = mkOption {
-          type = types.package;
-          default = pkgs.goimapnotify;
-          description = "The imapnotify package to use.";
-        };
-      };
-      defaultMessageSignature = mkOption {
-        description = "The default email signature.";
-        type = types.str;
-        default = ''
-          Best regards,
-          ${cfg.features.userInfo.fullName}
-        '';
-      };
+      package = mkPackageOption pkgs "goimapnotify" { };
+    };
+    defaultMessageSignature = mkOption {
+      description = "The default email signature.";
+      type = types.str;
+      default = ''
+        Best regards,
+        ${cfg.features.userInfo.fullName}
+      '';
     };
   };
-  config = {
-    home-manager = mkHomeConfig config "mail" (user: {
-      programs = {
-        inherit (user.features.mail) mbsync msmtp;
-      };
-      services.imapnotify.enable = user.features.mail.imapnotify.enable;
-      accounts.email = {
-        maildirBasePath = "${user.features.xdg.baseDirs.stateHome}/mail";
-        accounts = lib.mapAttrs (
-          name: acc:
-          lib.recursiveUpdate {
-            primary = acc.primary;
-            maildir.path = "accounts/${acc.fqda}";
-            signature = {
-              showSignature = "append";
-              text = acc.signature;
-            };
-            address = acc.fqda;
-            realName = acc.fullName;
-            passwordCommand =
-              with config.home-manager.users.${user.name}.programs;
-              (toString (
-                pkgs.writeShellScript "imapnotify-pass" ''
-                  export GNUPGHOME=${gpg.homedir}
-                  export PASSWORD_STORE_DIR=${password-store.settings.PASSWORD_STORE_DIR}
-                  ${user.features.password-store.package}/bin/pass show mail/${acc.fqda}
-                  ${gpg.package}/bin/gpg-connect-agent updatestartuptty /bye > /dev/null
-                ''
-              ));
-            gpg = lib.mkIf (user.features.userInfo.gpgPrimaryKey != null) {
-              key = user.features.userInfo.gpgPrimaryKey;
-              signByDefault = true;
-            };
-            mbsync = lib.mkIf user.features.mail.mbsync.enable {
-              enable = true;
-              create = "maildir";
-            };
-            msmtp.enable = user.features.mail.msmtp.enable;
-            imapnotify = lib.mkIf user.features.mail.imapnotify.enable {
-              enable = true;
-              boxes = [ "Inbox" ];
-              onNotify = "${user.features.mail.mbsync.package}/bin/mbsync ${name}";
-              onNotifyPost = "${pkgs.libnotify}/bin/notify-send 'New mail received'";
-            };
-            userName = acc.fqda;
-            flavor = acc.flavor;
-          } acc.extraConfig
-        ) user.features.mail.accounts;
-      };
-    });
-  };
+  config.home-manager = mkHomeConfig config "mail" (user: {
+    programs = {
+      inherit (user.features.mail) mbsync msmtp;
+    };
+    services.imapnotify.enable = user.features.mail.imapnotify.enable;
+    accounts.email = {
+      maildirBasePath = "${user.features.xdg.baseDirs.stateHome}/mail";
+      accounts = lib.mapAttrs (
+        name: acc:
+        lib.recursiveUpdate {
+          primary = acc.primary;
+          maildir.path = "accounts/${acc.fqda}";
+          signature = {
+            showSignature = "append";
+            text = acc.signature;
+          };
+          address = acc.fqda;
+          realName = acc.fullName;
+          passwordCommand =
+            with config.home-manager.users.${user.name}.programs;
+            (toString (
+              pkgs.writeShellScript "imapnotify-pass" ''
+                export GNUPGHOME=${gpg.homedir}
+                export PASSWORD_STORE_DIR=${password-store.settings.PASSWORD_STORE_DIR}
+                ${user.features.password-store.package}/bin/pass show mail/${acc.fqda}
+                ${gpg.package}/bin/gpg-connect-agent updatestartuptty /bye > /dev/null
+              ''
+            ));
+          gpg = lib.mkIf (user.features.userInfo.gpgPrimaryKey != null) {
+            key = user.features.userInfo.gpgPrimaryKey;
+            signByDefault = true;
+          };
+          mbsync = lib.mkIf user.features.mail.mbsync.enable {
+            enable = true;
+            create = "maildir";
+          };
+          msmtp.enable = user.features.mail.msmtp.enable;
+          imapnotify = lib.mkIf user.features.mail.imapnotify.enable {
+            enable = true;
+            boxes = [ "Inbox" ];
+            onNotify = "${user.features.mail.mbsync.package}/bin/mbsync ${name}";
+            onNotifyPost = "${pkgs.libnotify}/bin/notify-send 'New mail received'";
+          };
+          userName = acc.fqda;
+          flavor = acc.flavor;
+        } acc.extraConfig
+      ) user.features.mail.accounts;
+    };
+  });
 }

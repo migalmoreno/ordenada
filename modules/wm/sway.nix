@@ -5,36 +5,34 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
-  inherit (lib) mkOption mkEnableOption types;
+  inherit (lib)
+    mkEnableOption
+    mkOption
+    mkPackageOption
+    types
+    ;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.sway;
 in
 {
-  options = {
-    ordenada.features.sway = {
-      enable = mkEnableOption "the Sway feature";
-      package = mkOption {
-        type = types.package;
-        description = "The Sway package to use.";
-        default = pkgs.sway;
-      };
-      modifier = mkOption {
-        type = types.str;
-        description = "The modifier to bind Sway keys to.";
-        default = "Mod4";
-      };
-      keybindings = mkOption {
-        type = types.attrs;
-        description = "The Sway keybindings.";
-        default = { };
-      };
-      extraConfig = mkOption {
-        type = types.attrs;
-        default = { };
-        description = "Extra configuration for Sway.";
-      };
+  options.ordenada.features.sway = {
+    enable = mkEnableOption "the Sway feature";
+    package = mkPackageOption pkgs "sway" { };
+    modifier = mkOption {
+      type = types.str;
+      description = "The modifier to bind Sway keys to.";
+      default = "Mod4";
+    };
+    keybindings = mkOption {
+      type = types.attrs;
+      description = "The Sway keybindings.";
+      default = { };
+    };
+    extraConfig = mkOption {
+      type = types.attrs;
+      default = { };
+      description = "Extra configuration for Sway.";
     };
   };
   config = lib.mkMerge [

@@ -5,10 +5,9 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
   inherit (lib) mkEnableOption mkOption types;
+  inherit (pkgs.lib.ordenada) elisp mkElispConfig mkHomeConfig;
 in
 {
   options.ordenada.features = {
@@ -27,22 +26,24 @@ in
       replInCurrentWindow = mkEnableOption "showing the REPL in the current window";
     };
   };
-  config = {
-    home-manager = mkHomeConfig config "clojure" (user: {
-      home.packages = with pkgs; [
-        clj-kondo
-        cljfmt
-        zprint
-        clojure
-        jdk
-        leiningen
-      ];
-      home.file.".zprint.edn".text = ''
-        {:search-config? true}
-      '';
-      programs.emacs = mkElispConfig {
-        name = "ordenada-clojure";
-        config = with user.features.emacs.cider; ''
+  config.home-manager = mkHomeConfig config "clojure" (user: {
+    home.packages = with pkgs; [
+      clj-kondo
+      cljfmt
+      zprint
+      clojure
+      jdk
+      leiningen
+    ];
+    home.file.".zprint.edn".text = ''
+      {:search-config? true}
+    '';
+    programs.emacs = mkElispConfig {
+      name = "ordenada-clojure";
+      config =
+        with user.features.emacs.cider;
+        with elisp;
+        ''
           (defgroup ordenada-clojure nil
             "General Clojure programming utilities."
             :group 'ordenada)
@@ -110,15 +111,14 @@ in
             (push '(zprint . ("zprint")) apheleia-formatters)
             (add-to-list 'apheleia-mode-alist '(clojure-mode . zprint)))
         '';
-        elispPackages = with pkgs.emacsPackages; [
-          cider
-          clojure-mode
-          jarchive
-          html-to-hiccup
-          clj-deps-new
-          flymake-kondor
-        ];
-      };
-    });
-  };
+      elispPackages = with pkgs.emacsPackages; [
+        cider
+        clojure-mode
+        jarchive
+        html-to-hiccup
+        clj-deps-new
+        flymake-kondor
+      ];
+    };
+  });
 }

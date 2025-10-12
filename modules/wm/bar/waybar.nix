@@ -5,10 +5,14 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
-  inherit (lib) mkOption mkEnableOption types;
+  inherit (lib)
+    mkEnableOption
+    mkOption
+    mkPackageOption
+    types
+    ;
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.waybar;
   waybarModule = lib.types.submodule {
     options = {
@@ -200,39 +204,33 @@ let
   ];
 in
 {
-  options = {
-    ordenada.features.waybar = {
-      enable = mkEnableOption "the Waybar feature";
-      package = mkOption {
-        type = types.package;
-        default = pkgs.waybar;
-        description = "The waybar package to use.";
-      };
-      defaultModules = mkOption {
-        type = types.attrsOf waybarModule;
-        default = defaultWaybarModules;
-        description = "Attrset of pre-built Waybar modules.";
-      };
-      modules = mkOption {
-        type = types.listOf waybarModule;
-        default = waybarModules;
-        description = "The list of modules to add to Waybar.";
-      };
-      height = mkOption {
-        type = types.int;
-        default = 30;
-        description = "The height of the Waybar bar.";
-      };
-      extraSettings = mkOption {
-        type = types.attrs;
-        default = { };
-        description = "Extra settings for Waybar configuration.";
-      };
-      output = mkOption {
-        type = types.listOf types.str;
-        default = [ ];
-        description = "The list of outputs Waybar should be displayed in.";
-      };
+  options.ordenada.features.waybar = {
+    enable = mkEnableOption "the Waybar feature";
+    package = mkPackageOption pkgs "waybar" { };
+    defaultModules = mkOption {
+      type = types.attrsOf waybarModule;
+      default = defaultWaybarModules;
+      description = "Attrset of pre-built Waybar modules.";
+    };
+    modules = mkOption {
+      type = types.listOf waybarModule;
+      default = waybarModules;
+      description = "The list of modules to add to Waybar.";
+    };
+    height = mkOption {
+      type = types.int;
+      default = 30;
+      description = "The height of the Waybar bar.";
+    };
+    extraSettings = mkOption {
+      type = types.attrs;
+      default = { };
+      description = "Extra settings for Waybar configuration.";
+    };
+    output = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "The list of outputs Waybar should be displayed in.";
     };
   };
   config = {

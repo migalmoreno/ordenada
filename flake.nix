@@ -62,13 +62,7 @@
           };
       };
       perSystem =
-        {
-          config,
-          pkgs,
-          system,
-          modulesPath,
-          ...
-        }:
+        { pkgs, ... }:
         {
           packages = rec {
             docs = pkgs.callPackage ./mkDocs.nix {

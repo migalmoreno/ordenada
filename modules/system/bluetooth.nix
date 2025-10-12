@@ -5,16 +5,13 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
   cfg = config.ordenada.features.bluetooth;
 in
 {
-  options = {
-    ordenada.features.bluetooth = {
-      enable = lib.mkEnableOption "the Bluetooth feature";
-    };
+  options.ordenada.features.bluetooth = {
+    enable = lib.mkEnableOption "the Bluetooth feature";
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
@@ -23,7 +20,7 @@ in
     })
     {
       home-manager = mkHomeConfig config "bluetooth" (user: {
-        programs.emacs = pkgs.lib.ordenada.mkElispConfig {
+        programs.emacs = mkElispConfig {
           name = "ordenada-bluetooth";
           config = ''
             (with-eval-after-load 'ordenada-keymaps

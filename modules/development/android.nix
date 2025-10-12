@@ -5,16 +5,13 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
 let
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
   cfg = config.ordenada.features.android;
 in
 {
-  options = {
-    ordenada.features.android = {
-      enable = lib.mkEnableOption "the Android feature";
-    };
+  options.ordenada.features.android = {
+    enable = lib.mkEnableOption "the Android feature";
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {

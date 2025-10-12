@@ -5,13 +5,12 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-
+let
+  inherit (pkgs.lib.ordenada) mkHomeConfig;
+in
 {
-  options = {
-    ordenada.features.networking = {
-      enable = lib.mkEnableOption "the networking feature";
-    };
+  options.ordenada.features.networking = {
+    enable = lib.mkEnableOption "the networking feature";
   };
   config = lib.mkIf config.ordenada.features.networking.enable {
     networking.useDHCP = false;

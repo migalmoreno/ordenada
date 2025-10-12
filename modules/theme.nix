@@ -5,10 +5,14 @@
   ...
 }:
 
-with pkgs.lib.ordenada;
-with pkgs.lib.base16;
-
 let
+  inherit (pkgs.lib.base16) mkSchemeAttrs;
+  inherit (pkgs.lib.ordenada)
+    hasFeature
+    mkEnableTrueOption
+    mkHomeConfig
+    string
+    ;
   cfg = config.ordenada.features.theme;
   themeToToggle = if cfg.polarity == "dark" then "light" else "dark";
   defaultThemeSchemes = {
@@ -126,6 +130,7 @@ in
           systemctl = "XDG_RUNTIME_DIR=\${XDG_RUNTIME_DIR:-/run/user/$UID} systemctl";
           themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
             with user.features;
+            with string;
             ''
               current_system=$(readlink /run/current-system)
               specialisation=$(readlink /nix/var/nix/profiles/system/specialisation/${themeToToggle})
