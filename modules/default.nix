@@ -18,7 +18,6 @@
     ./home.nix
     ./mail.nix
     ./playerctl.nix
-    ./tailscale.nix
     ./theme.nix
     ./xdg.nix
   ];
