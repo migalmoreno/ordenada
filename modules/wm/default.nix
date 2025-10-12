@@ -1,7 +1,12 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
-  inherit (lib) types mkOption mkEnableOption;
+  inherit (lib) mkOption types;
 in
 {
   imports = [
@@ -14,25 +19,27 @@ in
     ./wlogout.nix
   ];
   options = {
-    ordenada.globals.wayland = mkOption {
-      type = types.nullOr types.bool;
-      description = "Whether or not the WM is running under wayland.";
-      default = false;
-    };
-    ordenada.globals.wm = mkOption {
-      type = types.nullOr types.str;
-      description = "The system wide used window manager.";
-      default = null;
-    };
-    ordenada.globals.launcher = mkOption {
-      type = types.nullOr types.str;
-      description = "The system wide used application launcher.";
-      default = null;
-    };
-    ordenada.globals.bar = mkOption {
-      type = types.nullOr types.str;
-      description = "The system wide used bar.";
-      default = null;
+    ordenada.globals = {
+      wayland = mkOption {
+        type = types.nullOr types.bool;
+        description = "Whether or not the WM is running under wayland.";
+        default = false;
+      };
+      wm = mkOption {
+        type = types.nullOr types.str;
+        description = "The system wide used window manager.";
+        default = null;
+      };
+      launcher = mkOption {
+        type = types.nullOr types.str;
+        description = "The system wide used application launcher.";
+        default = null;
+      };
+      bar = mkOption {
+        type = types.nullOr types.str;
+        description = "The system wide used bar.";
+        default = null;
+      };
     };
   };
 }

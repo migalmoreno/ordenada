@@ -1,11 +1,17 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with pkgs.lib.ordenada;
 
 let
   inherit (lib) mkOption mkEnableOption types;
   cfg = config.ordenada.features.sway;
-in {
+in
+{
   options = {
     ordenada.features.sway = {
       enable = mkEnableOption "the Sway feature";
@@ -32,16 +38,19 @@ in {
     };
   };
   config = lib.mkMerge [
-    (lib.mkIf cfg.enable (lib.mkMerge [{
-      ## TODO: Use a `setGlobal` function here to check for `ordenada.globals.wm === null`
-      ##       and print a warning if so
-      ordenada.globals.wm = "${cfg.package}/bin/sway";
-      ordenada.globals.wayland = true;
-
-      security.polkit.enable = true;
-      environment.sessionVariables.NIXOS_OZONE_WL = "1";
-    }
-    ]))
+    (lib.mkIf cfg.enable (
+      lib.mkMerge [
+        {
+          ordenada.globals = {
+            wm = "${cfg.package}/bin/sway";
+            wayland = true;
+          };
+          hardware.graphics.enable = true;
+          security.polkit.enable = true;
+          environment.sessionVariables.NIXOS_OZONE_WL = "1";
+        }
+      ]
+    ))
     {
       home-manager = mkHomeConfig config "sway" (user: {
         programs.swayr = {
@@ -64,17 +73,20 @@ in {
             export SDL_VIDEODRIVER=wayland
             export _JAVA_AWT_WM_NONREPARENTING=1
           '';
-          config = with user.features.theme.scheme.withHashtag;
+          config =
+            with user.features.theme.scheme.withHashtag;
             lib.recursiveUpdate {
               defaultWorkspace = "workspace number 1";
               modifier = user.features.sway.modifier;
               input = with user.features.keyboard.layout; {
-                "type:keyboard" = {
-                  xkb_layout = name;
-                  xkb_options = lib.strings.concatStringsSep "," options;
-                } // (lib.optionalAttrs (variant != "") {
-                  xkb_variant = variant;
-                });
+                "type:keyboard" =
+                  {
+                    xkb_layout = name;
+                    xkb_options = lib.strings.concatStringsSep "," options;
+                  }
+                  // (lib.optionalAttrs (variant != "") {
+                    xkb_variant = variant;
+                  });
                 "type:touchpad" = {
                   dwt = "enabled";
                   tap = "enabled";
@@ -82,11 +94,12 @@ in {
                 };
               };
               output = {
-                "*" = { bg = "${user.features.theme.wallpaper} fill"; };
+                "*" = {
+                  bg = "${user.features.theme.wallpaper} fill";
+                };
               };
               seat."*" = with user.features.gtk.cursorTheme; {
-                xcursor_theme =
-                  "${name} ${toString user.features.gtk.cursorSize}";
+                xcursor_theme = "${name} ${toString user.features.gtk.cursorSize}";
               };
               keybindings = lib.mkOptionDefault user.features.sway.keybindings;
               floating = {
@@ -94,19 +107,19 @@ in {
                 border = 2;
               };
               menu = config.ordenada.globals.launcher;
-              colors = with pkgs.lib.nix-rice.color;
+              colors =
+                with pkgs.lib.nix-rice.color;
                 let
                   background = base00;
-                  focused = toRgbHex
-                    ((if user.features.theme.polarity == "dark" then
-                      darken
-                    else
-                      brighten) 50 (hexToRgba base0D));
+                  focused = toRgbHex (
+                    (if user.features.theme.polarity == "dark" then darken else brighten) 50 (hexToRgba base0D)
+                  );
                   indicator = focused;
                   unfocused = base01;
                   text = base05;
                   urgent = base08;
-                in {
+                in
+                {
                   inherit background;
                   urgent = {
                     inherit background indicator text;
