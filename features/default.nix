@@ -11,7 +11,6 @@ in
 {
   imports = [
     ./lib.nix
-    ./android.nix
     ./docker.nix
     ./pipewire.nix
   ];
