@@ -11,9 +11,7 @@ rec {
   };
   config.ordenada.modules = ordenada-lib.mkFeature "docker" {
     inherit options;
-    nixos = {
-      virtualisation.docker.enable = true;
-    };
+    nixos.virtualisation.docker.enable = true;
     homeManager =
       { config, pkgs, ... }:
       {
