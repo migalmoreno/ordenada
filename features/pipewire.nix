@@ -4,7 +4,7 @@ rec {
   options.ordenada.features.pipewire = {
     enable = lib.mkEnableOption "to enable the Pipewire feature";
   };
-  config.ordenada.modules = ordenada-lib.mkFeature "docker" {
+  config.ordenada.modules = ordenada-lib.mkFeature "pipewire" {
     inherit options;
     nixos = {
       security.rtkit.enable = true;
