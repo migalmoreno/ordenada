@@ -1,18 +1,7 @@
 { pkgs, lib, ... }:
 
-let
-  inherit (lib) mkOption types;
-  mkModuleOption =
-    description:
-    mkOption {
-      type = types.deferredModule;
-      default = { };
-      inherit description;
-    };
-in
 {
   _module.args.ordenada-lib = rec {
-    inherit mkModuleOption;
     transposeChild = child: parent: value: {
       ${parent} = {
         ${child} = value;
