@@ -6,18 +6,16 @@ rec {
   };
   config.ordenada.modules = ordenada-lib.mkFeature "docker" {
     inherit options;
-    nixos =
-      { config, ... }:
-      lib.mkIf config.ordenada.features.pipewire.enable {
-        security.rtkit.enable = true;
-        services.pipewire = {
-          enable = true;
-          pulse.enable = true;
-        };
+    nixos = {
+      security.rtkit.enable = true;
+      services.pipewire = {
+        enable = true;
+        pulse.enable = true;
       };
+    };
     homeManager =
-      { config, pkgs, ... }:
-      lib.mkIf config.ordenada.features.pipewire.enable {
+      { pkgs, ... }:
+      {
         home.packages = [ pkgs.pulseaudio ];
         home.sessionVariables = {
           RTC_USE_PIPEWIRE = "true";
