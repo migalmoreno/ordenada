@@ -24,14 +24,17 @@
       {
         options ? { },
         nixos ? null,
+        nixosOptions ? options,
         homeManager ? null,
+        homeManagerOptions ? options,
         darwin ? null,
+        darwinOptions ? options,
       }:
       {
         ${name} =
           lib.optionalAttrs (nixos != null) {
             nixos = args: {
-              inherit options;
+              options = nixosOptions;
               config = nixos args;
             };
           }
@@ -39,13 +42,13 @@
             homeManager =
               args@{ pkgs, ... }:
               {
-                inherit options;
+                options = homeManagerOptions;
                 config = homeManager args;
               };
           }
           // lib.optionalAttrs (darwin != null) {
             darwin = args: {
-              inherit options;
+              options = darwinOptions;
               config = darwin args;
             };
           };
