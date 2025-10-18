@@ -40,8 +40,17 @@
       };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.flake-parts.flakeModules.modules
+        inputs.flake-parts.flakeModules.flakeModules
+        ./features
+      ];
       systems = import inputs.systems;
       flake = {
+        flakeModules = {
+          ordenada = ./features;
+          default = ./features;
+        };
         overlays.default = overlay;
         lib = ordenada;
         nixosModules.ordenada =
