@@ -33,24 +33,34 @@
       {
         ${name} =
           lib.optionalAttrs (nixos != null) {
-            nixos = args: {
-              options = nixosOptions;
-              config = nixos args;
-            };
+            nixos =
+              args@{ config, ... }:
+              {
+                options = nixosOptions;
+                config = lib.mkIf config.ordenada.features.${name}.enable (
+                  if (builtins.typeOf nixos == "set") then nixos else (nixos args)
+                );
+              };
           }
           // lib.optionalAttrs (homeManager != null) {
             homeManager =
-              args@{ pkgs, ... }:
+              args@{ config, pkgs, ... }:
               {
                 options = homeManagerOptions;
-                config = homeManager args;
+                config = lib.mkIf config.ordenada.features.${name}.enable (
+                  if (builtins.typeOf homeManager == "set") then homeManager else (homeManager args)
+                );
               };
           }
           // lib.optionalAttrs (darwin != null) {
-            darwin = args: {
-              options = darwinOptions;
-              config = darwin args;
-            };
+            darwin =
+              args@{ config, ... }:
+              {
+                options = darwinOptions;
+                config = lib.mkIf config.ordenada.features.${name}.enable (
+                  if (builtins.typeOf darwin == "set") then darwin else (darwin args)
+                );
+              };
           };
       };
     mkElispConfig =
