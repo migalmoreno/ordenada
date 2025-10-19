@@ -7,13 +7,12 @@
 
 let
   inherit (lib) mkOption types;
+  autoload = import ./autoload.nix { inherit lib; };
 in
 {
   imports = [
     ./lib.nix
-    ./docker.nix
-    ./pipewire.nix
-  ];
+  ] ++ autoload;
   options.ordenada = {
     modules = mkOption {
       type = types.lazyAttrsOf (types.lazyAttrsOf types.deferredModule);
