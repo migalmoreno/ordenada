@@ -17,7 +17,7 @@
     getClassModules =
       class: modules:
       lib.foldr (
-        item: acc: acc ++ (if builtins.hasAttr class item then item.${class}.imports else { })
+        item: acc: acc ++ lib.optionals (builtins.hasAttr class item) item.${class}.imports
       ) [ ] (lib.mapAttrsToList (name: value: value) modules);
     mkElispConfig =
       {
