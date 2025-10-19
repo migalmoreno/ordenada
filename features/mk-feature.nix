@@ -38,7 +38,6 @@ let
         // mkClassConfig "homeManager" homeManager
         // mkClassConfig "darwin" darwin;
     };
-
 in
 {
   imports = [ module ];
