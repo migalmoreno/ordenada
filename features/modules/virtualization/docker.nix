@@ -7,18 +7,16 @@
 
 mkFeature {
   name = "docker";
-  options = {
-    key = lib.mkOption {
-      type = lib.types.str;
-      default = "D";
-      description = "Keybinding to launch Emacs Docker interface.";
-    };
-  };
   nixos.virtualisation.docker.enable = true;
   homeManager =
     { config, pkgs, ... }:
     {
-      programs.emacs = ordenada-lib.mkElispConfig {
+      options.ordenada.features.docker.key = lib.mkOption {
+        type = lib.types.str;
+        default = "D";
+        description = "Keybinding to launch Emacs Docker interface.";
+      };
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-docker";
         config = ''
           (with-eval-after-load 'ordenada-keymaps
