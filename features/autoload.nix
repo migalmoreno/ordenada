@@ -1,10 +1,9 @@
 { lib }:
 
 builtins.concatLists (
-  lib.mapAttrsToList (
-    name: kind:
+  map (
+    file:
     let
-      file = ./modules/${name};
       module = import file;
       useMkFeature = builtins.isFunction module && (builtins.functionArgs module) ? mkFeature;
       mkFeature = import ./mk-feature.nix;
@@ -32,5 +31,5 @@ builtins.concatLists (
       else
         file
     )
-  ) (builtins.readDir ./modules)
+  ) (lib.filesystem.listFilesRecursive ./modules)
 )
