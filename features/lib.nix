@@ -1,4 +1,3 @@
-{ pkgs, lib, ... }:
 {
   lib,
   inputs,
@@ -36,6 +35,7 @@
         item: acc: acc ++ lib.optionals (builtins.hasAttr class item) item.${class}.imports
       ) [ ] (lib.mapAttrsToList (name: value: value) modules);
     mkElispConfig =
+      pkgs:
       {
         name,
         config,
