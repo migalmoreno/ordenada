@@ -2,6 +2,8 @@
   config,
   lib,
   ordenada-lib,
+  inputs,
+  moduleWithSystem,
   ...
 }:
 
@@ -56,12 +58,23 @@ in
             inherit globals;
           };
         };
-        homeModules.ordenada' = {
-          imports = ordenada-lib.getClassModules "homeManager" config.ordenada.modules;
-          options.ordenada = {
-            inherit globals;
-          };
-        };
+        homeModules.ordenada' = moduleWithSystem (
+          { system, ... }:
+          let
+            nur-no-pkgs = import inputs.nur {
+              pkgs = null;
+              nurpkgs = import inputs.nixpkgs { system = "x86_64-linux"; };
+            };
+          in
+          {
+            imports = ordenada-lib.getClassModules "homeManager" config.ordenada.modules ++ [
+              nur-no-pkgs.repos.rycee.hmModules.emacs-init
+            ];
+            options.ordenada = {
+              inherit globals;
+            };
+          }
+        );
         darwinModules.ordenada' = {
           imports = ordenada-lib.getClassModules "darwin" config.ordenada.modules;
           options.ordenada = {
