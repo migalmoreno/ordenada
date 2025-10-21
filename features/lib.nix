@@ -10,6 +10,14 @@
   _module.args.ordenada-lib = rec {
     base16 = inputs.base16.lib { inherit lib pkgs; };
     nix-rice = inputs.nix-rice.lib.nix-rice;
+    mkEnableTrueOption =
+      name:
+      lib.mkOption {
+        default = true;
+        example = true;
+        description = "Whether to enable ${name}.";
+        type = lib.types.bool;
+      };
     transposeChild = child: parent: value: {
       ${parent} = {
         ${child} = value;
