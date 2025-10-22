@@ -1,0 +1,37 @@
+{ lib, mkFeature, ... }:
+
+mkFeature {
+  name = "userInfo";
+  options =
+    { config, ... }:
+    let
+      inherit (lib) mkOption types;
+    in
+    {
+      username = mkOption {
+        type = types.str;
+        description = "Username of Ordenada user.";
+        default = "nixos";
+      };
+      fullName = mkOption {
+        type = types.str;
+        description = "Fullname of Ordenada user.";
+        default = "";
+      };
+      email = mkOption {
+        type = types.str;
+        description = "Email of Ordenada user.";
+        default = "";
+      };
+      homeDirectory = mkOption {
+        type = types.str;
+        description = "Home directory of primary Ordenada user.";
+        default = "/home/${config.ordenada.features.userInfo.username}";
+      };
+      gpgPrimaryKey = mkOption {
+        type = types.nullOr types.str;
+        description = "The primary GnuPG key for this user.";
+        default = null;
+      };
+    };
+}
