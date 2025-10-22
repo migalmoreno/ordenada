@@ -5,19 +5,18 @@
   ...
 }:
 
-let
-  inherit (lib)
-    mkEnableOption
-    mkPackageOption
-    mkOption
-    types
-    ;
-  inherit (ordenada-lib) mkElispConfig mkEnableTrueOption;
-in
 mkFeature {
   name = "emacs";
   options =
     { pkgs, ... }:
+    let
+      inherit (lib)
+        mkEnableOption
+        mkOption
+        mkPackageOption
+        types
+        ;
+    in
     {
       package = mkPackageOption pkgs "emacs" { default = "emacs30-pgtk"; };
       advancedUser = mkEnableOption "advanced user mode for Emacs features";
@@ -39,7 +38,7 @@ mkFeature {
         description = "List of extra Emacs packages.";
         default = [ ];
       };
-      autoUpdateBuffers = mkEnableTrueOption "automatically updating buffers";
+      autoUpdateBuffers = ordenada-lib.mkEnableTrueOption "automatically updating buffers";
     };
   homeManager =
     {
@@ -65,7 +64,7 @@ mkFeature {
         };
       }
       {
-        programs.emacs = mkElispConfig pkgs {
+        programs.emacs = ordenada-lib.mkElispConfig pkgs {
           name = "ordenada-base";
           config = ''
             (defgroup ordenada nil
@@ -126,15 +125,10 @@ mkFeature {
             (keymap-global-set "M-l" #'downcase-dwim)
             (keymap-global-set "M-u" #'upcase-dwim)
 
-            ${
-              if config.ordenada.features.emacs.autoUpdateBuffers then
-                ''
-                  (setopt global-auto-revert-non-file-buffers t)
-                  (global-auto-revert-mode 1)
-                ''
-              else
-                ""
-            }
+            ${lib.optionalString config.ordenada.features.emacs.autoUpdateBuffers ''
+              (setopt global-auto-revert-non-file-buffers t)
+              (global-auto-revert-mode 1)
+            ''}
 
             (with-eval-after-load 'mwheel
               (setopt mouse-wheel-scroll-amount '(1 ((shift) . 1)
