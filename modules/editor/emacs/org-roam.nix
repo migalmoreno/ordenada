@@ -1,52 +1,55 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib)
-    mkEnableOption
-    mkOption
-    mkPackageOption
-    types
-    ;
-  inherit (pkgs.lib.ordenada) elisp mkElispConfig mkHomeConfig;
-in
-{
-  options.ordenada.features.emacs.org-roam = {
-    enable = mkEnableOption "Emacs Org Roam feature";
-    package = mkPackageOption pkgs [ "emacsPackages" "org-roam" ] { };
-    captureTemplates = mkOption {
-      type = types.listOf types.str;
-      description = "The Org Roam capture templates.";
-      default = [ ];
+mkFeature {
+  name = [
+    "emacs"
+    "org-roam"
+  ];
+  options =
+    { pkgs, ... }:
+    let
+      inherit (lib)
+        mkEnableOption
+        mkOption
+        mkPackageOption
+        types
+        ;
+    in
+    {
+      package = mkPackageOption pkgs [ "emacsPackages" "org-roam" ] { };
+      captureTemplates = mkOption {
+        type = types.listOf types.str;
+        description = "The Org Roam capture templates.";
+        default = [ ];
+      };
+      directory = mkOption {
+        type = types.str;
+        description = "Org Roam directory.";
+        default = "~/notes";
+      };
+      dailiesDirectory = mkOption {
+        type = types.str;
+        description = "Org Roam dailies directory.";
+        default = "daily/";
+      };
+      dailiesCaptureTemplates = mkOption {
+        type = types.listOf types.str;
+        description = "Org Roam dailies capture templates.";
+        default = [ ];
+      };
+      todoIntegration = mkEnableOption "todo integration in Org Roam";
     };
-    directory = mkOption {
-      type = types.str;
-      description = "Org Roam directory.";
-      default = "~/notes";
-    };
-    dailiesDirectory = mkOption {
-      type = types.str;
-      description = "Org Roam dailies directory.";
-      default = "daily/";
-    };
-    dailiesCaptureTemplates = mkOption {
-      type = types.listOf types.str;
-      description = "Org Roam dailies capture templates.";
-      default = [ ];
-    };
-    todoIntegration = mkEnableOption "todo integration in Org Roam";
-  };
-  config.home-manager = mkHomeConfig config "emacs.org-roam" (user: {
-    programs.emacs = mkElispConfig {
-      name = "ordenada-org-roam";
-      config =
-        with user.features.emacs.org-roam;
-        with elisp;
-        ''
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-org-roam";
+        config = with config.ordenada.features.emacs.org-roam; ''
           (eval-when-compile
             (require 'org-roam))
           (setopt org-roam-completion-everywhere t)
@@ -87,7 +90,7 @@ in
             (setopt org-roam-node-annotation-function
                     (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
             ${
-              mkIf (
+              lib.optionalString (
                 captureTemplates != [ ]
               ) ''(setopt org-roam-capture-templates '(${toString captureTemplates}))''
             })
@@ -138,11 +141,11 @@ in
           (with-eval-after-load 'org-roam-dailies
             (setopt org-roam-dailies-directory "${dailiesDirectory}")
             ${
-              mkIf (
+              lib.optionalString (
                 dailiesCaptureTemplates != [ ]
               ) ''(setopt org-roam-dailies-capture-templates '(${toString dailiesCaptureTemplates}))''
             })
-          ${mkIf todoIntegration ''
+          ${lib.optionalString todoIntegration ''
             (defun ordenada-org-roam-get-filetags ()
               "Return the top-level tags for the current org-roam node."
               (split-string
@@ -214,7 +217,7 @@ in
               (add-to-list 'org-tags-exclude-from-inheritance "todo"))
           ''}
         '';
-      elispPackages = [ user.features.emacs.org-roam.package ];
+        elispPackages = [ config.ordenada.features.emacs.org-roam.package ];
+      };
     };
-  });
 }

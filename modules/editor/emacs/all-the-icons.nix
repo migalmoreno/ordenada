@@ -1,33 +1,27 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (pkgs.lib.ordenada)
-    elisp
-    hasFeature
-    mkHomeConfig
-    mkElispConfig
-    ;
-in
-{
-  options.ordenada.features.emacs.all-the-icons = {
-    enable = lib.mkEnableOption "the Emacs all-the-icons feature";
-  };
-  config.home-manager = mkHomeConfig config "emacs.all-the-icons" (
-    user: with user.features.emacs; {
+mkFeature {
+  name = [
+    "emacs"
+    "all-the-icons"
+  ];
+  homeManager =
+    { config, pkgs, ... }:
+    {
       home.packages = with pkgs; [ emacs-all-the-icons-fonts ];
-      programs.emacs = mkElispConfig {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-all-the-icons";
-        config = with elisp; ''
+        config = with config.ordenada.features.emacs; ''
           (with-eval-after-load 'all-the-icons
             (setopt all-the-icons-scale-factor 1.0)
             (setopt all-the-icons-default-adjust 0)
             (setopt all-the-icons-octicon-scale-factor 0.9))
-          ${mkIf (hasFeature "emacs.completion" user) ''
+          ${lib.optionalString completion.enable ''
             (eval-when-compile (require 'compat))
             (autoload 'all-the-icons-completion-mode "all-the-icons-completion")
             (all-the-icons-completion-mode)
@@ -47,8 +41,7 @@ in
                 (advice-remove (compat-function completion-metadata-get)
                                #'all-the-icons-completion-completion-metadata-get)))
           ''}
-
-          ${mkIf (hasFeature "emacs.marginalia" user) ''
+          ${lib.optionalString marginalia.enable ''
             (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
           ''}
         '';
@@ -58,8 +51,7 @@ in
             all-the-icons
             compat
           ]
-          ++ lib.optional (hasFeature "emacs.completion" user) all-the-icons-completion;
+          ++ lib.optional config.ordenada.features.emacs.completion.enable all-the-icons-completion;
       };
-    }
-  );
+    };
 }

@@ -1,20 +1,28 @@
 {
-  config,
+  mkFeature,
+  ordenada-lib,
   lib,
-  pkgs,
   ...
 }:
 
 let
-  inherit (pkgs.lib.base16) mkSchemeAttrs;
-  inherit (pkgs.lib.ordenada)
-    hasFeature
-    mkEnableTrueOption
-    mkHomeConfig
-    string
-    ;
-  cfg = config.ordenada.features.theme;
-  themeToToggle = if cfg.polarity == "dark" then "light" else "dark";
+  inherit (ordenada-lib.base16) mkSchemeAttrs;
+  themeToToggle =
+    config: if config.ordenada.features.theme.polarity == "dark" then "light" else "dark";
+  defaultThemeWallpapers = pkgs: {
+    light = (
+      pkgs.fetchurl {
+        url = "https://w.wallhaven.cc/full/28/wallhaven-28vjgm.jpg";
+        sha256 = "14b5h86jjimdzfw9krbc90abcd9kgvfhavqqq7xzxjxjbakrkzdl";
+      }
+    );
+    dark = (
+      pkgs.fetchurl {
+        url = "https://w.wallhaven.cc/full/dg/wallhaven-dgo6pl.jpg";
+        sha256 = "09jap8g5232h8ham41jljvm1x7d87wjn0p42dy0x119cqd1ds1i3";
+      }
+    );
+  };
   defaultThemeSchemes = {
     light = mkSchemeAttrs {
       base00 = "ffffff";
@@ -53,59 +61,63 @@ let
       base0F = "7a6100";
     };
   };
-  defaultThemeWallpapers = {
-    light = (
-      pkgs.fetchurl {
-        url = "https://w.wallhaven.cc/full/28/wallhaven-28vjgm.jpg";
-        sha256 = "14b5h86jjimdzfw9krbc90abcd9kgvfhavqqq7xzxjxjbakrkzdl";
-      }
-    );
-    dark = (
-      pkgs.fetchurl {
-        url = "https://w.wallhaven.cc/full/dg/wallhaven-dgo6pl.jpg";
-        sha256 = "09jap8g5232h8ham41jljvm1x7d87wjn0p42dy0x119cqd1ds1i3";
-      }
-    );
-  };
 in
-{
-  options = {
-    ordenada.features.theme = {
-      enable = mkEnableTrueOption "the theme feature";
-      polarity = lib.mkOption {
-        type = lib.types.enum [
+mkFeature {
+  name = "theme";
+  options =
+    { config, pkgs, ... }:
+    let
+      inherit (lib) mkOption types;
+    in
+    {
+      polarity = mkOption {
+        type = types.enum [
           "dark"
           "light"
         ];
         description = "The theme polarity.";
         default = "light";
       };
-      scheme = lib.mkOption {
-        type = lib.types.attrs;
+      scheme = mkOption {
+        type = types.attrs;
         description = "The theme color scheme.";
-        default = with defaultThemeSchemes; if cfg.polarity == "light" then light else dark;
+        default =
+          with defaultThemeSchemes;
+          if config.ordenada.features.theme.polarity == "light" then light else dark;
       };
       defaultWallpapers = lib.mkOption {
         type = lib.types.attrs;
         description = "The default wallpapers.";
-        default = defaultThemeWallpapers;
+        default = defaultThemeWallpapers pkgs;
+      };
+      defaultSchemes = mkOption {
+        type = types.attrs;
+        description = "The default colorschemes";
+        default = defaultThemeSchemes;
       };
       wallpaper = lib.mkOption {
         type = lib.types.pathInStore;
         description = "The theme wallpaper.";
-        default = with defaultThemeWallpapers; if cfg.polarity == "light" then light else dark;
+        default =
+          with (defaultThemeWallpapers pkgs);
+          if config.ordenada.features.theme.polarity == "light" then light else dark;
       };
     };
-  };
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
+  nixos =
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    {
       security.sudo.extraRules = [
         {
           runAs = "root";
           groups = [ "wheel" ];
           commands = [
             {
-              command = "/nix/var/nix/profiles/system/specialisation/${themeToToggle}/bin/switch-to-configuration switch";
+              command = "/nix/var/nix/profiles/system/specialisation/${themeToToggle config}/bin/switch-to-configuration switch";
               options = [ "NOPASSWD" ];
             }
             {
@@ -115,47 +127,42 @@ in
           ];
         }
       ];
-      specialisation.${themeToToggle}.configuration = {
+      specialisation.${themeToToggle config}.configuration = {
         ordenada.features.theme = {
-          scheme = lib.mkForce defaultThemeSchemes.${themeToToggle};
-          wallpaper = lib.mkForce defaultThemeWallpapers.${themeToToggle};
-          polarity = lib.mkForce themeToToggle;
+          scheme = lib.mkForce defaultThemeSchemes.${themeToToggle config};
+          wallpaper = lib.mkForce (defaultThemeWallpapers pkgs).${themeToToggle config};
+          polarity = lib.mkForce (themeToToggle config);
         };
       };
-    })
-    {
-      home-manager = mkHomeConfig config "theme" (
-        user:
-        let
-          systemctl = "XDG_RUNTIME_DIR=\${XDG_RUNTIME_DIR:-/run/user/$UID} systemctl";
-          themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
-            with user.features;
-            with string;
-            ''
-              current_system=$(readlink /run/current-system)
-              specialisation=$(readlink /nix/var/nix/profiles/system/specialisation/${themeToToggle})
-              if [ "$current_system" == "$specialisation"] || [ ! "$specialisation" ]; then
-                sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
-              else
-                sudo /nix/var/nix/profiles/system/specialisation/${themeToToggle}/bin/switch-to-configuration switch
-              fi
-              ${mkIf (hasFeature "emacs" user) ''
-                ${emacs.package}/bin/emacsclient -e "(load-theme '${emacs.defaultThemes.${themeToToggle}} t)"
-              ''}
-              ${mkIf (hasFeature "swaync" user) ''
-                ${systemctl} --user restart swaync
-              ''}
-            ''
-          );
-        in
-        {
-          home.packages = [ themeToggler ];
-          xdg.desktopEntries.themeToggler = {
-            name = "Toggle Theme";
-            exec = "${themeToggler}/bin/toggle-theme %U";
-          };
-        }
+    };
+  homeManager =
+    { config, pkgs, ... }:
+    let
+      systemctl = "XDG_RUNTIME_DIR=\${XDG_RUNTIME_DIR:-/run/user/$UID} systemctl";
+      themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
+        with config.ordenada.features;
+        ''
+          current_system=$(readlink /run/current-system)
+          specialisation=$(readlink /nix/var/nix/profiles/system/specialisation/${themeToToggle config})
+          if [ "$current_system" == "$specialisation"] || [ ! "$specialisation" ]; then
+            sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch
+          else
+            sudo /nix/var/nix/profiles/system/specialisation/${themeToToggle config}/bin/switch-to-configuration switch
+          fi
+          ${lib.optionalString emacs.enable ''
+            ${emacs.package}/bin/emacsclient -e "(load-theme '${emacs.defaultThemes.${themeToToggle config}} t)"
+          ''}
+          ${lib.optionalString swaync.enable ''
+            ${systemctl} --user restart swaync
+          ''}
+        ''
       );
-    }
-  ];
+    in
+    {
+      home.packages = [ themeToggler ];
+      xdg.desktopEntries.themeToggler = {
+        name = "Toggle Theme";
+        exec = "${themeToggler}/bin/toggle-theme %U";
+      };
+    };
 }

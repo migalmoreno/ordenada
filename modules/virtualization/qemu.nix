@@ -1,30 +1,17 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ mkFeature, ... }:
 
-let
-  inherit (pkgs.lib.ordenada) mkHomeConfig;
-  cfg = config.ordenada.features.qemu;
-in
-{
-  options.ordenada.features.qemu = {
-    enable = lib.mkEnableOption "the QEMU feature";
+mkFeature {
+  name = "qemu";
+  nixos = {
+    services.spice-vdagentd.enable = true;
+    virtualisation.spiceUSBRedirection.enable = true;
   };
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
-      services.spice-vdagentd.enable = true;
-      virtualisation.spiceUSBRedirection.enable = true;
-    })
+  homeManager =
+    { pkgs, ... }:
     {
-      home-manager = mkHomeConfig config "qemu" (user: {
-        home.packages = with pkgs; [
-          qemu
-          quickemu
-        ];
-      });
-    }
-  ];
+      home.packages = with pkgs; [
+        qemu
+        quickemu
+      ];
+    };
 }

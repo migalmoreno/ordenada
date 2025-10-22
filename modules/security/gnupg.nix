@@ -1,17 +1,8 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, mkFeature, ... }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada) mkHomeConfig;
-in
-{
-  options.ordenada.features.gnupg = {
-    enable = mkEnableOption "the GnuPG feature";
+mkFeature {
+  name = "gnupg";
+  options = with lib; {
     sshKeys = mkOption {
       type = types.listOf types.str;
       description = "List of SSH key fingerprints.";
@@ -28,20 +19,22 @@ in
       default = 86400;
     };
   };
-  config.home-manager = mkHomeConfig config "gnupg" (user: {
-    services.gpg-agent = with user.features.gnupg; {
-      inherit sshKeys;
-      enable = true;
-      defaultCacheTtl = defaultTtl;
-      defaultCacheTtlSsh = defaultTtl;
-      maxCacheTtl = defaultTtl;
-      maxCacheTtlSsh = defaultTtl;
-      enableSshSupport = true;
-      pinentry.package = pinentryPackage;
+  homeManager =
+    { config, ... }:
+    {
+      services.gpg-agent = with config.ordenada.features.gnupg; {
+        inherit sshKeys;
+        enable = true;
+        defaultCacheTtl = defaultTtl;
+        defaultCacheTtlSsh = defaultTtl;
+        maxCacheTtl = defaultTtl;
+        maxCacheTtlSsh = defaultTtl;
+        enableSshSupport = true;
+        pinentry.package = pinentryPackage;
+      };
+      programs.gpg = {
+        enable = true;
+        homedir = "${config.ordenada.features.xdg.baseDirs.dataHome}/gnupg";
+      };
     };
-    programs.gpg = {
-      enable = true;
-      homedir = "${user.features.xdg.baseDirs.dataHome}/gnupg";
-    };
-  });
 }

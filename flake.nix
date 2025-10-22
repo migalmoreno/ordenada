@@ -23,60 +23,30 @@
       flake-parts,
       ...
     }:
-    let
-      ordenada = nixpkgs.lib.callPackagesWith {
-        inherit (nixpkgs) lib;
-        pkgs = pkgs';
-      } ./lib { };
-      pkgs' = import nixpkgs {
-        system = "x86_64-linux";
-        overlays = [ overlay ];
-      };
-      overlay = _final: prev: {
-        lib = prev.lib // {
-          inherit ordenada;
-          base16 = pkgs'.callPackage base16.lib { };
-        };
-      };
-    in
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.flake-parts.flakeModules.modules
         inputs.flake-parts.flakeModules.flakeModules
-        ./features
+        ./ordenada
       ];
       systems = import inputs.systems;
       flake = {
         flakeModules = {
-          ordenada = ./features;
-          default = ./features;
+          ordenada = ./ordenada;
+          default = ./ordenada;
         };
-        overlays.default = overlay;
-        lib = ordenada;
-        nixosModules.ordenada =
-          { pkgs, ... }:
-          {
-            imports = [
-              ./modules
-              home-manager.nixosModules.home-manager
-            ];
-            config = {
-              nixpkgs.overlays = [
-                overlay
-                nur.overlays.default
-                nix-rice.overlays.default
-                (final: prev: { inherit inputs; })
-              ];
-            };
-          };
       };
       perSystem =
-        { pkgs, ... }:
+        { pkgs, system, ... }:
         {
+          # _module.args.pkgs = import inputs.nixpkgs {
+          #   inherit system;
+          #   overlays = [
+          #     inputs.nur.overlays.default
+          #   ];
+          # };
           packages = rec {
-            docs = pkgs.callPackage ./mkDocs.nix {
-              pkgs = pkgs';
-            };
+            docs = pkgs.callPackage ./mkDocs.nix { inherit pkgs; };
             default = docs;
           };
         };

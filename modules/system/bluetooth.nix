@@ -1,39 +1,28 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ mkFeature, ordenada-lib, ... }:
 
-let
-  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
-  cfg = config.ordenada.features.bluetooth;
-in
-{
-  options.ordenada.features.bluetooth = {
-    enable = lib.mkEnableOption "the Bluetooth feature";
+mkFeature {
+  name = "bluetooth";
+  nixos = {
+    hardware.bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
   };
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
-      hardware.bluetooth.enable = true;
-      hardware.bluetooth.powerOnBoot = true;
-    })
+  homeManager =
+    { pkgs, ... }:
     {
-      home-manager = mkHomeConfig config "bluetooth" (user: {
-        programs.emacs = mkElispConfig {
-          name = "ordenada-bluetooth";
-          config = ''
-            (with-eval-after-load 'ordenada-keymaps
-              (keymap-set ordenada-app-map "B" #'bluetooth-list-devices))
-            (with-eval-after-load 'bluetooth
-              (keymap-set bluetooth-mode-map "C" #'bluetooth-connect-profile)
-              (setopt bluetooth-battery-display-warning nil))
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-bluetooth";
+        config = ''
+          (with-eval-after-load 'ordenada-keymaps
+            (keymap-set ordenada-app-map "B" #'bluetooth-list-devices))
+          (with-eval-after-load 'bluetooth
+            (keymap-set bluetooth-mode-map "C" #'bluetooth-connect-profile)
+            (setopt bluetooth-battery-display-warning nil))
 
-            (advice-add 'bluetooth-pa--authorize-service :override #'ignore)
-          '';
-          elispPackages = with pkgs.emacsPackages; [ bluetooth ];
-        };
-      });
-    }
-  ];
+          (advice-add 'bluetooth-pa--authorize-service :override #'ignore)
+        '';
+        elispPackages = with pkgs.emacsPackages; [ bluetooth ];
+      };
+    };
 }

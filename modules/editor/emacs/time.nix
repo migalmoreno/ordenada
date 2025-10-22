@@ -1,17 +1,16 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkOption mkEnableOption types;
-  inherit (pkgs.lib.ordenada) elisp mkElispConfig mkHomeConfig;
-in
-{
-  options.ordenada.features.emacs.time = {
-    enable = lib.mkEnableOption "the Emacs time feature";
+mkFeature {
+  name = [
+    "emacs"
+    "time"
+  ];
+  options = with lib; {
     worldClockKey = mkOption {
       type = types.str;
       description = "Keybinding for Emacs daemons map operations.";
@@ -31,26 +30,28 @@ in
     display24hr = mkEnableOption "displaying time in hh:mm format";
     displayTime = mkEnableOption "Display Time Mode to display time in the mode line";
   };
-  config.home-manager = mkHomeConfig config "emacs.time" (user: {
-    programs.emacs = mkElispConfig {
-      name = "ordenada-time";
-      config =
-        with user.features.emacs.time;
-        with elisp;
-        ''
-          (eval-when-compile
-           (require 'time))
-          (with-eval-after-load 'ordenada-keymaps
-            (keymap-set ordenada-app-map "${worldClockKey}" #'world-clock))
-          ${mkIf (worldClockTimezones != { }) ''
-            (setopt world-clock-list ${mkAlist worldClockTimezones})
-          ''}
-          (setopt display-time-world-time-format "${worldClockTimeFormat}")
-          (setopt display-time-default-load-average nil)
-          (setopt display-time-load-average-threshold 0)
-          (setopt display-time-day-and-date ${mkBoolean displayDate})
-          ${mkIf displayTime "(display-time-mode 1)"}
-        '';
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-time";
+        config =
+          with config.ordenada.features.emacs.time;
+          with ordenada-lib.elisp;
+          ''
+            (eval-when-compile
+             (require 'time))
+            (with-eval-after-load 'ordenada-keymaps
+              (keymap-set ordenada-app-map "${worldClockKey}" #'world-clock))
+            ${lib.optionalString (worldClockTimezones != { }) ''
+              (setopt world-clock-list ${toAlist worldClockTimezones})
+            ''}
+            (setopt display-time-world-time-format "${worldClockTimeFormat}")
+            (setopt display-time-default-load-average nil)
+            (setopt display-time-load-average-threshold 0)
+            (setopt display-time-day-and-date ${toBoolean displayDate})
+            ${lib.optionalString displayTime "(display-time-mode 1)"}
+          '';
+      };
     };
-  });
 }

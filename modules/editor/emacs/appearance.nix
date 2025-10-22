@@ -1,26 +1,16 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada)
-    elisp
-    mkElispConfig
-    mkEnableTrueOption
-    mkHomeConfig
-    ;
-  nurNoPkgs = import pkgs.inputs.nur {
-    pkgs = null;
-    nurpkgs = pkgs;
-  };
-in
-{
-  options.ordenada.features.emacs.appearance = {
-    enable = mkEnableOption "the Emacs appearance feature";
+mkFeature {
+  name = [
+    "emacs"
+    "appearance"
+  ];
+  options = with lib; {
     fringes = mkOption {
       type = types.int;
       description = "The width of the window's frame fringes.";
@@ -46,14 +36,19 @@ in
       description = "The padding for the Emacs tab bar.";
       default = 4;
     };
-    headerLineAsModeLine = mkEnableTrueOption "the Emacs header line to be used as the mode line";
+    headerLineAsModeLine = ordenada-lib.mkEnableTrueOption "the Emacs header line to be used as the mode line";
   };
-  config.home-manager = mkHomeConfig config "emacs.appearance" (
-    user: with user.features.emacs.appearance; {
-      imports = [ nurNoPkgs.repos.rycee.hmModules.emacs-init ];
-      programs.emacs = mkElispConfig {
+  homeManager =
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-appearance";
-        config = with elisp; ''
+        config = with config.ordenada.features.emacs.appearance; ''
           (require 'xdg)
           (setq minibuffer-message-timeout 0)
           (pixel-scroll-precision-mode 1)
@@ -84,7 +79,7 @@ in
             (minions-mode))
           (with-eval-after-load 'minions
             (setopt minions-mode-line-lighter ";"))
-          ${mkIf headerLineAsModeLine ''
+          ${lib.optionalString headerLineAsModeLine ''
             (setq minions-mode-line-minor-modes-map
                   (let ((map (make-sparse-keymap)))
                     (define-key map [header-line down-mouse-1]
@@ -102,7 +97,7 @@ in
             (setq-default mode-line-format nil)
           ''}'';
         elispPackages = with pkgs.emacsPackages; [ minions ];
-        earlyInit = ''
+        earlyInit = with config.ordenada.features.emacs.appearance; ''
           (push '(menu-bar-lines . 0) default-frame-alist)
           (push '(tool-bar-lines . 0) default-frame-alist)
           (push '(vertical-scroll-bars) default-frame-alist)
@@ -119,6 +114,5 @@ in
           (setq initial-scratch-message nil)
         '';
       };
-    }
-  );
+    };
 }

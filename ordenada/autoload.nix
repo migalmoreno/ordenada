@@ -31,5 +31,5 @@ builtins.concatLists (
       else
         file
     )
-  ) (lib.filesystem.listFilesRecursive ./modules)
+  ) (lib.filesystem.listFilesRecursive ../modules)
 )

@@ -1,70 +1,67 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  cfg = config.ordenada.features.emacs.spelling;
-  inherit (lib)
-    mkEnableOption
-    mkOption
-    mkPackageOption
-    types
-    ;
-  inherit (pkgs.lib.ordenada) elisp mkElispConfig mkHomeConfig;
-in
-{
-  options.ordenada.features.emacs.spelling = {
-    enable = mkEnableOption "the Emacs spelling feature";
-    package = mkPackageOption pkgs "aspell" { };
-    ispellProgram = mkOption {
-      type = types.pathInStore;
-      description = "Program to be used by ispell.";
-      default =
-        with cfg;
-        "${package}/bin/${builtins.elemAt (lib.splitString "-" (lib.getName package)) 0}";
+mkFeature {
+  name = [
+    "emacs"
+    "spelling"
+  ];
+  options =
+    { config, pkgs, ... }:
+    let
+      inherit (lib) mkOption mkPackageOption types;
+    in
+    {
+      package = mkPackageOption pkgs "aspell" { };
+      ispellProgram = mkOption {
+        type = types.pathInStore;
+        description = "Program to be used by ispell.";
+        default =
+          with config.ordenada.features.emacs.spelling;
+          "${package}/bin/${builtins.elemAt (lib.splitString "-" (lib.getName package)) 0}";
+      };
+      ispellStandardDictionary = mkOption {
+        type = types.str;
+        description = "Default dictionary for ispell.";
+        default = "";
+      };
+      ispellPersonalDictionary = mkOption {
+        type = types.str;
+        description = "Personal dictionary for ispell.";
+        default = "";
+      };
+      flyspellHooks = mkOption {
+        type = types.listOf types.str;
+        description = "List of mode hooks where flyspell-mode should be enabled.";
+        default = [ ];
+      };
+      flyspellProgHooks = mkOption {
+        type = types.listOf types.str;
+        description = "List of mode hooks where flyspell-prog-mode should be enabled.";
+        default = [ ];
+      };
+      dictionaryServer = mkOption {
+        type = types.str;
+        description = "Dictionary server to use.";
+        default = "dict.org";
+      };
+      dictionaryKey = mkOption {
+        type = types.str;
+        description = "Keybinding used to launch the dictionary search.";
+        default = "w";
+      };
     };
-    ispellStandardDictionary = mkOption {
-      type = types.str;
-      description = "Default dictionary for ispell.";
-      default = "";
-    };
-    ispellPersonalDictionary = mkOption {
-      type = types.str;
-      description = "Personal dictionary for ispell.";
-      default = "";
-    };
-    flyspellHooks = mkOption {
-      type = types.listOf types.str;
-      description = "List of mode hooks where flyspell-mode should be enabled.";
-      default = [ ];
-    };
-    flyspellProgHooks = mkOption {
-      type = types.listOf types.str;
-      description = "List of mode hooks where flyspell-prog-mode should be enabled.";
-      default = [ ];
-    };
-    dictionaryServer = mkOption {
-      type = types.str;
-      description = "Dictionary server to use.";
-      default = "dict.org";
-    };
-    dictionaryKey = mkOption {
-      type = types.str;
-      description = "Keybinding used to launch the dictionary search.";
-      default = "w";
-    };
-  };
-  config.home-manager = mkHomeConfig config "emacs.spelling" (user: {
-    home.packages = [ user.features.emacs.spelling.package ];
-    programs.emacs = mkElispConfig {
-      name = "ordenada-spelling";
-      config =
-        with user.features.emacs.spelling;
-        with elisp;
-        ''
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      home.packages = [ config.ordenada.features.emacs.spelling.package ];
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-spelling";
+        config = with config.ordenada.features.emacs.spelling; ''
           (mapcar (lambda (hook)
                     (add-hook hook 'flyspell-mode))
                   '(${toString flyspellHooks}))
@@ -73,11 +70,11 @@ in
                   '(${toString flyspellProgHooks}))
           (with-eval-after-load 'ispell
             (setopt ispell-program-name "${ispellProgram}")
-            ${mkIf (ispellStandardDictionary != "") ''
+            ${lib.optionalString (ispellStandardDictionary != "") ''
               (setopt ispell-dictionary "${ispellStandardDictionary}")
             ''}
             ${
-              mkIf (ispellPersonalDictionary != "") ''
+              lib.optionalString (ispellPersonalDictionary != "") ''
                 (setopt ispell-personal-dictionary "${ispellPersonalDictionary}")
               ''
             })
@@ -89,6 +86,6 @@ in
           (with-eval-after-load 'ordenada-keymaps
             (keymap-set ordenada-app-map "${dictionaryKey}" #'dictionary-search))
         '';
+      };
     };
-  });
 }
