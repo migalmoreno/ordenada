@@ -1,23 +1,18 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, mkFeature, ... }:
 
-let
-  inherit (lib) mkEnableOption mkPackageOption;
-  inherit (pkgs.lib.ordenada) mkHomeConfig;
-in
-{
-  options.ordenada.features.playerctl = {
-    enable = mkEnableOption "the playerctl feature";
-    package = mkPackageOption pkgs "playerctl" { };
-  };
-  config.home-manager = mkHomeConfig config "playerctl" (user: {
-    services.playerctld = {
-      inherit (user.features.playerctl) package;
-      enable = true;
+mkFeature {
+  name = "playerctl";
+  options =
+    { pkgs, ... }:
+    {
+      package = lib.mkPackageOption pkgs "playerctl" { };
     };
-  });
+  homeManager =
+    { config, ... }:
+    {
+      services.playerctld = {
+        inherit (config.ordenada.features.playerctl) package;
+        enable = true;
+      };
+    };
 }

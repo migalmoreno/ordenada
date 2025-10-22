@@ -1,17 +1,16 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada) elisp mkHomeConfig mkElispConfig;
-in
-{
-  options.ordenada.features.emacs.daemons = {
-    enable = mkEnableOption "the Emacs daemons feature";
+mkFeature {
+  name = [
+    "emacs"
+    "daemons"
+  ];
+  options = with lib; {
     fillFrame = mkEnableOption "showing the list of daemons in the current full frame";
     key = mkOption {
       type = types.str;
@@ -19,13 +18,12 @@ in
       default = "d";
     };
   };
-  config.home-manager = mkHomeConfig config "emacs.daemons" (user: {
-    programs.emacs = mkElispConfig {
-      name = "ordenada-daemons";
-      config =
-        with user.features.emacs;
-        with elisp;
-        ''
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-daemons";
+        config = with config.ordenada.features.emacs; ''
           (defvar ordenada-daemons-map nil
             "Map to bind `appt' commands under.")
           (define-prefix-command 'ordenada-daemons-map)
@@ -41,11 +39,11 @@ in
               (keymap-set map "l" #'daemons)))
           (add-hook 'daemons-mode-hook #'eldoc-mode)
           (with-eval-after-load 'daemons
-            (setopt daemons-list-fill-frame ${mkBoolean daemons.fillFrame})
+            (setopt daemons-list-fill-frame ${ordenada-lib.elisp.toBoolean daemons.fillFrame})
             (setopt daemons-show-output-in-minibuffer t)
             (setopt daemons-systemd-is-user t))
         '';
-      elispPackages = with pkgs.emacsPackages; [ daemons ];
+        elispPackages = with pkgs.emacsPackages; [ daemons ];
+      };
     };
-  });
 }

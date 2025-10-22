@@ -1,44 +1,34 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
-  cfg = config.ordenada.features.docker;
-in
-{
-  options.ordenada.features.docker = {
-    enable = mkEnableOption "the Docker feature";
-    key = mkOption {
-      type = types.str;
+mkFeature {
+  name = "docker";
+  options = {
+    key = lib.mkOption {
+      type = lib.types.str;
       default = "D";
       description = "Keybinding to launch Emacs Docker interface.";
     };
   };
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable { virtualisation.docker.enable = true; })
+  nixos.virtualisation.docker.enable = true;
+  homeManager =
+    { config, pkgs, ... }:
     {
-      users = mkHomeConfig config "docker" (user: {
-        extraGroups = [ "docker" ];
-      });
-      home-manager = mkHomeConfig config "docker" (user: {
-        programs.emacs = mkElispConfig {
-          name = "ordenada-docker";
-          config = ''
-            (with-eval-after-load 'ordenada-keymaps
-              (keymap-set ordenada-app-map "${user.features.docker.key}" #'docker))
-            (add-to-list 'auto-mode-alist '(".*Dockerfile\\'" . dockerfile-mode))
-          '';
-          elispPackages = with pkgs.emacsPackages; [
-            docker
-            dockerfile-mode
-          ];
-        };
-      });
-    }
-  ];
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-docker";
+        config = ''
+          (with-eval-after-load 'ordenada-keymaps
+            (keymap-set ordenada-app-map "${config.ordenada.features.docker.key}" #'docker))
+          (add-to-list 'auto-mode-alist '(".*Dockerfile\\'" . dockerfile-mode))
+        '';
+        elispPackages = with pkgs.emacsPackages; [
+          docker
+          dockerfile-mode
+        ];
+      };
+    };
 }

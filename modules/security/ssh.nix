@@ -1,18 +1,14 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada) mkEnableTrueOption mkHomeConfig;
-in
-{
-  options.ordenada.features.ssh = {
-    enable = mkEnableOption "the SSH feature";
-    daemon = mkEnableTrueOption "the SSH server daemon";
+mkFeature {
+  name = "ssh";
+  options = with lib; {
+    daemon = ordenada-lib.mkEnableTrueOption "the SSH server daemon";
     matchBlocks = mkOption {
       type = types.attrs;
       description = "The SSH stanzas to use in the client configuration.";
@@ -24,19 +20,13 @@ in
       default = [ ];
     };
   };
-  config = lib.mkMerge [
+  homeManager =
+    { config, ... }:
     {
-      users = mkHomeConfig config "ssh" (user: {
-        openssh.authorizedKeys.keys = user.features.ssh.authorizedKeys;
-      });
-      home-manager = mkHomeConfig config "ssh" (user: {
-        services.ssh-agent.enable =
-          !config.home-manager.users.${user.name}.services.gpg-agent.enableSshSupport;
-        programs.ssh = {
-          enable = true;
-          matchBlocks = user.features.ssh.matchBlocks;
-        };
-      });
-    }
-  ];
+      services.ssh-agent.enable = !config.services.gpg-agent.enableSshSupport;
+      programs.ssh = {
+        enable = true;
+        matchBlocks = config.ordenada.features.ssh.matchBlocks;
+      };
+    };
 }

@@ -1,22 +1,9 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ mkFeature, ... }:
 
-let
-  inherit (pkgs.lib.ordenada) mkHomeConfig;
-in
-{
-  options.ordenada.features.networking = {
-    enable = lib.mkEnableOption "the networking feature";
-  };
-  config = lib.mkIf config.ordenada.features.networking.enable {
+mkFeature {
+  name = "networking";
+  nixos = {
     networking.useDHCP = false;
     networking.networkmanager.enable = true;
-    users = mkHomeConfig config "networking" (user: {
-      extraGroups = [ "networkmanager" ];
-    });
   };
 }

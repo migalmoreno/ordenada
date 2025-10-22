@@ -1,32 +1,28 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption;
-  inherit (pkgs.lib.ordenada) elisp mkHomeConfig mkElispConfig;
-in
-{
-  options.ordenada.features.emacs.consult = {
-    enable = mkEnableOption "the Emacs consult feature";
-    initialNarrowing = mkEnableOption "the initial narrowing of mini-buffer items";
-  };
-  config.home-manager = mkHomeConfig config "emacs.consult" (user: {
-    programs.emacs = mkElispConfig {
-      name = "ordenada-consult";
-      config =
-        with user.features.emacs.consult;
-        with elisp;
-        ''
+mkFeature {
+  name = [
+    "emacs"
+    "consult"
+  ];
+  options.initialNarrowing = lib.mkEnableOption "the initial narrowing of mini-buffer items";
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-consult";
+        config = with config.ordenada.features.emacs.consult; ''
           (eval-when-compile
             (require 'consult))
           (defcustom ordenada-consult nil
             "Tweaks to Consult configuration."
             :group 'ordenada)
-          ${mkIf initialNarrowing ''
+          ${lib.optionalString initialNarrowing ''
             (defcustom ordenada-completion-initial-narrow-alist '()
               "Alist of MODE . KEY to present an initial completion narrowing via
                           `consult'."
@@ -122,10 +118,10 @@ in
           (with-eval-after-load 'xref
             (setopt xref-show-xrefs-function #'consult-xref))
         '';
-      elispPackages = with pkgs.emacsPackages; [
-        consult
-        embark-consult
-      ];
+        elispPackages = with pkgs.emacsPackages; [
+          consult
+          embark-consult
+        ];
+      };
     };
-  });
 }

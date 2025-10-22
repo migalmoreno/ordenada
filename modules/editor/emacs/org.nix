@@ -1,35 +1,36 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada)
-    elisp
-    mkEnableTrueOption
-    mkElispConfig
-    mkHomeConfig
-    ;
-in
-{
-  options.ordenada.features.emacs.org = {
-    enable = mkEnableOption "the Emacs Org feature";
-    directory = mkOption {
-      type = types.str;
-      description = "The directory where Org should look for files.";
-      default = "${config.ordenada.features.xdg.userDirs.documents}/org";
+mkFeature {
+  name = [
+    "emacs"
+    "org"
+  ];
+  options =
+    { config, ... }:
+    let
+      inherit (lib) mkEnableOption mkOption types;
+    in
+    {
+      enable = mkEnableOption "the Emacs Org feature";
+      directory = mkOption {
+        type = types.str;
+        description = "The directory where Org should look for files.";
+        default = "${config.ordenada.features.xdg.userDirs.documents}/org";
+      };
+      startupIndented = ordenada-lib.mkEnableTrueOption "turning org-indent-mode on startup";
+      orgModern = mkEnableOption "Org Modern integration styles in Org buffers";
     };
-    startupIndented = mkEnableTrueOption "turning org-indent-mode on startup";
-    orgModern = mkEnableOption "Org Modern integration styles in Org buffers";
-  };
-  config.home-manager = mkHomeConfig config "emacs.org" (
-    user: with user.features.emacs.org; {
-      programs.emacs = mkElispConfig {
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-org";
-        config = with elisp; ''
+        config = with config.ordenada.features.emacs.org; ''
           (eval-when-compile
             (require 'org)
             (require 'org-refile)
@@ -57,7 +58,7 @@ in
             (keymap-set org-mode-map "M-n" #'org-metaright)
             (keymap-set org-mode-map "M-p" #'org-metaleft)
             (setopt org-startup-folded 'content)
-            (setopt org-startup-indented ${mkBoolean startupIndented})
+            (setopt org-startup-indented ${ordenada-lib.elisp.toBoolean startupIndented})
             (setopt org-startup-with-inline-images t)
             (setopt org-extend-today-until 0)
             (setopt org-use-fast-todo-selection 'expert)
@@ -139,7 +140,7 @@ in
             (setopt org-export-preserve-breaks t))
 
           (add-hook 'org-mode-hook #'org-appear-mode)
-          ${mkIf orgModern ''
+          ${lib.optionalString orgModern ''
             (autoload 'global-org-modern-mode "org-modern")
             (if after-init-time
                 (global-org-modern-mode)
@@ -157,16 +158,13 @@ in
           (add-hook 'org-mode-hook #'prettify-symbols-mode)
           (add-hook 'org-mode-hook #'variable-pitch-mode)
         '';
-        elispPackages =
-          with pkgs.emacsPackages;
-          [
-            olivetti
-            org
-            org-appear
-            org-contrib
-          ]
-          ++ lib.optional orgModern org-modern;
+        elispPackages = with pkgs.emacsPackages; [
+          olivetti
+          org
+          org-appear
+          org-contrib
+          org-modern
+        ];
       };
-    }
-  );
+    };
 }

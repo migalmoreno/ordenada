@@ -1,19 +1,9 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, mkFeature, ... }:
 
-let
-  inherit (lib) types mkOption;
-  inherit (pkgs.lib.ordenada) mkEnableTrueOption mkHomeConfig;
-in
-{
-  options.ordenada.features.keyboard = {
-    enable = mkEnableTrueOption "the keyboard feature";
+mkFeature {
+  name = "keyboard";
+  options = with lib; {
     layout = mkOption {
-      description = "The keyboard layout.";
       type = types.submodule {
         options = {
           name = mkOption {
@@ -33,16 +23,19 @@ in
           };
         };
       };
+      description = "The keyboard layout.";
       default = {
         name = "us";
         options = [ "ctrl:nocaps" ];
       };
     };
   };
-  config.home-manager = mkHomeConfig config "keyboard" (user: {
-    home.keyboard = with user.features.keyboard; {
-      inherit options variant;
-      layout = name;
+  homeManager =
+    { config, ... }:
+    {
+      home.keyboard = with config.ordenada.features.keyboard; {
+        inherit options variant;
+        layout = name;
+      };
     };
-  });
 }

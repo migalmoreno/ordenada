@@ -1,17 +1,16 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) types mkOption mkEnableOption;
-  inherit (pkgs.lib.ordenada) mkElispConfig mkHomeConfig;
-in
-{
-  options.ordenada.features.emacs.which-key = {
-    enable = mkEnableOption "the Emacs which-key feature";
+mkFeature {
+  name = [
+    "emacs"
+    "which-key"
+  ];
+  options = with lib; {
     minHeight = mkOption {
       type = types.number;
       default = 1;
@@ -23,18 +22,20 @@ in
       description = "The number of seconds to wait for the which-key to show up.";
     };
   };
-  config.home-manager = mkHomeConfig config "emacs.which-key" (user: {
-    programs.emacs = mkElispConfig {
-      name = "ordenada-which-key";
-      config = with user.features.emacs.which-key; ''
-        (require 'which-key)
-        (setopt which-key-min-display-lines ${toString minHeight})
-        (setopt which-key-ellipsis "...")
-        (setopt which-key-idle-delay ${toString idleDelay})
-        (which-key-mode 1)
-        (keymap-global-set "C-h C-k" #'which-key-show-top-level)
-      '';
-      elispPackages = with pkgs.emacsPackages; [ which-key ];
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-which-key";
+        config = with config.ordenada.features.emacs.which-key; ''
+          (require 'which-key)
+          (setopt which-key-min-display-lines ${toString minHeight})
+          (setopt which-key-ellipsis "...")
+          (setopt which-key-idle-delay ${toString idleDelay})
+          (which-key-mode 1)
+          (keymap-global-set "C-h C-k" #'which-key-show-top-level)
+        '';
+        elispPackages = with pkgs.emacsPackages; [ which-key ];
+      };
     };
-  });
 }

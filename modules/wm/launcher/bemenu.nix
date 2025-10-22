@@ -1,20 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, mkFeature, ... }:
 
 let
-  inherit (lib)
-    mkEnableOption
-    mkOption
-    mkPackageOption
-    types
-    ;
-  inherit (pkgs.lib.ordenada) mkHomeConfig;
-  cfg = config.ordenada.features.bemenu;
-  mkBemenuOpts =
+  mkOpts =
     opts:
     toString (
       lib.mapAttrsToList (
@@ -29,67 +16,78 @@ let
         }"
       ) opts
     );
-  menuSettings = with config.ordenada.features.theme.scheme.withHashtag; {
-    line-height = 34;
-    ignorecase = true;
-    hp = 10;
-    cw = 1;
-    ch = 20;
-    tf = base05;
-    tb = base02;
-    ff = base05;
-    fb = base01;
-    nf = base05;
-    nb = base01;
-    af = base05;
-    ab = base01;
-    cf = base05;
-    cb = base01;
-    hf = base01;
-    hb = base0D;
-    fn = with config.ordenada.features.fontutils.fonts.monospace; "${name} ${toString size}";
-  };
+  mkSettings =
+    config: with config.ordenada.features.theme.scheme.withHashtag; {
+      line-height = 34;
+      ignorecase = true;
+      hp = 10;
+      cw = 1;
+      ch = 20;
+      tf = base05;
+      tb = base02;
+      ff = base05;
+      fb = base01;
+      nf = base05;
+      nb = base01;
+      af = base05;
+      ab = base01;
+      cf = base05;
+      cb = base01;
+      hf = base01;
+      hb = base0D;
+      fn = with config.ordenada.features.fontutils.fonts.monospace; "${name} ${toString size}";
+    };
 in
-{
-  options.ordenada.features.bemenu = {
-    enable = mkEnableOption "the bemenu feature";
-    package = mkPackageOption pkgs "bemenu" { };
-    height = mkOption {
-      type = types.int;
-      description = "The height of the bemenu prompt.";
-      default = 34;
+mkFeature {
+  name = "bemenu";
+  options =
+    { pkgs, ... }:
+    let
+      inherit (lib) mkOption mkPackageOption types;
+    in
+    {
+      package = mkPackageOption pkgs "bemenu" { };
+      height = mkOption {
+        type = types.int;
+        description = "The height of the bemenu prompt.";
+        default = 34;
+      };
+      enableLauncher = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global launcher.";
+        default = true;
+      };
+      enablePinentry = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global pinentry.";
+        default = true;
+      };
     };
-    enableLauncher = mkOption {
-      type = types.bool;
-      description = "Whether to enable this feature as the global launcher.";
-      default = true;
+  globals =
+    { config, pkgs, ... }:
+    {
+      launcher = with config.ordenada.features.bemenu; ''
+        ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${package}/bin/bemenu ${mkOpts (mkSettings config)}"
+      '';
     };
-    enablePinentry = mkOption {
-      type = types.bool;
-      description = "Whether to enable this feature as the global pinentry.";
-      default = true;
-    };
-  };
-  config = lib.mkIf cfg.enable {
-    ordenada.globals.launcher = ''
-      ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
-        --dmenu="${cfg.package}/bin/bemenu ${mkBemenuOpts menuSettings}"
-    '';
-    home-manager = mkHomeConfig config "bemenu" (
-      user: with config.home-manager.users.${user.name}.programs.bemenu; {
-        programs.bemenu = {
-          enable = true;
-          package = user.features.bemenu.package;
-          settings = menuSettings;
-        };
-        services.gpg-agent.pinentry.package = lib.mkIf cfg.enablePinentry (
-          lib.mkForce (
-            pkgs.writeShellScriptBin "pinentry-bemenu" ''
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.bemenu = {
+        enable = true;
+        package = config.ordenada.features.bemenu.package;
+        settings = mkSettings config;
+      };
+      services.gpg-agent.pinentry.package = lib.mkIf config.ordenada.features.bemenu.enablePinentry (
+        lib.mkForce (
+          pkgs.writeShellScriptBin "pinentry-bemenu" (
+            with config.ordenada.features.bemenu;
+            ''
               PATH="$PATH:${pkgs.coreutils}/bin:${package}/bin"
               unset BEMENU_OPTS
               "${pkgs.pinentry-bemenu}/bin/pinentry-bemenu" ${
-                mkBemenuOpts (
-                  removeAttrs settings [
+                mkOpts (
+                  removeAttrs (mkSettings config) [
                     "cw"
                     "hp"
                     "ch"
@@ -98,8 +96,7 @@ in
               }
             ''
           )
-        );
-      }
-    );
-  };
+        )
+      );
+    };
 }

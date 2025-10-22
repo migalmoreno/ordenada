@@ -1,51 +1,52 @@
 {
-  config,
+  inputs,
   lib,
-  pkgs,
+  mkFeature,
   ...
 }:
 
-let
-  inherit (lib) mkOption types;
-  inherit (pkgs.lib.ordenada) mkEnableTrueOption mkHomeConfig;
-  cfg = config.ordenada.features.home;
-in
-{
-  options.ordenada.features.home = {
-    enable = mkEnableTrueOption "the home feature";
-    extraGroups = mkOption {
-      type = types.listOf types.str;
-      description = "The extra list of groups.";
-      default = [ ];
+mkFeature {
+  name = "home";
+  options =
+    { config, ... }:
+    {
+      autoStartWmOnTty = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        description = "The tty to launch the WM in.";
+        default = null;
+      };
+      applyFeaturesToAll = lib.mkOption {
+        default = config.ordenada.features.home.enable;
+        example = true;
+        description = "Whether to apply all host features to all Home Manager configurations.";
+        type = lib.types.bool;
+      };
     };
-    autoStartWmOnTty = mkOption {
-      type = types.nullOr types.str;
-      description = "The tty to launch the WM in.";
-      default = null;
-    };
-  };
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
+  nixos =
+    { config, ... }:
+    {
+      imports = [ inputs.home-manager.nixosModules.home-manager ];
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "backup";
-      environment.loginShellInit = lib.mkIf (cfg.autoStartWmOnTty != null) ''
-        [[ $(tty) == ${cfg.autoStartWmOnTty} ]] && exec ${config.ordenada.globals.wm}
-      '';
-    })
+      home-manager.sharedModules = lib.mkIf config.ordenada.features.home.applyFeaturesToAll [
+        {
+          ordenada.features = config.ordenada.features;
+        }
+      ];
+      environment.loginShellInit =
+        with config.ordenada.features.home;
+        (lib.mkIf (autoStartWmOnTty != null) ''
+          [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.wm}
+        '');
+    };
+  homeManager =
+    { config, ... }:
     {
-      home-manager = mkHomeConfig config "home" (user: {
-        programs.home-manager.enable = true;
-        targets.genericLinux.enable = true;
-        home.stateVersion = "24.05";
-        home.file.".profile".text = lib.mkIf (config.ordenada.globals.shell == null) ''
-          . "${config.home-manager.users.${user.name}.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
-        '';
-      });
-      users = mkHomeConfig config "home" (user: {
-        isNormalUser = true;
-        extraGroups = [ "wheel" ] ++ user.features.home.extraGroups;
-      });
-    }
-  ];
+      programs.home-manager.enable = true;
+      targets.genericLinux.enable = true;
+      home.file.".profile".text = lib.mkIf (config.ordenada.globals.shell == null) ''
+        . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
+      '';
+    };
 }

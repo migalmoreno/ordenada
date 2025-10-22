@@ -1,20 +1,14 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada) elisp mkElispConfig mkHomeConfig;
-in
-{
-  options.ordenada.features = {
-    clojure = {
-      enable = mkEnableOption "the Clojure feature";
-    };
-    emacs.cider = {
+mkFeature {
+  name = "clojure";
+  options = with lib; {
+    cider = {
       popReplOnConnect = mkOption {
         type = types.either (types.strMatching "display-only") types.bool;
         description = ''
@@ -26,24 +20,23 @@ in
       replInCurrentWindow = mkEnableOption "showing the REPL in the current window";
     };
   };
-  config.home-manager = mkHomeConfig config "clojure" (user: {
-    home.packages = with pkgs; [
-      clj-kondo
-      cljfmt
-      zprint
-      clojure
-      jdk
-      leiningen
-    ];
-    home.file.".zprint.edn".text = ''
-      {:search-config? true}
-    '';
-    programs.emacs = mkElispConfig {
-      name = "ordenada-clojure";
-      config =
-        with user.features.emacs.cider;
-        with elisp;
-        ''
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      home.packages = with pkgs; [
+        clj-kondo
+        cljfmt
+        zprint
+        clojure
+        jdk
+        leiningen
+      ];
+      home.file.".zprint.edn".text = ''
+        {:search-config? true}
+      '';
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-clojure";
+        config = with config.ordenada.features.clojure.cider; ''
           (defgroup ordenada-clojure nil
             "General Clojure programming utilities."
             :group 'ordenada)
@@ -71,7 +64,7 @@ in
               else
                 "nil"
             })
-            (setopt cider-repl-display-in-current-window ${mkBoolean replInCurrentWindow})
+            (setopt cider-repl-display-in-current-window ${ordenada-lib.elisp.toBoolean replInCurrentWindow})
             (setopt cider-repl-display-help-banner nil))
 
           (with-eval-after-load 'ordenada-keymaps
@@ -111,14 +104,14 @@ in
             (push '(zprint . ("zprint")) apheleia-formatters)
             (add-to-list 'apheleia-mode-alist '(clojure-mode . zprint)))
         '';
-      elispPackages = with pkgs.emacsPackages; [
-        cider
-        clojure-mode
-        jarchive
-        html-to-hiccup
-        clj-deps-new
-        flymake-kondor
-      ];
+        elispPackages = with pkgs.emacsPackages; [
+          cider
+          clojure-mode
+          jarchive
+          html-to-hiccup
+          clj-deps-new
+          flymake-kondor
+        ];
+      };
     };
-  });
 }

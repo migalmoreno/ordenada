@@ -1,23 +1,21 @@
 {
-  config,
   lib,
-  pkgs,
+  mkFeature,
+  ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkEnableOption mkOption types;
-  inherit (pkgs.lib.ordenada)
-    elisp
-    hasFeature
-    mkElispConfig
-    mkHomeConfig
-    ;
-in
-{
-  options.ordenada.features.emacs = {
-    calendar = {
-      enable = mkEnableOption "the Emacs Calendar feature";
+mkFeature {
+  name = [
+    "emacs"
+    "calendar"
+  ];
+  options =
+    { config, ... }:
+    let
+      inherit (lib) mkEnableOption mkOption types;
+    in
+    {
       dateStyle = mkOption {
         type = types.enum [
           "american"
@@ -44,27 +42,25 @@ in
         default = "A";
       };
     };
-  };
-  config.home-manager = mkHomeConfig config "emacs.calendar" (user: {
-    programs.emacs = mkElispConfig {
-      name = "ordenada-calendar";
-      config =
-        with user.features.emacs;
-        with elisp;
-        ''
+  homeManager =
+    { config, pkgs, ... }:
+    {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
+        name = "ordenada-calendar";
+        config = with config.ordenada.features.emacs; ''
           (defvar ordenada-calendar-appt-map nil
             "Map to bind `appt' commands under.")
           (define-prefix-command 'ordenada-calendar-appt-map)
           (with-eval-after-load 'ordenada-keymaps
             (keymap-set ordenada-app-map "${keymaps.appMap.calendar}" #'calendar))
           (with-eval-after-load 'calendar
-            ${mkIf (hasFeature "emacs.calendar" user) "(require 'ebdb)"}
+            ${lib.optionalString calendar.enable "(require 'ebdb)"}
             (setopt diary-file "${calendar.diaryFile}")
             (setopt calendar-week-start-day 1)
             (setopt calendar-view-diary-initially-flag t)
             (setopt calendar-date-style '${calendar.dateStyle})
             (setopt calendar-mark-diary-entries-flag t)
-            ${mkIf calendar.weekNumbers ''
+            ${lib.optionalString calendar.weekNumbers ''
               (setopt calendar-intermonth-header
                       (propertize "WK" 'font-lock-face
                                   'font-lock-function-name-face))
@@ -89,6 +85,6 @@ in
               (setopt appt-display-interval 2)
               (setopt appt-display-diary nil))
         '';
+      };
     };
-  });
 }

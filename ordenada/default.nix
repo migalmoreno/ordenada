@@ -52,11 +52,11 @@ in
     in
     {
       flake = {
-        nixosModules.ordenada' = {
+        nixosModules.ordenada = {
           imports = ordenada-lib.getClassModules "nixos" config.ordenada.modules;
           options.ordenada.globals = globals;
         };
-        homeModules.ordenada' = moduleWithSystem (
+        homeModules.ordenada = moduleWithSystem (
           { system, ... }:
           let
             nur-no-pkgs = import inputs.nur {
@@ -71,7 +71,7 @@ in
             options.ordenada.globals = globals;
           }
         );
-        darwinModules.ordenada' = {
+        darwinModules.ordenada = {
           imports = ordenada-lib.getClassModules "darwin" config.ordenada.modules;
           options.ordenada.globals = globals;
         };
