@@ -5,27 +5,35 @@
   ...
 }:
 
-let
-  inherit (lib) mkOption types;
-in
 mkFeature {
   name = "home";
-  options = {
-    autoStartWmOnTty = mkOption {
-      type = types.nullOr types.str;
-      description = "The tty to launch the WM in.";
-      default = null;
+  options =
+    { config, ... }:
+    {
+      autoStartWmOnTty = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        description = "The tty to launch the WM in.";
+        default = null;
+      };
+      applyFeaturesToAll = lib.mkOption {
+        default = config.ordenada.features.home.enable;
+        example = true;
+        description = "Whether to apply all host features to all Home Manager configurations.";
+        type = lib.types.bool;
+      };
     };
-  };
   nixos =
     { config, ... }:
     {
-      imports = [
-        inputs.home-manager.nixosModules.home-manager
-      ];
+      imports = [ inputs.home-manager.nixosModules.home-manager ];
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "backup";
+      home-manager.sharedModules = lib.mkIf config.ordenada.features.home.applyFeaturesToAll [
+        {
+          ordenada.features = config.ordenada.features;
+        }
+      ];
       environment.loginShellInit =
         with config.ordenada.features.home;
         (lib.mkIf (autoStartWmOnTty != null) ''
