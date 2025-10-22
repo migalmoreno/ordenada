@@ -5,16 +5,12 @@
   ...
 }:
 
-let
-  inherit (lib) mkOption types;
-  inherit (ordenada-lib) mkElispConfig mkEnableTrueOption;
-in
 mkFeature {
   name = [
     "emacs"
     "appearance"
   ];
-  options = {
+  options = with lib; {
     fringes = mkOption {
       type = types.int;
       description = "The width of the window's frame fringes.";
@@ -40,7 +36,7 @@ mkFeature {
       description = "The padding for the Emacs tab bar.";
       default = 4;
     };
-    headerLineAsModeLine = mkEnableTrueOption "the Emacs header line to be used as the mode line";
+    headerLineAsModeLine = ordenada-lib.mkEnableTrueOption "the Emacs header line to be used as the mode line";
   };
   homeManager =
     {
@@ -50,7 +46,7 @@ mkFeature {
       ...
     }:
     {
-      programs.emacs = mkElispConfig pkgs {
+      programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-appearance";
         config = with config.ordenada.features.emacs.appearance; ''
           (require 'xdg)

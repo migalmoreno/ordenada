@@ -54,9 +54,7 @@ in
       flake = {
         nixosModules.ordenada' = {
           imports = ordenada-lib.getClassModules "nixos" config.ordenada.modules;
-          options.ordenada = {
-            inherit globals;
-          };
+          options.ordenada.globals = globals;
         };
         homeModules.ordenada' = moduleWithSystem (
           { system, ... }:
@@ -70,16 +68,12 @@ in
             imports = ordenada-lib.getClassModules "homeManager" config.ordenada.modules ++ [
               nur-no-pkgs.repos.rycee.hmModules.emacs-init
             ];
-            options.ordenada = {
-              inherit globals;
-            };
+            options.ordenada.globals = globals;
           }
         );
         darwinModules.ordenada' = {
           imports = ordenada-lib.getClassModules "darwin" config.ordenada.modules;
-          options.ordenada = {
-            inherit globals;
-          };
+          options.ordenada.globals = globals;
         };
         modules = ordenada-lib.transpose config.ordenada.modules;
       };

@@ -1,11 +1,6 @@
 { lib, mkFeature, ... }:
 
 let
-  inherit (lib)
-    mkOption
-    mkPackageOption
-    types
-    ;
   mkOpts =
     opts:
     toString (
@@ -47,6 +42,9 @@ mkFeature {
   name = "bemenu";
   options =
     { pkgs, ... }:
+    let
+      inherit (lib) mkOption mkPackageOption types;
+    in
     {
       package = mkPackageOption pkgs "bemenu" { };
       height = mkOption {
@@ -68,7 +66,9 @@ mkFeature {
   globals =
     { config, pkgs, ... }:
     {
-      launcher = "test";
+      launcher = with config.ordenada.features.bemenu; ''
+        ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${package}/bin/bemenu ${mkOpts (mkSettings config)}"
+      '';
     };
   homeManager =
     { config, pkgs, ... }:
@@ -87,7 +87,7 @@ mkFeature {
               unset BEMENU_OPTS
               "${pkgs.pinentry-bemenu}/bin/pinentry-bemenu" ${
                 mkOpts (
-                  removeAttrs settings [
+                  removeAttrs (mkSettings config) [
                     "cw"
                     "hp"
                     "ch"

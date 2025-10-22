@@ -1,11 +1,8 @@
 { lib, mkFeature, ... }:
 
-let
-  inherit (lib) types mkOption;
-in
 mkFeature {
   name = "keyboard";
-  options = {
+  options = with lib; {
     layout = mkOption {
       type = types.submodule {
         options = {

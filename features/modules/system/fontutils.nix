@@ -5,14 +5,12 @@
   ...
 }:
 
-let
-  inherit (lib) mkOption mkPackageOption types;
-in
 mkFeature {
   name = "fontutils";
   options =
     { config, pkgs, ... }:
     let
+      inherit (lib) mkOption mkPackageOption types;
       fontModule = types.submodule {
         options = {
           name = mkOption {
