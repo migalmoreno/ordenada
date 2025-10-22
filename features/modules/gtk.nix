@@ -1,13 +1,11 @@
 { lib, mkFeature, ... }:
 
-let
-  inherit (lib) mkOption types;
-in
 mkFeature {
   name = "gtk";
   options =
     { config, pkgs, ... }:
     let
+      inherit (lib) mkOption types;
       themeModule = types.submodule {
         options = {
           name = mkOption {

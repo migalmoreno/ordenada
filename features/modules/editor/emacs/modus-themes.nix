@@ -6,7 +6,6 @@
 }:
 
 let
-  inherit (lib) mkEnableOption mkOption types;
   getDeuteranopia =
     config: if config.ordenada.features.emacs.modus-themes.deuteranopia then "-deuteranopia" else "";
   getLightTheme = config: "modus-operandi${getDeuteranopia config}";
@@ -26,12 +25,12 @@ mkFeature {
   options =
     { config, ... }:
     {
-      dark = mkOption {
-        type = types.bool;
+      dark = lib.mkOption {
+        type = lib.types.bool;
         description = "Whether to enable dark mode in Modus Themes.";
         default = config.ordenada.features.theme.polarity == "dark";
       };
-      deuteranopia = mkEnableOption "deuteranopia support in Modus Themes";
+      deuteranopia = lib.mkEnableOption "deuteranopia support in Modus Themes";
     };
   nixos =
     { config, ... }:

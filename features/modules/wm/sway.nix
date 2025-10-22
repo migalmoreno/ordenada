@@ -1,34 +1,35 @@
 {
   lib,
   mkFeature,
-  pkgs,
   ordenada-lib,
   ...
 }:
 
-let
-  inherit (lib) mkOption mkPackageOption types;
-in
 mkFeature {
   name = "sway";
-  options = {
-    package = mkPackageOption pkgs "sway" { };
-    modifier = mkOption {
-      type = types.str;
-      description = "The modifier to bind Sway keys to.";
-      default = "Mod4";
+  options =
+    { pkgs, ... }:
+    let
+      inherit (lib) mkOption mkPackageOption types;
+    in
+    {
+      package = mkPackageOption pkgs "sway" { };
+      modifier = mkOption {
+        type = types.str;
+        description = "The modifier to bind Sway keys to.";
+        default = "Mod4";
+      };
+      keybindings = mkOption {
+        type = types.attrs;
+        description = "The Sway keybindings.";
+        default = { };
+      };
+      extraConfig = mkOption {
+        type = types.attrs;
+        default = { };
+        description = "Extra configuration for Sway.";
+      };
     };
-    keybindings = mkOption {
-      type = types.attrs;
-      description = "The Sway keybindings.";
-      default = { };
-    };
-    extraConfig = mkOption {
-      type = types.attrs;
-      default = { };
-      description = "Extra configuration for Sway.";
-    };
-  };
   globals =
     { config, ... }:
     {
@@ -47,7 +48,8 @@ mkFeature {
         enable = true;
         systemd.enable = true;
       };
-      wayland.windowManager.sway = {
+      wayland.windowManager.sway = with config.ordenada.features.sway; {
+        inherit package;
         enable = true;
         systemd.enable = true;
         xwayland = true;
@@ -66,8 +68,8 @@ mkFeature {
         config =
           with config.ordenada.features.theme.scheme.withHashtag;
           lib.recursiveUpdate {
+            inherit modifier;
             defaultWorkspace = "workspace number 1";
-            modifier = config.ordenada.features.sway.modifier;
             input = with config.ordenada.features.keyboard.layout; {
               "type:keyboard" =
                 {
@@ -91,7 +93,7 @@ mkFeature {
             seat."*" = with config.ordenada.features.gtk.cursorTheme; {
               xcursor_theme = "${name} ${toString config.ordenada.features.gtk.cursorSize}";
             };
-            keybindings = lib.mkOptionDefault config.ordenada.features.sway.keybindings;
+            keybindings = lib.mkOptionDefault keybindings;
             floating = {
               titlebar = false;
               border = 2;
@@ -145,7 +147,7 @@ mkFeature {
             };
             gaps.inner = 12;
             bars = [ ];
-          } config.ordenada.features.sway.extraConfig;
+          } extraConfig;
       };
     };
 }
