@@ -14,7 +14,10 @@ mkFeature {
       description = "Keybinding to launch Emacs Docker interface.";
     };
   };
-  nixos.virtualisation.docker.enable = true;
+  nixos = {
+    virtualisation.docker.enable = true;
+    ordenada.features.userInfo.extraGroups = [ "docker" ];
+  };
   homeManager =
     { config, pkgs, ... }:
     {
