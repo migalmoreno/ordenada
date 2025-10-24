@@ -3,14 +3,14 @@
 #+title: ordenada
 Ordenada is a configuration framework based on the [[https://nixos.org/][Nix]] package manager that aims to make it easy to build reproducible development environments. It draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] project for [[https://guix.gnu.org/][GNU Guix]].
 
-Ordenada's configuration is centered around users and features. Features are blocks of configuration that provide certain functionality for a user, such as setting up your email, adding your GnuPG keys, or configuring your window manager. Normally, you only need to enable them and all the required settings will automatically be configured for you, although there are many available options you can tweak to fit your needs. See the [[https://migalmoreno.com/projects/ordenada.html#configuration-options][full list of features and options]].
+Ordenada is centered around features, which are blocks of configuration that provide certain functionality for one or many "classes" (NixOS, Home Manager, Darwin, etc.), such as setting up your email, adding your GnuPG keys, or configuring your window manager. Normally, all you need to do is enable the features and sane defaults will be configured for you, but you can check the [[https://migalmoreno.com/projects/ordenada.html#configuration-options][full list of features and options]] to fit your needs.
 
 #+begin_quote
 NOTE: Ordenada is in current development and its API is subject to change
 #+end_quote
 
 * Installation
-You can install Ordenada into your NixOS configuration using [[https://nix.dev/concepts/flakes.html][Flakes]]. First, add its flake URL to your list of inputs.
+The recommended way to install Ordenada is via [[https://nix.dev/concepts/flakes.html][Flakes]]. Add a new input for it as follows:
 
 #+begin_src nix
 {
@@ -21,7 +21,8 @@ You can install Ordenada into your NixOS configuration using [[https://nix.dev/c
 }
 #+end_src
 
-Import its list of modules into your configuration.
+** NixOS
+For NixOS systems, add the list of NixOS modules:
 
 #+begin_src nix
 {
@@ -31,7 +32,6 @@ Import its list of modules into your configuration.
       nixosConfigurations."<hostname>" = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          # ...other modules
           ordenada.nixosModules.ordenada
         ];
       };
@@ -39,194 +39,149 @@ Import its list of modules into your configuration.
 }
 #+end_src
 
-Optionally, if you want to make use of Ordenada's utility library, to e.g. create your own features, add the following to your configuration.
+From here on, you can enable and configure the features in your system configuration, such as follows:
 
 #+begin_src nix
-nixpkgs.overlays = [ ordenada.overlays.default ];
-#+end_src
-
-* Usage
-In a typical single user setup, you just need to add a global set of =features= and add your user to the =users= set.
-
-#+begin_src nix
-{ config, pkgs, ... }:
-
 {
-  ordenada = {
-    users = {
-      bob = { };
-    };
-    features = {
-      userInfo = {
-        username = "bob";
-      };
-      home.enable = true;
-      gnupg.enable = true;
-      gtk = {
-        enable = true;
-        theme = {
-          name = "adw-gtk3";
-          package = pkgs.adw-gtk3;
-        };
-      };
-      emacs = {
-        enable = true;
-        all-the-icons.enable = true;
-        appearance.enable = true;
-        eglot.enable = true;
-        modus-themes = {
-          enable = true;
-          dark = true;
-        };
-      };
-      irc = {
-        enable = true;
-        accounts = {
-          libera = {
-            network = "irc.libera.chat";
-            nick = "bob";
-          };
-          oftc = {
-            network = "irc.oftc.net";
-            nick = "bob";
-          };
-        };
-      };
-      mail = {
-        enable = true;
-        accounts = {
-          personal = {
-            primary = true;
-            fqda = "bob@example.com";
-            extraConfig = {
-              imap = {
-                host = "mail.example.com";
-                port = 993;
+  outputs =
+    { nixpkgs, ordenada, ... }:
+    {
+      nixosConfigurations."<hostname>" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ordenada.nixosModules.ordenada
+          {
+            # ...rest of your NixOS system configuration
+            ordenada.features = {
+              userInfo = {
+                enable = true;
+                username = "myuser";
               };
-              smtp = {
-                host = "mail.example.com";
-                port = 465;
+              theme.enable = true;
+              gnupg.enable = true;
+              mail = {
+                enable = true;
+                accounts.personal = {
+                  primary = true;
+                  fqda = "user@example.com";
+                };
               };
+              # ...rest of features
             };
-          };
-        };
-      };
-      sway.enable = true;
-      waybar = {
-        enable = true;
-        modules = with config.ordenada.features.waybar.defaultModules; [
-          swayWorkspaces
-          swayWindow
-          pulseaudio
-          battery
-          swayLanguage
-          clock
-          swaync
+          }
         ];
       };
     };
-  };
 }
 #+end_src
 
-In more complex multi-user installations, you can modify the set of user features to match each user's needs. As shown in the example below, you could make user =bob= augment the global features with ones specific to him. Alternatively, you could also create a set of user features from scratch and augment certain features as you go, like in the case of the =alice= user below.
+If you use [[https://github.com/nix-community/home-manager][Home Manager]] in your NixOS system, you'll want to add Ordenada's home modules to your Home Manager imports and enable the =home= feature so that all the Ordenada features added in your host get applied to your Home Manager configuration.
 
 #+begin_src nix
-{ config, ... }:
-
 {
-  ordenada = {
-    users = {
-      bob = {
-        features = config.ordenada.features // {
-          emacs.spelling.enable = true;
-          firefox.enable = false;
-        };
-      };
-      alice = {
-        features = with config.ordenada.features; {
-          userInfo = {
-            username = "alice";
-          };
-          inherit gnupg;
-          home.enable = true;
-          bash.enable = true;
-          emacs = with emacs; {
-            enable = true;
-            dired.enable = true;
-            org-roam.enable = true;
-            inherit modus-themes eglot;
-          };
-        };
+  outputs =
+    { nixpkgs, ordenada, ... }:
+    {
+      nixosConfigurations."<hostname>" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ordenada.nixosModules.ordenada
+          {
+            # ...rest of your NixOS system configuration
+            ordenada.features = {
+              home.enable = true;
+              # ...rest of features
+            };
+            home-manager.users."<user>".imports = [
+              ordenada.homeModules.ordenada
+            ];
+          }
+        ];
       };
     };
-    features = {
-      userInfo = {
-        username = "bob";
-      };
-      # ...rest of global features
-    };
-  };
 }
 #+end_src
 
-With the above setup, two users =bob= and =alice= will be configured in the system. =bob= will end up with an augmented global features setup while =alice= will only have the features =home=, =bash=, the inherited global =gnupg= feature,  and =emacs= along with its features.
-
-By default, all users inherit the global features. Thus, if you want to write a user features set from scratch (e.g. =alice='s example above) you don't need to include the whole global features set again for a new user feature (e.g. the =home=, =bash=, and =emacs= features above). However, if you want to apply the feature default settings to the user feature (i.e. those that are not explicitly set in the global feature) you'll need to explicitly inherit from the global feature, such as the case with the =gnupg= feature above.
-
-* Extending it
-You can use Ordenada's utilities to extend its available features with your own. For instance, the following shows how to create a feature =example=.
+If you want a particular Home Manager configuration to not inherit all the features from that host, you can disable the default behavior with the =home.applyFeaturesToAll= option set to =false= and create your own set of features for that particular Home Manager instance. Note that if this option disabled you'll want to set =ordenada.features \equal osConfig.ordenada.features= in the configuration of users for which you still want the default behavior of inheriting from the host features.
 
 #+begin_src nix
 {
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+  outputs =
+    { nixpkgs, ordenada, ... }:
+    {
+      nixosConfigurations."<hostname>" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ordenada.nixosModules.ordenada
+          {
+            # ...rest of your NixOS system configuration
+            ordenada.features = {
+              home = {
+                enable = true;
+                applyFeaturesToAll = true;
+              };
+              # ...rest of features
+            };
+            home-manager.users = {
+              "<user1>".imports = [
+                ordenada.homeModules.ordenada
+                ({ osConfig, ... }: {
+                  ordenada.features = osConfig.ordenada.features;
+                })
+              ];
+              "<user2>".imports = [
+                ordenada.homeModules.ordenada
+                ({ osConfig, ... }: {
+                  ordenada.features = {
+                    # ...build a feature set from zero for this config
+                  };
+                })
+              ];
+            };
+          }
+        ];
+      };
+    };
+}
+#+end_src
 
-let
-  inherit (pkgs.lib.ordenada) hasFeature mkHomeConfig mkElispConfig;
-  cfg = config.ordenada.features.example;
-in
-{
-  options.ordenada.features.example = {
-    enable = lib.mkEnableOption "the example feature";
+* Adding features
+To add a new Ordenada feature you'll need to create a new file and use the =mkFeature= function to define the feature name, options, globals, and class configurations. An example feature is shown below:
+
+#+begin_src nix
+{ lib, mkFeature, ... }:
+
+mkFeature {
+  name = "example";
+  options = {
     message = lib.mkOption {
       type = lib.types.str;
       description = "The message to show.";
       default = "";
     };
   };
-  config = (
-    lib.mkMerge [
-      (lib.mkIf cfg.enable {
-        environment.sessionVariables = {
-          EXAMPLE_ENV = 1;
-        };
-      })
-      {
-        home-manager = mkHomeConfig config "example" (user: {
-          home.sessionVariables = lib.mkIf (hasFeature "acme" user) {
-            EXAMPLE_HOME_ENV = "EXAMPLE_HOME_ENV_VALUE";
-          };
-          programs.emacs = mkElispConfig {
-            name = "ordenada-example";
-            config = ''
-              ;; < your Elisp configuration >
-              (setq my-elisp-value ${user.features.example.message})
-            '';
-            elispPackages = [ ];
-            summary = "My example Emacs feature";
-          };
-        });
-      }
-    ]
-  );
+  globals = { config, ... }: {
+    greeter = config.ordenada.features.example.message;
+  };
+  nixos = {
+    environment.sessionVariables = {
+      EXAMPLE_ENV = "test";
+    };
+  };
+  homeManager = { pkgs, ... }: {
+    home.packages = [ pkgs.hello ];
+  };
+  darwin = {
+    homebrew.enable = true;
+  };
 }
 #+end_src
 
-The =example= feature above showcases a common feature definition workflow. First, we define a list of options for this feature that we'll be able to access from anywhere in our configuration. Then, we add a system configuration if the feature is enabled. Next, we add a home configuration via the special utility =mkHomeConfig=, which allows us to configure home settings for all our Ordenada users. In this example, we set a home environment variable as long as the =acme= feature is enabled (checked with the =hasFeature= utility). Finally, we add Emacs Lisp configuration through the =mkElispConfig= utility which will add a new Emacs configuration package for this feature with interpolated feature options (=user.features.example.message=).
+The feature =name= can be either a string or a list of strings (e.g. =["emacs" "appearance"]=) which will be used to define the =ordenada.features.<feature_name>= option in all class modules.
+
+The feature =options= are a set of options specific to this feature, =globals= is a set of globals that will dictate "global" Ordenada behavior (e.g. set the preferred editor to ="emacs"= in the Emacs feature). Both =options= and =globals= (i.e. =ordenada.features.<feature_name>.<option>= and =ordenada.globals.<global>=) will be applied in the modules of each class configuration defined next.
+
+Finally, there's the class configurations (=nixos=, =homeManager=, =darwin=) which each take a module with class-specific settings that will only be activated if the feature is enabled via the =ordenada.featurers.<feature_name>.enable= option in the corresponding class configuration.
 
 * Community
 Join the =#ordenada= IRC channel at [[https://libera.chat/][Libera.Chat]] for general project support.
