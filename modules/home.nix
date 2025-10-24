@@ -29,10 +29,15 @@ mkFeature {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "backup";
-      home-manager.sharedModules = lib.mkIf config.ordenada.features.home.applyFeaturesToAll [
-        {
-          ordenada.features = config.ordenada.features;
-        }
+      home-manager.sharedModules = lib.mkMerge [
+        [
+          (lib.mkIf config.ordenada.features.home.applyFeaturesToAll {
+            ordenada.features = config.ordenada.features;
+          })
+          {
+            targets.genericLinux.enable = true;
+          }
+        ]
       ];
       environment.loginShellInit =
         with config.ordenada.features.home;
@@ -44,7 +49,6 @@ mkFeature {
     { config, ... }:
     {
       programs.home-manager.enable = true;
-      targets.genericLinux.enable = true;
       home.file.".profile".text = lib.mkIf (config.ordenada.globals.shell == null) ''
         . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
       '';
