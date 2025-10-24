@@ -15,14 +15,13 @@ The recommended way to install Ordenada is via [[https://nix.dev/concepts/flakes
 #+begin_src nix
 {
   inputs = {
-    # ...other inputs
     ordenada.url = "github:migalmoreno/ordenada";
   };
 }
 #+end_src
 
 ** NixOS
-For NixOS systems, add the list of NixOS modules:
+For NixOS systems, add the list of Ordenada NixOS modules:
 
 #+begin_src nix
 {
@@ -51,7 +50,6 @@ From here on, you can enable and configure the features in your system configura
         modules = [
           ordenada.nixosModules.ordenada
           {
-            # ...rest of your NixOS system configuration
             ordenada.features = {
               userInfo = {
                 enable = true;
@@ -66,7 +64,6 @@ From here on, you can enable and configure the features in your system configura
                   fqda = "user@example.com";
                 };
               };
-              # ...rest of features
             };
           }
         ];
@@ -75,7 +72,7 @@ From here on, you can enable and configure the features in your system configura
 }
 #+end_src
 
-If you use [[https://github.com/nix-community/home-manager][Home Manager]] in your NixOS system, you'll want to add Ordenada's home modules to your Home Manager imports and enable the =home= feature so that all the Ordenada features added in your host get applied to your Home Manager configuration.
+If you use [[https://github.com/nix-community/home-manager][Home Manager]] in your NixOS system, you'll want to add Ordenada's home modules to your Home Manager imports and enable the =home= feature in your NixOS host so that all the Ordenada features added in your host get applied to your Home Manager user configuration.
 
 #+begin_src nix
 {
@@ -87,10 +84,8 @@ If you use [[https://github.com/nix-community/home-manager][Home Manager]] in yo
         modules = [
           ordenada.nixosModules.ordenada
           {
-            # ...rest of your NixOS system configuration
             ordenada.features = {
               home.enable = true;
-              # ...rest of features
             };
             home-manager.users."<user>".imports = [
               ordenada.homeModules.ordenada
@@ -102,7 +97,7 @@ If you use [[https://github.com/nix-community/home-manager][Home Manager]] in yo
 }
 #+end_src
 
-If you want a particular Home Manager configuration to not inherit all the features from that host, you can disable the default behavior with the =home.applyFeaturesToAll= option set to =false= and create your own set of features for that particular Home Manager instance. Note that if this option disabled you'll want to set =ordenada.features \equal osConfig.ordenada.features= in the configuration of users for which you still want the default behavior of inheriting from the host features.
+If you want a particular Home Manager configuration to not inherit all the features from that host, you can disable the default behavior with the =home.applyFeaturesToAll= option set to =false= and create a new set of features for that Home Manager instance. Note that if this option disabled you'll want to set =ordenada.features = osConfig.ordenada.features= in the configuration of users for which you still want the default behavior of inheriting from the host features.
 
 #+begin_src nix
 {
@@ -114,13 +109,11 @@ If you want a particular Home Manager configuration to not inherit all the featu
         modules = [
           ordenada.nixosModules.ordenada
           {
-            # ...rest of your NixOS system configuration
             ordenada.features = {
               home = {
                 enable = true;
                 applyFeaturesToAll = true;
               };
-              # ...rest of features
             };
             home-manager.users = {
               "<user1>".imports = [
@@ -133,7 +126,7 @@ If you want a particular Home Manager configuration to not inherit all the featu
                 ordenada.homeModules.ordenada
                 ({ osConfig, ... }: {
                   ordenada.features = {
-                    # ...build a feature set from zero for this config
+                    # new feature set
                   };
                 })
               ];
@@ -146,7 +139,7 @@ If you want a particular Home Manager configuration to not inherit all the featu
 #+end_src
 
 * Adding features
-To add a new Ordenada feature you'll need to create a new file and use the =mkFeature= function to define the feature name, options, globals, and class configurations. An example feature is shown below:
+To add a new Ordenada feature you'll need to create a new file inside =./modules= and use the =mkFeature= utility to define the feature. An example is shown below:
 
 #+begin_src nix
 { lib, mkFeature, ... }:
