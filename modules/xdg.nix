@@ -60,10 +60,10 @@ mkFeature {
               ];
             };
           };
-          cacheHome = lib.mkOptionDefault baseDirs.cacheHome;
-          configHome = lib.mkOptionDefault baseDirs.configHome;
-          dataHome = lib.mkOptionDefault baseDirs.dataHome;
-          stateHome = lib.mkOptionDefault baseDirs.stateHome;
+          cacheHome = lib.mkForce baseDirs.cacheHome;
+          configHome = lib.mkForce baseDirs.configHome;
+          dataHome = lib.mkForce baseDirs.dataHome;
+          stateHome = lib.mkForce baseDirs.stateHome;
           userDirs = userDirs;
         })
         {
