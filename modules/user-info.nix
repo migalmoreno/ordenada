@@ -11,7 +11,7 @@ mkFeature {
       username = mkOption {
         type = types.str;
         description = "Username of Ordenada user.";
-        default = "nixos";
+        default = "user";
       };
       fullName = mkOption {
         type = types.str;
@@ -32,6 +32,29 @@ mkFeature {
         type = types.nullOr types.str;
         description = "The primary GnuPG key for this user.";
         default = null;
+      };
+      extraGroups = mkOption {
+        type = types.listOf types.str;
+        description = "The list of extra groups for this user.";
+        default = [
+          "wheel"
+          "netdev"
+          "audio"
+          "video"
+          "dialout"
+        ];
+      };
+    };
+  nixos =
+    { config, ... }:
+    {
+      users.users = with config.ordenada.features.userInfo; {
+        ${username} = {
+          inherit extraGroups;
+          isNormalUser = true;
+          home = homeDirectory;
+          description = fullName;
+        };
       };
     };
 }
