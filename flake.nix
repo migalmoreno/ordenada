@@ -18,6 +18,7 @@
       imports = [
         flake-parts.flakeModules.modules
         flake-parts.flakeModules.flakeModules
+        ./examples
         ./ordenada
       ];
       systems = import inputs.systems;
