@@ -158,13 +158,15 @@ mkFeature {
           (add-hook 'org-mode-hook #'prettify-symbols-mode)
           (add-hook 'org-mode-hook #'variable-pitch-mode)
         '';
-        elispPackages = with pkgs.emacsPackages; [
-          olivetti
-          org
-          org-appear
-          org-contrib
-          org-modern
-        ];
+        elispPackages =
+          with pkgs.emacsPackages;
+          [
+            olivetti
+            org
+            org-appear
+            org-contrib
+          ]
+          ++ lib.optional config.ordenada.features.emacs.org.orgModern org-modern;
       };
     };
 }
