@@ -151,7 +151,9 @@ mkFeature {
                                                   (8 . (0.9))))))
           (load-theme '${getTheme config} t)
         '';
-        elispPackages = with pkgs.emacsPackages; [ modus-themes ];
+        elispPackages = with pkgs.emacsPackages.elpaPackages; [
+          modus-themes
+        ];
       };
     };
 }
