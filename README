@@ -97,7 +97,7 @@ If you use [[https://github.com/nix-community/home-manager][Home Manager]] in yo
 }
 #+end_src
 
-If you want a particular Home Manager configuration to not inherit all the features from that host, you can disable the default behavior with the =home.applyFeaturesToAll= option set to =false= and create a new set of features for that Home Manager instance. Note that if this option disabled you'll want to set =ordenada.features = osConfig.ordenada.features= in the configuration of users for which you still want the default behavior of inheriting from the host features.
+If you want a particular Home Manager configuration to not inherit all the features from that host, you can disable the default behavior with the =home.applyFeaturesToAll= option set to =false= and create a new set of features for that Home Manager instance. Note that if this option is disabled you'll want to set =ordenada.features = osConfig.ordenada.features= in the Home Manager Configuration of users for which you still want the default behavior of inheriting from the host features.
 
 #+begin_src nix
 {
@@ -172,7 +172,7 @@ mkFeature {
 
 The feature =name= can be either a string or a list of strings (e.g. =["emacs" "appearance"]=) which will be used to define the =ordenada.features.<feature_name>= option in all class modules.
 
-The feature =options= are a set of options specific to this feature, =globals= is a set of globals that will dictate "global" Ordenada behavior (e.g. set the preferred editor to ="emacs"= in the Emacs feature). Both =options= and =globals= (i.e. =ordenada.features.<feature_name>.<option>= and =ordenada.globals.<global>=) will be applied in the modules of each class configuration defined next.
+The feature =options= are a set of options specific to this feature and =globals= is a set of globals that will dictate "global" Ordenada behavior (e.g. set the preferred editor to ="emacs"= in the Emacs feature). Both =options= and =globals= (i.e. =ordenada.features.<feature_name>.<option>= and =ordenada.globals.<global>=) will be applied in the modules of each class configuration defined next.
 
 Finally, there's the class configurations (=nixos=, =homeManager=, =darwin=) which each take a module with class-specific settings that will only be activated if the feature is enabled via the =ordenada.featurers.<feature_name>.enable= option in the corresponding class configuration.
 
