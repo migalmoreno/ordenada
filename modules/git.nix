@@ -40,8 +40,12 @@ mkFeature {
     {
       programs.git = with config.ordenada.features.git; {
         enable = true;
-        userName = username;
-        userEmail = email;
+        settings = {
+          user = {
+            inherit email;
+            name = username;
+          };
+        };
         signing = {
           signByDefault = signCommits;
           key = signingKey;
