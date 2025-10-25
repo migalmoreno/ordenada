@@ -85,10 +85,11 @@ mkFeature {
             ImproveSuggest = false;
             Locked = true;
           };
-        } // extraPolicies;
+        }
+        // extraPolicies;
         arkenfox = {
           enable = true;
-          version = "128.0";
+          version = "140.0";
         };
         profiles = {
           default = {
@@ -97,24 +98,27 @@ mkFeature {
             isDefault = true;
             arkenfox = {
               enable = true;
-            } // arkenfoxSettings;
+            }
+            // arkenfoxSettings;
             settings = {
               "browser.aboutwelcome.enabled" = false;
               "extensions.pocket.enabled" = false;
               "trailhead.firstrun.branches" = "nofirstrun-empty";
               "browser.shell.checkDefaultBrowser" = false;
-            } // extraSettings;
+            }
+            // extraSettings;
             search = lib.recursiveUpdate {
               force = true;
-              engines = {
-                "google".metaData.hidden = true;
-                "bing".metaData.hidden = true;
-                "amazondotcom-us".metaData.hidden = true;
-                "ddg".metaData.hidden = true;
-                "wikipedia".metaData.hidden = true;
-                "ecosia".metaData.hidden = true;
-                "qwant".metaData.hidden = true;
-              };
+              engines = lib.genAttrs [
+                "google"
+                "bing"
+                "amazondotcom-us"
+                "ddg"
+                "wikipedia"
+                "ecosia"
+                "qwant"
+                "perplexity"
+              ] (lib.const { metaData.hidden = true; });
             } extraSearchConfig;
             extensions.packages =
               with nurPkgs.repos.rycee.firefox-addons;
