@@ -138,6 +138,116 @@ If you want a particular Home Manager configuration to not inherit all the featu
 }
 #+end_src
 
+** Foreign Distributions / Home Manager
+First make sure to install the Nix package manager as per [[https://nixos.org/download/][its download page]].
+
+#+begin_src sh
+$ sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon
+#+end_src
+
+Then follow the instructions in [[https://nix-community.github.io/home-manager/index.xhtml#ch-nix-flakes][Home Manager installation instructions for flakes]]. Namely, add the following line to =/etc/nix/nix.conf=:
+
+#+begin_src conf
+experimental-features = nix-command flakes
+#+end_src
+
+Restart the Nix daemon with =sudo systemctl restart nix-daemon.service=. You might also need to restart the shell to get access to the =nix= command.
+
+Now run the Home Manager =init= command for your logged-in user to prepare an initial configuration.
+
+#+begin_src sh
+nix run home-manager/master -- init --switch
+#+end_src
+
+Which will generate a =flake.nix= and a =home.nix= in the =~/.config/home-manager= directory (it will create it if it does not exist).
+
+Now, edit your =~/.config/home-manager/flake.nix=. Specify the source of Ordenada in the =inputs= section and add a new =ordenada= argument in the =outputs= section and the list of its home modules (=ordenada.homeModules.ordenada=) in =modules= afterwards.
+
+#+name: ~/.config/home-manager/flake.nix
+#+begin_src nix
+{
+  description = "Home Manager configuration for <your_user>";
+
+  inputs = {
+    # Specify the source of Home Manager and Nixpkgs.
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # Specify the source of Ordenada.
+    ordenada.url = "github:migalmoreno/ordenada";
+  };
+
+  outputs =
+    { nixpkgs, home-manager, ordenada, ... }:
+    let system = "x86_64-linux";
+        pkgs = nixpkgs.legacyPackages.${system};
+    in
+      {
+        homeConfigurations."<your_user>".home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+
+          # Specify your home configuration modules here, for example,
+          # the path to your home.nix.
+          modules = [ ./home.nix ordenada.homeModules.ordenada ];
+
+          # Optionally use extraSpecialArgs
+          # to pass through arguments to home.nix
+        };
+      };
+}
+#+end_src
+
+Now edit your =~/.config/home-manager/home.nix= and add the Ordenada features that you're interested in. For a complete example, see the [[file:examples/hm.nix][hm.nix]] example file.
+
+Remove all the boilerplate in =~/.config/home-manager/home.nix= except for the =home.stateVersion= line and replace it with =ordenada.features=.
+
+#+name: ~/.config/home-manager/home.nix
+#+begin_src nix
+{ config, pkgs, ... }:
+
+{
+  ordenada.features = {
+    userInfo = {
+      enable = true;
+      username = "<your_user>";
+    };
+    bash.enable = true;
+    home.enable = true;
+    theme = {
+      enable = true;
+      polarity = "dark";
+    };
+    fontutils.enable = true;
+    keyboard.enable = true;
+    emacs = {
+      enable = true;
+      appearance.enable = true;
+      modus-themes.enable = true;
+      # ...
+    };
+    # ...
+  };
+}
+#+end_src
+
+And now run again:
+
+#+begin_src sh
+home-manager switch
+#+end_src
+
+Note you might get a warning about adding the =-b backup= in order to prevent clashes with already existing files.
+
+After this, close the current shell and open a new one, which should now be Bash (since we've enabled the =bash= feature) above. You can now invoke:
+
+#+begin_src sh
+emacs
+#+end_src
+
+And it should open a new Emacs window with the Ordenada Emacs configuration.
+
 * Adding features
 To add a new Ordenada feature you'll need to create a new file inside =./modules= and use the =mkFeature= utility to define the feature. An example is shown below:
 
