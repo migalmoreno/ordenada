@@ -57,4 +57,11 @@ mkFeature {
         };
       };
     };
+  homeManager =
+    { config, ... }:
+    {
+      home = with config.ordenada.features.userInfo; {
+        inherit username homeDirectory;
+      };
+    };
 }
