@@ -126,7 +126,7 @@ mkFeature {
             (setopt org-src-fontify-natively t))
 
           (org-crypt-use-before-save-magic)
-          (with-eval-after-load 'org-crypt
+          (with-eval-after-load 'org
             (add-to-list 'org-tags-exclude-from-inheritance "crypt"))
 
           (with-eval-after-load 'ob-core
