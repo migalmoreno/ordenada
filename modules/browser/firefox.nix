@@ -14,9 +14,19 @@ mkFeature {
     in
     {
       package = mkPackageOption pkgs "firefox-wayland" { };
+      defaultSearchEngine = mkOption {
+        type = types.str;
+        description = "Default search engine name";
+        default = "google";
+      };
+      extraSearchEngines = mkOption {
+        type = types.attrs;
+        description = "Set of extra search engines.";
+        default = { };
+      };
       extraSearchConfig = mkOption {
         type = types.attrs;
-        description = "Extra search engines configuration.";
+        description = "Extra search configuration.";
         default = { };
       };
       extraPolicies = mkOption {
@@ -109,16 +119,20 @@ mkFeature {
             // extraSettings;
             search = lib.recursiveUpdate {
               force = true;
-              engines = lib.genAttrs [
-                "google"
-                "bing"
-                "amazondotcom-us"
-                "ddg"
-                "wikipedia"
-                "ecosia"
-                "qwant"
-                "perplexity"
-              ] (lib.const { metaData.hidden = true; });
+              default = defaultSearchEngine;
+              privateDefault = defaultSearchEngine;
+              engines =
+                (removeAttrs (lib.genAttrs [
+                  "google"
+                  "bing"
+                  "amazondotcom-us"
+                  "ddg"
+                  "wikipedia"
+                  "ecosia"
+                  "qwant"
+                  "perplexity"
+                ] (lib.const { metaData.hidden = true; })) [ defaultSearchEngine ])
+                // extraSearchEngines;
             } extraSearchConfig;
             extensions.packages =
               with nurPkgs.repos.rycee.firefox-addons;
