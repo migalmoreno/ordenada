@@ -62,6 +62,22 @@ mkFeature {
         description = "The cursor size.";
         default = 24;
       };
+      extraCss = mkOption {
+        type = types.lines;
+        default = "";
+        description = "Extra CSS to add for all GTK versions";
+      };
+      extraConfig = mkOption {
+        type =
+          with types;
+          attrsOf (oneOf [
+            bool
+            int
+            str
+          ]);
+        default = { };
+        description = "Extra settings to add for all GTK versions.";
+      };
     };
   homeManager =
     { config, pkgs, ... }:
@@ -74,9 +90,17 @@ mkFeature {
         inherit (config.ordenada.features.gtk.cursorTheme) name package;
         gtk.enable = true;
       };
-      gtk = with config.ordenada.features.gtk; {
-        inherit theme cursorTheme iconTheme;
-        enable = true;
-      };
+      gtk =
+        with config.ordenada.features.gtk;
+        {
+          inherit theme cursorTheme iconTheme;
+          enable = true;
+          colorScheme = config.ordenada.features.theme.polarity;
+        }
+        // lib.genAttrs [ "gtk3" "gtk4" ] (
+          lib.const {
+            inherit extraCss extraConfig;
+          }
+        );
     };
 }
