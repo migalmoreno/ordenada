@@ -5,7 +5,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
     nur.url = "github:nix-community/NUR";
     nix-rice.url = "github:bertof/nix-rice";
     base16.url = "github:SenchoPens/base16.nix";
@@ -14,19 +13,11 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
   outputs =
-    inputs@{
-      nixpkgs,
-      nur,
-      nix-rice,
-      base16,
-      home-manager,
-      flake-parts,
-      ...
-    }:
+    inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.flake-parts.flakeModules.modules
-        inputs.flake-parts.flakeModules.flakeModules
+        flake-parts.flakeModules.modules
+        flake-parts.flakeModules.flakeModules
         ./ordenada
       ];
       systems = import inputs.systems;
