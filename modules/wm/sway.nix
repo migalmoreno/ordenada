@@ -19,8 +19,28 @@ mkFeature {
         description = "The modifier to bind Sway keys to.";
         default = "Mod4";
       };
+      left = mkOption {
+        type = types.str;
+        description = "The key to use for for the left orientation.";
+        default = "h";
+      };
+      right = mkOption {
+        type = types.str;
+        description = "The key to use for for the right orientation.";
+        default = "l";
+      };
+      up = mkOption {
+        type = types.str;
+        description = "The key to use for for the up orientation.";
+        default = "k";
+      };
+      down = mkOption {
+        type = types.str;
+        description = "The key to use for for the down orientation.";
+        default = "j";
+      };
       keybindings = mkOption {
-        type = types.attrs;
+        type = ordenada-lib.types.fnOrAttrs;
         description = "The Sway keybindings.";
         default = { };
       };
@@ -33,7 +53,7 @@ mkFeature {
   globals =
     { config, ... }:
     {
-      wm = "${config.ordenada.features.sway.package}/bin/sway";
+      apps.wm = "${config.ordenada.features.sway.package}/bin/sway";
       wayland = true;
     };
   nixos = {
@@ -71,14 +91,13 @@ mkFeature {
             inherit modifier;
             defaultWorkspace = "workspace number 1";
             input = with config.ordenada.features.keyboard.layout; {
-              "type:keyboard" =
-                {
-                  xkb_layout = name;
-                  xkb_options = lib.strings.concatStringsSep "," options;
-                }
-                // (lib.optionalAttrs (variant != "") {
-                  xkb_variant = variant;
-                });
+              "type:keyboard" = {
+                xkb_layout = name;
+                xkb_options = lib.strings.concatStringsSep "," options;
+              }
+              // (lib.optionalAttrs (variant != "") {
+                xkb_variant = variant;
+              });
               "type:touchpad" = {
                 dwt = "enabled";
                 tap = "enabled";
@@ -93,12 +112,10 @@ mkFeature {
             seat."*" = with config.ordenada.features.gtk.cursorTheme; {
               xcursor_theme = "${name} ${toString config.ordenada.features.gtk.cursorSize}";
             };
-            keybindings = lib.mkOptionDefault keybindings;
             floating = {
               titlebar = false;
               border = 2;
             };
-            menu = config.ordenada.globals.launcher;
             colors =
               with ordenada-lib.nix-rice.color;
               let
@@ -147,6 +164,38 @@ mkFeature {
             };
             gaps.inner = 12;
             bars = [ ];
+            up = up;
+            down = down;
+            left = left;
+            right = right;
+            keybindings =
+              let
+                apps = config.ordenada.globals.apps;
+              in
+              lib.mkOptionDefault (
+                { }
+                // lib.optionalAttrs (apps.launcher != null) {
+                  "${modifier}+d" = apps.launcher;
+                }
+                // lib.optionalAttrs (apps.terminal != null) {
+                  "${modifier}+Return" = apps.terminal;
+                }
+                // (
+                  if (builtins.isFunction keybindings) then
+                    (keybindings (
+                      config.ordenada.globals.apps
+                      // {
+                        modifier = modifier;
+                        right = right;
+                        left = left;
+                        down = down;
+                        up = up;
+                      }
+                    ))
+                  else
+                    keybindings
+                )
+              );
           } extraConfig;
       };
     };
