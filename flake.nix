@@ -11,6 +11,7 @@
     arkenfox-nixos.url = "github:dwarfmaster/arkenfox-nixos";
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    nixos-wsl.url = "github:nix-community/nixos-wsl/main";
     sops-nix.url = "github:mic92/sops-nix";
   };
   outputs =
