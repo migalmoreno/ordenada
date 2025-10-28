@@ -49,8 +49,10 @@ mkFeature {
     { config, ... }:
     {
       programs.home-manager.enable = true;
-      home.file.".profile".text = lib.mkIf (config.ordenada.globals.shell == null) ''
-        . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
-      '';
+      home.file.".profile" = lib.mkIf (config.ordenada.globals.shell == null) {
+        text = ''
+          . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
+        '';
+      };
     };
 }
