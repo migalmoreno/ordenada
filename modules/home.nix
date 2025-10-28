@@ -42,14 +42,14 @@ mkFeature {
       environment.loginShellInit =
         with config.ordenada.features.home;
         (lib.mkIf (autoStartWmOnTty != null) ''
-          [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.wm}
+          [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.apps.wm}
         '');
     };
   homeManager =
     { config, ... }:
     {
       programs.home-manager.enable = true;
-      home.file.".profile" = lib.mkIf (config.ordenada.globals.shell == null) {
+      home.file.".profile" = lib.mkIf (config.ordenada.globals.apps.shell == null) {
         text = ''
           . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
         '';

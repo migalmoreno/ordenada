@@ -226,7 +226,7 @@ mkFeature {
   globals =
     { config, ... }:
     {
-      bar = "${config.ordenada.features.waybar.package}/bin/waybar";
+      apps.bar = "${config.ordenada.features.waybar.package}/bin/waybar";
     };
   homeManager =
     { config, lib, ... }:
