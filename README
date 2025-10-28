@@ -112,7 +112,7 @@ If you want a particular Home Manager configuration to not inherit all the featu
             ordenada.features = {
               home = {
                 enable = true;
-                applyFeaturesToAll = true;
+                applyFeaturesToAll = false;
               };
             };
             home-manager.users = {
@@ -229,6 +229,7 @@ Remove all the boilerplate in =~/.config/home-manager/home.nix= except for the =
     };
     # ...
   };
+  home.stateVersion = "<version>"; # Keep this line
 }
 #+end_src
 
@@ -238,7 +239,7 @@ And now run again:
 home-manager switch
 #+end_src
 
-Note you might get a warning about adding the =-b backup= in order to prevent clashes with already existing files.
+Note you might get a warning about adding the =-b backup= flag in order to prevent clashes with already existing files.
 
 After this, close the current shell and open a new one, which should now be Bash (since we've enabled the =bash= feature) above. You can now invoke:
 
