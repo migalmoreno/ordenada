@@ -67,7 +67,7 @@ mkFeature {
   options =
     { config, pkgs, ... }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkEnableOption mkOption types;
     in
     {
       polarity = mkOption {
@@ -85,8 +85,8 @@ mkFeature {
           with defaultThemeSchemes;
           if config.ordenada.features.theme.polarity == "light" then light else dark;
       };
-      defaultWallpapers = lib.mkOption {
-        type = lib.types.attrs;
+      defaultWallpapers = mkOption {
+        type = types.attrs;
         description = "The default wallpapers.";
         default = defaultThemeWallpapers pkgs;
       };
@@ -95,13 +95,14 @@ mkFeature {
         description = "The default colorschemes";
         default = defaultThemeSchemes;
       };
-      wallpaper = lib.mkOption {
-        type = lib.types.pathInStore;
+      wallpaper = mkOption {
+        type = types.pathInStore;
         description = "The theme wallpaper.";
         default =
           with (defaultThemeWallpapers pkgs);
           if config.ordenada.features.theme.polarity == "light" then light else dark;
       };
+      enableToggle = mkEnableOption "the theme toggling functionality";
     };
   nixos =
     {
@@ -110,7 +111,7 @@ mkFeature {
       pkgs,
       ...
     }:
-    {
+    lib.mkIf config.ordenada.features.theme.enableToggle {
       security.sudo.extraRules = [
         {
           runAs = "root";
@@ -158,7 +159,7 @@ mkFeature {
         ''
       );
     in
-    {
+    lib.mkIf config.ordenada.features.theme.enableToggle {
       home.packages = [ themeToggler ];
       xdg.desktopEntries.themeToggler = {
         name = "Toggle Theme";
