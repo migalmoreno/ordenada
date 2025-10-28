@@ -15,7 +15,7 @@ mkFeature {
   globals =
     { config, ... }:
     {
-      shell = "${config.ordenada.features.bash.package}/bin/bash";
+      apps.shell = "${config.ordenada.features.bash.package}/bin/bash";
     };
   homeManager =
     { config, pkgs, ... }:
@@ -30,7 +30,7 @@ mkFeature {
         name = "ordenada-bash";
         config = ''
           (with-eval-after-load 'shell
-            (setopt explicit-shell-file-name "${config.ordenada.globals.shell}"))
+            (setopt explicit-shell-file-name "${config.ordenada.globals.apps.shell}"))
         '';
       };
     };

@@ -14,7 +14,8 @@ in
 {
   imports = [
     ./lib.nix
-  ] ++ autoload;
+  ]
+  ++ autoload;
   options.ordenada = {
     modules = mkOption {
       type = types.lazyAttrsOf (types.lazyAttrsOf types.deferredModule);
@@ -23,30 +24,37 @@ in
   config =
     let
       globals = {
-        shell = mkOption {
-          type = types.nullOr types.str;
-          description = "The system wide used shell.";
-          default = null;
+        apps = {
+          shell = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used shell.";
+            default = null;
+          };
+          wm = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used window manager.";
+            default = null;
+          };
+          terminal = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used terminal.";
+            default = null;
+          };
+          launcher = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used application launcher.";
+            default = null;
+          };
+          bar = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used bar.";
+            default = null;
+          };
         };
         wayland = mkOption {
           type = types.nullOr types.bool;
           description = "Whether or not the WM is running under wayland.";
           default = false;
-        };
-        wm = mkOption {
-          type = types.nullOr types.str;
-          description = "The system wide used window manager.";
-          default = null;
-        };
-        launcher = mkOption {
-          type = types.nullOr types.str;
-          description = "The system wide used application launcher.";
-          default = null;
-        };
-        bar = mkOption {
-          type = types.nullOr types.str;
-          description = "The system wide used bar.";
-          default = null;
         };
       };
     in

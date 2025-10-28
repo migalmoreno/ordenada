@@ -66,7 +66,7 @@ mkFeature {
   globals =
     { config, pkgs, ... }:
     {
-      launcher = with config.ordenada.features.bemenu; ''
+      apps.launcher = with config.ordenada.features.bemenu; ''
         ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${package}/bin/bemenu ${mkOpts (mkSettings config)}"
       '';
     };
