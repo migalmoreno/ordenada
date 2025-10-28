@@ -9,6 +9,15 @@
   _module.args.ordenada-lib = rec {
     base16 = inputs.base16.lib { inherit lib pkgs; };
     nix-rice = inputs.nix-rice.lib.nix-rice;
+
+    types = {
+      fnOrAttrs = lib.mkOptionType {
+        name = "Function or attribute set";
+        description = "Type that is either a function returning an attribute set or an attribute set.";
+        check = x: builtins.isFunction x || builtins.isAttrs x;
+      };
+    };
+
     mkEnableTrueOption =
       name:
       lib.mkOption {
