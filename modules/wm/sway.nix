@@ -180,20 +180,15 @@ mkFeature {
                 // lib.optionalAttrs (apps.terminal != null) {
                   "${modifier}+Return" = apps.terminal;
                 }
-                // (
-                  if (builtins.isFunction keybindings) then
-                    (keybindings (
-                      config.ordenada.globals.apps
-                      // {
-                        modifier = modifier;
-                        right = right;
-                        left = left;
-                        down = down;
-                        up = up;
-                      }
-                    ))
-                  else
-                    keybindings
+                // ordenada-lib.mkKeybindings keybindings (
+                  apps
+                  // {
+                    modifier = modifier;
+                    right = right;
+                    left = left;
+                    down = down;
+                    up = up;
+                  }
                 )
               );
           } extraConfig;
