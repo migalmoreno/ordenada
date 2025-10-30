@@ -9,7 +9,6 @@
   _module.args.ordenada-lib = rec {
     base16 = inputs.base16.lib { inherit lib pkgs; };
     nix-rice = inputs.nix-rice.lib.nix-rice;
-
     types = {
       fnOrAttrs = lib.mkOptionType {
         name = "Function or attribute set";
@@ -17,7 +16,12 @@
         check = x: builtins.isFunction x || builtins.isAttrs x;
       };
     };
-
+    mkKeybindings =
+      bindings: optionalArgs:
+      if (builtins.isFunction bindings) then
+        (bindings optionalArgs)
+      else
+        bindings;
     mkEnableTrueOption =
       name:
       lib.mkOption {
