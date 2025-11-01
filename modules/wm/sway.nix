@@ -175,10 +175,10 @@ mkFeature {
               lib.mkOptionDefault (
                 { }
                 // lib.optionalAttrs (apps.launcher != null) {
-                  "${modifier}+d" = apps.launcher;
+                  "${modifier}+d" = "exec ${apps.launcher}";
                 }
                 // lib.optionalAttrs (apps.terminal != null) {
-                  "${modifier}+Return" = apps.terminal;
+                  "${modifier}+Return" = "exec ${apps.terminal}";
                 }
                 // ordenada-lib.mkKeybindings keybindings (
                   apps
