@@ -10,10 +10,17 @@ mkFeature {
     "emacs"
     "corfu"
   ];
-  options.globalModes = lib.mkOption {
-    type = lib.types.listOf lib.types.str;
-    description = "List of modes where Corfu should be enabled.";
-    default = [ ];
+  options = {
+    globalModes = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "List of modes where Corfu should be enabled.";
+      default = [ ];
+    };
+    autoShow = lib.mkOption {
+      type = lib.types.bool;
+      description = "Whether the corfu popup should appear automatically while typing.";
+      default = true;
+    };
   };
   homeManager =
     { config, pkgs, ... }:
@@ -31,7 +38,8 @@ mkFeature {
               (keymap-set map "S-TAB" #'corfu-previous)
               (keymap-set map "M-p" #'corfu-doc-scroll-down)
               (keymap-set map "M-n" #'corfu-doc-scroll-up)
-              (keymap-set map "M-d" #'corfu-doc-toggle))
+              (keymap-set map "M-d" #'corfu-info-documentation)
+              (keymap-set map "M-l" #'corfu-info-location))
 
             (defun ordenada-corfu-move-to-minibuffer ()
               (interactive)
@@ -50,7 +58,9 @@ mkFeature {
             (setopt corfu-auto-prefix 2)
             (setopt corfu-min-width 60)
             (setopt corfu-cycle t)
-            (setopt corfu-auto t)
+            ${if autoShow then ''
+              (setopt corfu-auto t)
+            '' else ""}
             (setopt global-corfu-modes '(${toString globalModes}))
             (global-corfu-mode 1)
             (add-hook 'after-init-hook #'corfu-candidate-overlay-mode)
