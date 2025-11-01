@@ -11,6 +11,26 @@ mkFeature {
         config = ''
           (eval-when-compile
             (require 'project))
+
+          (defun ordenada-compile--always-follow-comint (output)
+            "Always scroll comint buffers to bottom after new OUTPUT."
+            (when (and (derived-mode-p 'comint-mode)
+              (get-buffer-window (current-buffer)))
+            (with-selected-window (get-buffer-window (current-buffer))
+                                  (goto-char (point-max)))))
+          (define-minor-mode ordenada-compile-mode
+            "Set up convenient tweaks for comint/compile buffers."
+            :group 'ordenada-compile
+            (when ordenada-compile-mode
+              (setq compilation-scroll-output t
+                comint-scroll-show-maximum-output t
+                comint-scroll-to-bottom-on-output t
+                comint-scroll-to-bottom-on-input t)
+              (add-hook
+                'comint-output-filter-functions
+                #'ordenada-compile--always-follow-comint)))
+          (add-hook 'comint-mode-hook #'ordenada-compile-mode)
+
           (defun ordenada-compilation-buffer-name (mode)
             "Returns the result of `project-prefixed-buffer-name' if inside
           project and `compilation--default-buffer-name' if not."
