@@ -89,9 +89,21 @@ mkFeature {
             (setopt bookmark-default-file
                     (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                             "/emacs/bookmarks"))
-            (setopt auto-save-list-file-prefix
+            (setopt auto-save-list-default-dir
                     (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
                             "/emacs/auto-save-list"))
+            (setopt lock-files-default-dir
+                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                            "/emacs/lock-files"))
+            (setopt auto-save-files-default-dir
+                    (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
+                            "/emacs/auto-save-files"))
+            (setq auto-save-file-name-transforms
+                  `((".*" ,auto-save-files-default-dir t)))
+            (setq lock-file-name-transforms
+                  `((".*" ,lock-files-default-dir t)))
+            (setopt auto-save-list-file-prefix
+                    auto-save-list-default-dir)
             (save-place-mode 1)
             (setopt save-place-file
                     (concat (or (getenv "XDG_CACHE_HOME") "~/.cache")
