@@ -45,21 +45,37 @@ mkFeature {
             :group 'ordenada)
 
           (defvar ordenada-json-mode-map (make-sparse-keymap))
+          (defvar ordenada-json5-mode-map (make-sparse-keymap))
+
+          (defun ordenada-json--setup-electric-pairs-for-json ()
+            (electric-pair-local-mode)
+            (setq-local electric-pair-pairs
+              (append electric-pair-pairs '((91 . 93)
+                                            (123 . 125))))
+            (setq-local electric-pair-text-pairs electric-pair-pairs))
 
           (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
           (add-to-list 'major-mode-remap-alist '(js-json-mode . json-ts-mode))
+          (add-to-list 'auto-mode-alist '("\\.jsonc\\'" . jsonc-mode))
           (add-to-list 'auto-mode-alist '("\\.json5\\'" . json5-ts-mode))
 
           (define-minor-mode ordenada-json-mode
-            "Set up convenient tweaks for JSON/JSON5 development."
+            "Set up convenient tweaks for JSON/JSONC development."
             :group 'ordenada-json :keymap ordenada-json-mode-map
             (when ordenada-json-mode
               (eglot-ensure)
-              (setq json5-ts-mode-indent-offset 2)))
-
+              (ordenada-json--setup-electric-pairs-for-json)))
           (mapcar (lambda (hook)
                     (add-hook (intern (concat (symbol-name hook) "-hook")) 'ordenada-json-mode))
-                  '(json-mode json-ts-mode js-json-mode json5-ts-mode))
+                  '(json-mode json-ts-mode js-json-mode jsonc-mode))
+
+          (define-minor-mode ordenada-json5-mode
+            "Set up convenient tweaks for JSON5 development."
+            :group 'ordenada-json :keymap ordenada-json5-mode-map
+            (when ordenada-json5-mode
+              (ordenada-json--setup-electric-pairs-for-json)
+              (setq json5-ts-mode-indent-offset 2)))
+          (add-hook 'json5-ts-mode-hook 'ordenada-json5-mode)
 
           (keymap-set ordenada-json-mode-map "C-c f"
                       '("Format buffer" . json-pretty-print-buffer))
@@ -70,9 +86,9 @@ mkFeature {
                                    :validate (:enable t))))
             (add-to-list
              'eglot-server-programs
-             '(((json-mode :language-id "json")
-                (json-ts-mode :language-id "json")
-                (jsonc-mode :language-id "jsonc")) .
+             '(((jsonc-mode :language-id "jsonc") ;; needs to come first
+                (json-mode :language-id "json")
+                (json-ts-mode :language-id "json")) .
                ("${pkgs.vscode-langservers-extracted}/bin/vscode-json-language-server" "--stdio"))))
         '';
         elispPackages = with pkgs.emacsPackages; [
