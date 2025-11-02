@@ -78,6 +78,7 @@ mkFeature {
               (setopt dired-recursive-deletes 'always)
               (setopt dired-clean-confirm-killing-deleted-buffers nil)
               (setopt dired-recursive-copies 'always))
+              (setopt insert-directory-program "${pkgs.coreutils}/bin/ls")
 
             (with-eval-after-load 'dired-rsync
               (setopt dired-rsync-options
