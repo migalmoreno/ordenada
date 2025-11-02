@@ -16,7 +16,6 @@ mkFeature {
     { config, pkgs, ... }:
     {
       home.packages = with pkgs; [
-        jq
         config.ordenada.features.javascript.node
         (yarn.override { nodejs = null; })
         nodePackages.prettier
@@ -230,14 +229,12 @@ mkFeature {
           js2-refactor
           jtsx
           jsdoc
-          json-mode
           npm-mode
           nodejs-repl
           (treesit-grammars.with-grammars (
             grammars: with grammars; [
               tree-sitter-css
               tree-sitter-javascript
-              tree-sitter-json
               tree-sitter-tsx
               tree-sitter-typescript
               tree-sitter-jsdoc
