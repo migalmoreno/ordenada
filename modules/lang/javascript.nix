@@ -23,6 +23,11 @@ mkFeature {
       ];
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-javascript";
+        ## TODO: `ordenada-javascript--next-line-function-or-arrow-p` is too
+        ##       primitive, we should use tree-sitter to determine if next
+        ##       line is a function. With this approach, a wrong function
+        ##       definition, like `const () => 1` will cause bugs because
+        ##       the predicate returns `t`.
         config = ''
           (defgroup ordenada-javascript nil
             "General JavaScript/TypeScript programming utilities."
@@ -31,7 +36,43 @@ mkFeature {
           (defvar ordenada-javascript-mode-map (make-sparse-keymap))
           (defvar ordenada-javascript-nodejs-repl-mode-command-map nil
             "Map to bind `nodejs-repl' commands under.")
+          (defvar ordenada-javascript-jtsx-command-map nil
+            "Map to bind `jtsx' commands under.")
+
           (define-prefix-command 'ordenada-javascript-nodejs-repl-mode-command-map)
+          (define-prefix-command 'ordenada-javascript-jtsx-command-map)
+
+          (defun ordenada-javascript--next-line-function-or-arrow-p ()
+            "Return `t' if the next line contains `function' or `=>'."
+            (save-excursion
+              (forward-line 1)
+              (let ((line (thing-at-point 'line t)))
+                (when line
+                  (or (and (string-match-p "\\<function\\>" line) t)
+                      (and (string-match-p "=>" line) t))))))
+
+          (defun ordenada-javascript-jsdoc-or-line-break ()
+            "Inserts JSDoc at point if line matches `/**'. Otherwise executes `js2-line-break'
+            at given point."
+            (interactive)
+            (let ((p (point)))
+              (beginning-of-line)
+              (if (and (looking-at-p "^[[:blank:]]*/\\*\\*$")
+                       (ordenada-javascript--next-line-function-or-arrow-p))
+                (progn
+                  (kill-line)
+                  (next-line)
+                  (jsdoc)
+                  (goto-char (search-backward-regexp "^/\\*\\*$"))
+                  (beginning-of-line)
+                  (backward-delete-char 1)
+                  (next-line)
+                  (end-of-line))
+                (progn
+                  (goto-char p)
+                  (if (string-match-p "comment" (treesit-node-type (treesit-node-at p 'javascript)))
+                      (funcall 'js2-line-break)
+                    (funcall 'newline-and-indent))))))
 
           (defun ordenada-javascript--disable-eglot-parts ()
             (setq-local eglot-stay-out-of '(flymake)))
@@ -47,26 +88,45 @@ mkFeature {
               (flymake-eslint-enable))
             (add-to-list 'mode-line-misc-info `(flymake-mode (" " flymake-mode-line-counters " "))))
 
-          (add-to-list 'major-mode-remap-alist '(javascript-mode . js-ts-mode))
-          (add-to-list 'major-mode-remap-alist '(typescript-mode . tsx-ts-mode))
-          (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
-          (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
-          (add-to-list 'auto-mode-alist '("\\.jsx\\'" . jsx-ts-mode))
-          (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
-          (add-to-list 'auto-mode-alist '("\\(\\.[c|m]js[m]?\\|\\.har\\)\\'" . js-ts-mode) t)
+          (defun ordenada-javascript--eglot-code-action-missing-imports (beg &optional end)
+            "Executes `source.addMissingImports.ts' between BEG and END."
+            (interactive (eglot--code-action-bounds))
+            (eglot-code-actions beg end "source.addMissingImports.ts" t))
+
+          (defun ordenada-javascript--eglot-code-action-unused-imports (beg &optional end)
+            "Executes `source.removeUnusedImports.ts' between BEG and END."
+            (interactive (eglot--code-action-bounds))
+            (eglot-code-actions beg end "source.removeUnusedImports.ts" t))
+
+          (add-to-list 'major-mode-remap-alist '(javascript-mode . jtsx-jsx-mode))
+          (add-to-list 'major-mode-remap-alist '(typescript-mode . jtsx-tsx-mode))
+          (add-to-list 'auto-mode-alist '("\\.tsx\\'" . jtsx-tsx-mode))
+          (add-to-list 'auto-mode-alist '("\\.jsx\\'" . jtsx-jsx-mode))
+          (add-to-list 'auto-mode-alist '("\\.ts\\'" . jtsx-typescript-mode))
+          (add-to-list 'auto-mode-alist '("\\(\\.[c|m]js[m]?\\|\\.har\\)\\'" . jtsx-jsx-mode) t)
+          (add-to-list 'auto-mode-alist '("\\(\\.js[mx]?\\|\\.har\\)\\'" . jtsx-jsx-mode) t)
           (define-derived-mode jsx-ts-mode tsx-ts-mode "JavaScript[JSX]")
 
           (define-minor-mode ordenada-javascript-mode
             "Set up convenient tweaks for JavaScript/TypeScript development."
             :group 'ordenada-javascript :keymap ordenada-javascript-mode-map
             (when ordenada-javascript-mode
+              (setq indent-tabs-mode nil
+                    tab-width 2)
+
               (ordenada-javascript--disable-eglot-parts)
-              (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
-              (eglot-ensure)
-              (setq indent-tabs-mode nil)
               (ordenada-javascript--setup-electric-pairs-for-jsx-tsx)
+
+              (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
+              (add-hook 'js2-mode-hook #'js2-refactor-mode)
+
+              (local-unset-key (kbd "RET"))
+              (local-set-key (kbd "RET") 'ordenada-javascript-jsdoc-or-line-break)
+
+              (eglot-ensure)
               (js2-minor-mode)
               (js2-imenu-extras-mode)
+              (js2-refactor-mode)
               (npm-mode)))
 
           (let ((map ordenada-javascript-nodejs-repl-mode-command-map))
@@ -76,10 +136,31 @@ mkFeature {
             (keymap-set map "C-c" #'nodejs-repl-send-buffer)
             (keymap-set map "C-l" #'nodejs-repl-load-file)
             (keymap-set map "C-z" #'nodejs-repl-switch-to-repl))
-          (keymap-set ordenada-javascript-mode-map "C-c C-r"
-            '("repl" . ordenada-javascript-nodejs-repl-mode-command-map))
+       (let ((map ordenada-javascript-jtsx-command-map))
+            (keymap-set map "j" #'jtsx-jump-jsx-element-tag-dwim)
+            (keymap-set map "r" #'jtsx-rename-jsx-element)
+            (keymap-set map "<down>" #'jtsx-move-jsx-element-forward)
+            (keymap-set map "<up>" #'jtsx-move-jsx-element-backward)
+            (keymap-set map "<right>" #'jtsx-move-jsx-element-step-in-forward)
+            (keymap-set map "<left>" #'jtsx-move-jsx-element-step-in-backward)
+            (keymap-set map "C-<down>" #'jtsx-move-jsx-element-tag-forward)
+            (keymap-set map "C-<up>" #'jtsx-move-jsx-element-tag-backward)
+            (keymap-set map "w" #'jtsx-wrap-in-jsx-element)
+            (keymap-set map "W" #'jtsx-unwrap-jsx)
+            (keymap-set map "d" #'jtsx-delete-jsx-attribute)
+            (keymap-set map "D" #'jtsx-delete-jsx-node)
+            (keymap-set map "t" #'jtsx-toggle-jsx-attributes-orientation))
+
+          (keymap-set ordenada-javascript-mode-map "C-c N"
+                      '("node repl" . ordenada-javascript-nodejs-repl-mode-command-map))
+          (keymap-set ordenada-javascript-mode-map "C-c j"
+                      '("j/tsx" . ordenada-javascript-jtsx-command-map))
           (keymap-set ordenada-javascript-mode-map "C-c f"
-            '("Format buffer" . eslint-fix))
+                      '("Format buffer" . eslint-fix))
+          (keymap-set ordenada-javascript-mode-map "C-c c i"
+                      #'ordenada-javascript--eglot-code-action-missing-imports)
+          (keymap-set ordenada-javascript-mode-map "C-c c I"
+                      #'ordenada-javascript--eglot-code-action-unused-imports)
 
           (mapcar (lambda (hook)
                     (add-hook (intern (concat (symbol-name hook) "-hook")) 'ordenada-javascript-mode))
@@ -109,6 +190,11 @@ mkFeature {
           (with-eval-after-load 'npm-mode
             (fset 'npm-mode-command-keymap npm-mode-command-keymap)
             (keymap-set npm-mode-keymap "C-c n" '("npm" . npm-mode-command-keymap)))
+
+          (with-eval-after-load 'js2-refactor
+            (setopt js2r-prefer-let-over-var t)
+            (setopt js2r-prefered-quote-type 2)
+            (js2r-add-keybindings-with-prefix "C-c r"))
 
           (with-eval-after-load 'js
             (setopt js-indent-level 2)
@@ -141,6 +227,9 @@ mkFeature {
           eslint-fix
           flymake-eslint
           js2-mode
+          js2-refactor
+          jtsx
+          jsdoc
           json-mode
           npm-mode
           nodejs-repl
@@ -151,9 +240,11 @@ mkFeature {
               tree-sitter-json
               tree-sitter-tsx
               tree-sitter-typescript
+              tree-sitter-jsdoc
             ]
           ))
           web-mode
+          markdown-mode # needed for preview with eldoc
         ];
       };
     };
