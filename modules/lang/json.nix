@@ -2,6 +2,7 @@
   lib,
   mkFeature,
   ordenada-lib,
+  pkgs,
   ...
 }:
 
@@ -13,6 +14,47 @@ mkFeature {
   homeManager =
     { config, pkgs, ... }:
     let
+      prantlf-jsonlint =
+        let
+          lockfile = ./../../packages/prantlf-jsonlint/package-lock.json;
+        in
+        pkgs.buildNpmPackage rec {
+          pname = "jsonlint";
+          version = "16.0.0";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "prantlf";
+            repo = "jsonlint";
+            rev = "v16.0.0";
+            hash = "sha256-pXTw9U8E/Xocy4+M9P3hQjZxvUq/iAHhxwnrJA3hLK0=";
+          };
+
+          postPatch = ''
+            cp ${lockfile} package-lock.json
+          '';
+
+          npmInstallFlags = [ "--omit=dev" ];
+
+          buildPhase = ''
+            ${pkgs.coreutils-full}/bin/cat \
+              src/prefix.js.txt \
+              src/unicode.js \
+              src/custom-parser.js \
+              src/pointer.js \
+              src/native-parser.js \
+              src/configurable-parser.js \
+              src/suffix.js.txt \
+              > lib/jsonlint.js
+          '';
+
+          npmDepsHash = "sha256-EIghZWuPvynS+EnhCSPe/PnWF0QjC0csX3Kg2ClQnOU=";
+
+          meta = with lib; {
+            description = "JSON/CJSON/JSON5 parser, syntax & schema validator and pretty-printer with a command-line client, written in pure JavaScript. ";
+            homepage = "https://prantlf.github.io/jsonlint/";
+            license = licenses.mit;
+          };
+        };
       json5-ts-mode = pkgs.emacsPackages.trivialBuild {
         pname = "json5-ts-mode";
         version = "0.0.0";
@@ -34,6 +76,7 @@ mkFeature {
     {
       home.packages = with pkgs; [
         jq
+        prantlf-jsonlint
       ];
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-json";
