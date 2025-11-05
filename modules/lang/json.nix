@@ -168,8 +168,10 @@ mkFeature {
             "Set up convenient tweaks for JSON/JSONC development."
             :group 'ordenada-json :keymap ordenada-json-mode-map
             (when ordenada-json-mode
-              (eglot-ensure)
-              (ordenada-json--setup-electric-pairs-for-json)))
+              ;; (eglot-ensure)
+              (ordenada-json--setup-electric-pairs-for-json)
+              (add-hook 'flymake-diagnostic-functions 'ordenada-json-flymake nil t)
+              (flymake-mode 1)))
           (mapcar (lambda (hook)
                     (add-hook (intern (concat (symbol-name hook) "-hook")) 'ordenada-json-mode))
                   '(json-mode json-ts-mode js-json-mode jsonc-mode))
@@ -179,9 +181,7 @@ mkFeature {
             :group 'ordenada-json :keymap ordenada-json5-mode-map
             (when ordenada-json5-mode
               (setq json5-ts-mode-indent-offset 2)
-
               (ordenada-json--setup-electric-pairs-for-json)
-
               (add-hook 'flymake-diagnostic-functions 'ordenada-json-flymake nil t)
               (flymake-mode 1)
             ))
@@ -190,17 +190,17 @@ mkFeature {
           (keymap-set ordenada-json-mode-map "C-c f"
                       '("Format buffer" . json-pretty-print-buffer))
 
-          ;; eglot
-          (with-eval-after-load 'eglot
-            (setq-default eglot-workspace-configuration
-                          '(:json (:format (:enable t) ;; doesn't work
-                                   :validate (:enable t))))
-            (add-to-list
-             'eglot-server-programs
-             '(((jsonc-mode :language-id "jsonc") ;; needs to come first
-                (json-mode :language-id "json")
-                (json-ts-mode :language-id "json")) .
-               ("${pkgs.vscode-langservers-extracted}/bin/vscode-json-language-server" "--stdio"))))
+          ;; ;; eglot
+          ;; (with-eval-after-load 'eglot
+          ;;   (setq-default eglot-workspace-configuration
+          ;;                 '(:json (:format (:enable t) ;; doesn't work
+          ;;                          :validate (:enable t))))
+          ;;   (add-to-list
+          ;;    'eglot-server-programs
+          ;;    '(((jsonc-mode :language-id "jsonc") ;; needs to come first
+          ;;       (json-mode :language-id "json")
+          ;;       (json-ts-mode :language-id "json")) .
+          ;;      ("${pkgs.vscode-langservers-extracted}/bin/vscode-json-language-server" "--stdio"))))
         '';
         elispPackages = with pkgs.emacsPackages; [
           json-mode
