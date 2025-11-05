@@ -7,7 +7,7 @@
 }:
 
 ## TODO: - apheleia integration
-##       - json5 validation/format (v-jsonlint?)
+##       - schemas
 
 mkFeature {
   name = "json";
@@ -105,6 +105,7 @@ mkFeature {
           (add-to-list 'auto-mode-alist '("\\.json5\\'" . json5-ts-mode))
 
           ;; flymake
+          ;; TODO: Move into own package
           (defvar-local ordenada-json--flymake-proc nil)
 
           (defun ordenada-json-flymake (report-fn &rest _args)
@@ -163,6 +164,39 @@ mkFeature {
           (defun ordenada-json--flymake-setup-backend ()
             (add-hook 'flymake-diagnostic-functions 'ordenada-json-flymake nil t))
 
+          (defun ordenada-json-format-buffer (&optional buffer)
+            "Format BUFFER using the `jsonlint' external command.
+
+          This function formats the specified BUFFER, which defaults to
+          the `current-buffer' if not provided.
+
+          It works for `json', `jsonc' and `json5' files."
+            (interactive)
+            (let* ((buf (if (stringp buffer)
+                            (get-buffer buffer)
+                          (or buffer (current-buffer))))
+                   (mode (with-current-buffer buf
+                           (let* ((filename (buffer-file-name))
+                                  (ext (when filename (file-name-extension filename))))
+                             (cond
+                              ((string-equal ext "json5") "json5")
+                              ((string-equal ext "jsonc") "cjson")
+                              (t "json"))))))
+              (with-current-buffer buf
+                (let ((orig-point (point)))
+                  (save-excursion
+                    (save-restriction
+                      (widen)
+                      (call-process-region (point-min) (point-max)
+                                           "${prantlf-jsonlint}/bin/jsonlint"
+                                           t
+                                           t
+                                           nil
+                                           "-p" "-M" mode)
+                      (set-buffer-modified-p t)))
+                  (goto-char (min (max orig-point (point-min))
+                                  (point-max)))))))
+
           ;; minor modes
           (define-minor-mode ordenada-json-mode
             "Set up convenient tweaks for JSON/JSONC development."
@@ -188,7 +222,9 @@ mkFeature {
           (add-hook 'json5-ts-mode-hook 'ordenada-json5-mode)
 
           (keymap-set ordenada-json-mode-map "C-c f"
-                      '("Format buffer" . json-pretty-print-buffer))
+                      '("Format buffer" . ordenada-json-format-buffer))
+          (keymap-set ordenada-json5-mode-map "C-c f"
+                      '("Format buffer" . ordenada-json-format-buffer))
 
           ;; ;; eglot
           ;; (with-eval-after-load 'eglot
