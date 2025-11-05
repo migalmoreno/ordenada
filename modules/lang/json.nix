@@ -11,9 +11,26 @@
 
 mkFeature {
   name = "json";
+  options = {
+    schemas = lib.mkOption {
+      type = lib.types.attrs;
+      description = "List of schemas for specific file patterns.";
+      default = {};
+      example = lib.literalExpression ''
+        let
+          fooSchema = ./fooSchema.json;
+        in
+        [{ files: "*.foo.json": fooSchema }]'';
+    };
+  };
   homeManager =
     { config, pkgs, ... }:
     let
+      schemaString = lib.concatStringsSep " " (
+        lib.mapAttrsToList (
+          name: value: ''("${name}" "${toString value}")''
+        ) config.ordenada.features.json.schemas
+      );
       prantlf-jsonlint =
         let
           lockfile = ./../../packages/prantlf-jsonlint/package-lock.json;
@@ -175,24 +192,39 @@ mkFeature {
             (let* ((buf (if (stringp buffer)
                             (get-buffer buffer)
                           (or buffer (current-buffer))))
+                   (filename (with-current-buffer buf (buffer-file-name)))
                    (mode (with-current-buffer buf
-                           (let* ((filename (buffer-file-name))
-                                  (ext (when filename (file-name-extension filename))))
+                           (let* ((ext (when filename (file-name-extension filename))))
                              (cond
                               ((string-equal ext "json5") "json5")
                               ((string-equal ext "jsonc") "cjson")
-                              (t "json"))))))
+                              (t "json")))))
+                   (schema (when filename
+                             (let ((matched
+                                     (cl-find-if (lambda (pair)
+                                                   (string-match-p
+                                                     (wildcard-to-regexp (car pair))
+                                                     (file-name-nondirectory filename)))
+                                                  '(${schemaString}))))
+                               (cadr matched))))
+                   (args (append `("-p" "-M" ,mode)
+                                 (if (stringp schema)
+                                   `("-V" ,schema)
+                                   '()))))
               (with-current-buffer buf
                 (let ((orig-point (point)))
                   (save-excursion
                     (save-restriction
                       (widen)
-                      (call-process-region (point-min) (point-max)
-                                           "${prantlf-jsonlint}/bin/jsonlint"
-                                           t
-                                           t
-                                           nil
-                                           "-p" "-M" mode)
+                      ;(message args)
+                      (apply
+                        #'call-process-region
+                        (point-min) (point-max)
+                        "${prantlf-jsonlint}/bin/jsonlint"
+                        t
+                        t
+                        nil
+                        args)
                       (set-buffer-modified-p t)))
                   (goto-char (min (max orig-point (point-min))
                                   (point-max)))))))
