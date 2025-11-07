@@ -32,23 +32,16 @@ mkFeature {
         ) config.ordenada.features.json.schemas
       );
       prantlf-jsonlint =
-        let
-          lockfile = ./../../packages/prantlf-jsonlint/package-lock.json;
-        in
-        pkgs.buildNpmPackage rec {
+        pkgs.buildNpmPackage {
           pname = "jsonlint";
           version = "16.0.0";
 
           src = pkgs.fetchFromGitHub {
-            owner = "prantlf";
+            owner = "minikN";
             repo = "jsonlint";
-            rev = "v16.0.0";
-            hash = "sha256-pXTw9U8E/Xocy4+M9P3hQjZxvUq/iAHhxwnrJA3hLK0=";
+            rev = "ef73070f2562c507de957e013544229313f62e8b";
+            hash = "sha256-JcWe+EXfqhrUAal1W+FmB10SBTC0pS43sVVLVuTf5B8=";
           };
-
-          postPatch = ''
-            cp ${lockfile} package-lock.json
-          '';
 
           npmInstallFlags = [ "--omit=dev" ];
 
