@@ -184,10 +184,9 @@ mkFeature {
           (defun ordenada-json-format-buffer (&optional buffer)
             "Format BUFFER using the `jsonlint' external command.
 
-          This function formats the specified BUFFER, which defaults to
-          the `current-buffer' if not provided.
-
-          It works for `json', `jsonc' and `json5' files."
+          If the output from jsonlint contains the word \"Error\",
+          the formatted result is *not* applied to the buffer.
+          Instead, a processed error message is displayed in the *Messages* buffer."
             (interactive)
             (let* ((buf (if (stringp buffer)
                             (get-buffer buffer)
@@ -201,31 +200,47 @@ mkFeature {
                               (t "json")))))
                    (schema (when filename
                              (let ((matched
-                                     (cl-find-if (lambda (pair)
-                                                   (string-match-p
-                                                     (wildcard-to-regexp (car pair))
-                                                     (file-name-nondirectory filename)))
-                                                  '(${schemaString}))))
+                                    (cl-find-if
+                                     (lambda (pair)
+                                       (string-match-p
+                                        (wildcard-to-regexp (car pair))
+                                        (file-name-nondirectory filename)))
+                                     '(${schemaString}))))
                                (cadr matched))))
                    (args (append `("-p" "-M" ,mode)
                                  (if (stringp schema)
-                                   `("-V" ,schema)
+                                     `("-V" ,schema)
                                    '()))))
               (with-current-buffer buf
                 (let ((orig-point (point)))
                   (save-excursion
                     (save-restriction
                       (widen)
-                      ;(message args)
-                      (apply
-                        #'call-process-region
-                        (point-min) (point-max)
-                        "${prantlf-jsonlint}/bin/jsonlint"
-                        t
-                        t
-                        nil
-                        args)
-                      (set-buffer-modified-p t)))
+                      (with-temp-buffer
+                        (let ((temp-buf (current-buffer)))
+                          (with-current-buffer buf
+                            (apply #'call-process-region
+                                   (point-min) (point-max)
+                                   "${prantlf-jsonlint}/bin/jsonlint"
+                                   nil            ; don't replace buffer
+                                   temp-buf       ; collect output here
+                                   nil
+                                   args)))
+                        (let ((output (buffer-string)))
+                          (if (string-match-p "failed" output)
+                              ;; Format the error message nicely
+                              (let* ((lines (split-string output "\n" t))
+                                     (lines (cdr lines)) ; remove first line
+                                     (joined (mapconcat #'string-trim lines "; "))
+                                     (no-periods (replace-regexp-in-string "\\." "" joined))
+                                     (msg (format "ordenada-json: %s; file: %s"
+                                                  no-periods
+                                                  (file-name-nondirectory filename))))
+                                (message "%s" msg))
+                            (with-current-buffer buf
+                              (erase-buffer)
+                              (insert output)
+                              (set-buffer-modified-p t)))))))
                   (goto-char (min (max orig-point (point-min))
                                   (point-max)))))))
 
