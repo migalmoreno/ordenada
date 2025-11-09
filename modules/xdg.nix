@@ -33,6 +33,16 @@ mkFeature {
         };
       };
     };
+  nixos =
+    { pkgs, ... }:
+    {
+      xdg.portal = {
+        enable = true;
+        config.common.default = "wlr";
+        extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+        wlr.enable = true;
+      };
+    };
   homeManager =
     {
       config,
