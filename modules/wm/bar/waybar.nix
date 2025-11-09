@@ -244,51 +244,53 @@ mkFeature {
             }
             // (lib.optionalAttrs (output != [ ]) { inherit output; })
             // extraSettings;
-          style = with config.ordenada.features.theme.scheme.withHashtag; ''
-            * {
-              font-family: ${config.ordenada.features.fontutils.fonts.monospace.name}, FontAwesome;
-              font-size: 14px;
-              box-shadow: none;
-              text-shadow: none;
-              min-height: 0;
-              margin: 0;
-              padding: 0;
-            }
+          style =
+            with config.ordenada.features.theme.scheme.withHashtag; # css
+            ''
+              * {
+                font-family: ${config.ordenada.features.fontutils.fonts.monospace.name}, FontAwesome;
+                font-size: 14px;
+                box-shadow: none;
+                text-shadow: none;
+                min-height: 0;
+                margin: 0;
+                padding: 0;
+              }
 
-            tooltip {
-              opacity: 1;
-              background: ${base01};
-              border: 1px solid ${base02};
-            }
+              tooltip {
+                opacity: 1;
+                background: ${base01};
+                border: 1px solid ${base02};
+              }
 
-            tooltip label {
-              color: ${base05};
-              padding: 0;
-            }
+              tooltip label {
+                color: ${base05};
+                padding: 0;
+              }
 
-            #waybar {
-              color: ${base05};
-              background: ${base01};
-              border: none;
-              margin: 0;
-              padding: 0;
-            }
+              #waybar {
+                color: ${base05};
+                background: ${base01};
+                border: none;
+                margin: 0;
+                padding: 0;
+              }
 
-            .modules-right label {
-              margin: 0.3em 0.2em;
-              padding: 0.3em 0.6em;
-              background: ${base02};
-              border-radius: 0.2em;
-            }
+              .modules-right label {
+                margin: 0.3em 0.2em;
+                padding: 0.3em 0.6em;
+                background: ${base02};
+                border-radius: 0.2em;
+              }
 
-            .modules-left {
-              margin-left: 0.2em;
-            }
+              .modules-left {
+                margin-left: 0.2em;
+              }
 
-            .modules-right {
-              margin-right: 0.2em;
-            }
-          '';
+              .modules-right {
+                margin-right: 0.2em;
+              }
+            '';
         })
         (lib.mkMerge (
           map (module: {

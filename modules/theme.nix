@@ -141,7 +141,7 @@ mkFeature {
     let
       systemctl = "XDG_RUNTIME_DIR=\${XDG_RUNTIME_DIR:-/run/user/$UID} systemctl";
       themeToggler = pkgs.writeShellScriptBin "toggle-theme" (
-        with config.ordenada.features;
+        with config.ordenada.features; # sh
         ''
           current_system=$(readlink /run/current-system)
           specialisation=$(readlink /nix/var/nix/profiles/system/specialisation/${themeToToggle config})

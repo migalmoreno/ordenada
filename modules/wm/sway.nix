@@ -57,14 +57,15 @@ mkFeature {
           base = true;
           gtk = true;
         };
-        extraSessionCommands = ''
-          export QT_QPA_PLATFORM=wayland
-          export XDG_SESSION_TYPE=wayland
-          export XDG_CURRENT_DESKTOP=sway
-          export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
-          export SDL_VIDEODRIVER=wayland
-          export _JAVA_AWT_WM_NONREPARENTING=1
-        '';
+        extraSessionCommands = # sh
+          ''
+            export QT_QPA_PLATFORM=wayland
+            export XDG_SESSION_TYPE=wayland
+            export XDG_CURRENT_DESKTOP=sway
+            export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+            export SDL_VIDEODRIVER=wayland
+            export _JAVA_AWT_WM_NONREPARENTING=1
+          '';
         config =
           with config.ordenada.features.theme.scheme.withHashtag;
           lib.recursiveUpdate {

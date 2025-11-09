@@ -39,6 +39,7 @@ mkFeature {
               '') (map (icon: lib.removeSuffix ".svg" icon) (builtins.attrNames (builtins.readDir icons)))
             );
           in
+          # css
           ''
             ${builtins.readFile "${pkgs.wlogout}/etc/wlogout/style.css"}
 
