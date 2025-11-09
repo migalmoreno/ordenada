@@ -31,79 +31,83 @@ mkFeature {
         jdk
         leiningen
       ];
-      home.file.".zprint.edn".text = ''
-        {:search-config? true}
-      '';
+      home.file.".zprint.edn".text = # edn
+        ''
+          {:search-config? true}
+        '';
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-clojure";
-        config = with config.ordenada.features.clojure.cider; ''
-          (defgroup ordenada-clojure nil
-            "General Clojure programming utilities."
-            :group 'ordenada)
+        config =
+          with config.ordenada.features.clojure.cider;
+          # elisp
+          ''
+            (defgroup ordenada-clojure nil
+              "General Clojure programming utilities."
+              :group 'ordenada)
 
-          (defun ordenada-clojure--disable-eglot-parts ()
-            (setq-local eglot-stay-out-of '(flymake eldoc)))
+            (defun ordenada-clojure--disable-eglot-parts ()
+              (setq-local eglot-stay-out-of '(flymake eldoc)))
 
-          (add-hook 'after-init-hook #'jarchive-setup)
+            (add-hook 'after-init-hook #'jarchive-setup)
 
-          (with-eval-after-load 'cider
-            (setopt cider-allow-jack-in-without-project t)
-            (setopt cider-use-xref nil)
-            (setopt cider-auto-select-error-buffer nil)
-            (setopt cider-inspector-auto-select-buffer nil)
-            (setopt cider-auto-select-test-report-buffer nil)
-            (setq cider-print-options '(("right-margin" 70) ("length" 50)))
-            (setopt cider-doc-auto-select-buffer nil))
+            (with-eval-after-load 'cider
+              (setopt cider-allow-jack-in-without-project t)
+              (setopt cider-use-xref nil)
+              (setopt cider-auto-select-error-buffer nil)
+              (setopt cider-inspector-auto-select-buffer nil)
+              (setopt cider-auto-select-test-report-buffer nil)
+              (setq cider-print-options '(("right-margin" 70) ("length" 50)))
+              (setopt cider-doc-auto-select-buffer nil))
 
-          (with-eval-after-load 'cider-repl
-            (setopt cider-repl-pop-to-buffer-on-connect ${
-              if popReplOnConnect == "display-only" then
-                "'display-only"
-              else if popReplOnConnect then
-                "t"
-              else
-                "nil"
-            })
-            (setopt cider-repl-display-in-current-window ${ordenada-lib.elisp.toBoolean replInCurrentWindow})
-            (setopt cider-repl-display-help-banner nil))
+            (with-eval-after-load 'cider-repl
+              (setopt cider-repl-pop-to-buffer-on-connect ${
+                if popReplOnConnect == "display-only" then
+                  "'display-only"
+                else if popReplOnConnect then
+                  "t"
+                else
+                  "nil"
+              })
+              (setopt cider-repl-display-in-current-window ${ordenada-lib.elisp.toBoolean replInCurrentWindow})
+              (setopt cider-repl-display-help-banner nil))
 
-          (with-eval-after-load 'ordenada-keymaps
-            (keymap-set ordenada-app-map "J" #'clj-deps-new))
+            (with-eval-after-load 'ordenada-keymaps
+              (keymap-set ordenada-app-map "J" #'clj-deps-new))
 
-          (with-eval-after-load 'org
-            (add-to-list 'org-structure-template-alist
-                         '("clj" . "src clojure")))
+            (with-eval-after-load 'org
+              (add-to-list 'org-structure-template-alist
+                           '("clj" . "src clojure")))
 
-          (with-eval-after-load 'ob-core
-            (require 'ob-clojure)
-            (require 'ob-java))
+            (with-eval-after-load 'ob-core
+              (require 'ob-clojure)
+              (require 'ob-java))
 
-          (with-eval-after-load 'ob-clojure
-            (setopt org-babel-clojure-backend 'cider))
+            (with-eval-after-load 'ob-clojure
+              (setopt org-babel-clojure-backend 'cider))
 
-          (with-eval-after-load 'eglot
-            (add-to-list 'eglot-server-programs
-                         '(((clojure-mode :language-id "clojure")
-                            (clojurec-mode :language-id "clojure")
-                            (clojurescript-mode :language-id "clojurescript"))
-                           . ("${pkgs.clojure-lsp}/bin/clojure-lsp"))))
+            (with-eval-after-load 'eglot
+              (add-to-list 'eglot-server-programs
+                           '(((clojure-mode :language-id "clojure")
+                              (clojurec-mode :language-id "clojure")
+                              (clojurescript-mode :language-id "clojurescript"))
+                             . ("${pkgs.clojure-lsp}/bin/clojure-lsp"))))
 
-          (define-minor-mode ordenada-clojure-mode
-            "Set up convenient tweaks for Clojure development."
-            :group 'ordenada-clojure
-            (when ordenada-clojure-mode
-              (ordenada-clojure--disable-eglot-parts)
-              (add-hook 'flymake-diagnostic-functions #'eglot-flymake-backend nil t)
-              (eglot-ensure)
-              (flymake-kondor-setup)
-              (flymake-mode t)))
+            (define-minor-mode ordenada-clojure-mode
+              "Set up convenient tweaks for Clojure development."
+              :group 'ordenada-clojure
+              (when ordenada-clojure-mode
+                (ordenada-clojure--disable-eglot-parts)
+                (add-hook 'flymake-diagnostic-functions #'eglot-flymake-backend nil t)
+                (eglot-ensure)
+                (flymake-kondor-setup)
+                (flymake-mode t)))
 
-          (add-hook 'clojure-mode-hook #'ordenada-clojure-mode)
+            (add-hook 'clojure-mode-hook #'ordenada-clojure-mode)
 
-          (with-eval-after-load 'apheleia
-            (push '(zprint . ("zprint")) apheleia-formatters)
-            (add-to-list 'apheleia-mode-alist '(clojure-mode . zprint)))
-        '';
+            (with-eval-after-load 'apheleia
+              (push '(zprint . ("zprint")) apheleia-formatters)
+              (add-to-list 'apheleia-mode-alist '(clojure-mode . zprint)))
+          '';
         elispPackages = with pkgs.emacsPackages; [
           cider
           clojure-mode
