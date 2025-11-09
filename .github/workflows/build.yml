@@ -1,0 +1,24 @@
+name: "Build example Ordenada configurations"
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: cachix/cachix-action@v31
+        with:
+          name: migalmoreno
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: HM build
+        run: nix develop -c home-manager build --flake .#example
+      - name: NixOS build
+        run: nix build .#nixosConfigurations.example.config.system.build.toplevel
+      - name: Deploy
+        run: cachix push migalmoreno ./result*
