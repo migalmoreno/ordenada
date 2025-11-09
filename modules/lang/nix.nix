@@ -8,7 +8,7 @@
 mkFeature {
   name = "nix";
   options = {
-    polymode = lib.mkEnableOption "Polymode support for Nix multi-line strings";
+    enablePolymode = lib.mkEnableOption "Polymode support for Nix multi-line strings";
   };
   nixos = {
     nix = {
@@ -33,15 +33,16 @@ mkFeature {
             (add-hook 'nix-mode-hook #'eglot-ensure)
             (with-eval-after-load 'eglot
               (add-to-list 'eglot-server-programs '(nix-mode . ("nil"))))
-            ${lib.optionalString config.ordenada.features.nix.polymode ''
+            ${lib.optionalString config.ordenada.features.nix.enablePolymode ''
               (eval-and-compile
                 (require 'polymode))
               (define-hostmode ordenada-nix-hostmode
                 :mode 'nix-mode)
               (define-auto-innermode ordenada-nix-dynamic-innermode
-                :head-matcher (rx "#" blank (+ (any "a-z" "-")) (+ (any "\n" blank)) "'''")
-                :tail-matcher (rx bol (+ blank) "''';")
-                :mode-matcher (cons (rx "#" blank (group (+ (any "a-z" "-"))) (+ (any "\n" blank)) "'''") 1)
+                :head-matcher (cons "^.*\\(#[[:blank:]]+[a-z-]+\n[[:blank:]]*'''\\)" 1)
+                :tail-matcher "^[ \t]+'''[ \n]*)?;"
+                :mode-matcher (cons "#[ \t]*\\([a-z-]+\\)?\\([^ \n']*\\)" 1)
+                :body-indent-offset 4
                 :head-mode 'host
                 :tail-mode 'host)
               (define-polymode ordenada-nix-polymode
@@ -49,14 +50,18 @@ mkFeature {
                 :innermodes '(ordenada-nix-dynamic-innermode))
 
               (add-to-list 'auto-mode-alist '("\\.nix" . ordenada-nix-polymode))
+
+              (with-eval-after-load 'rainbow-delimiters
+                (add-hook 'nix-mode-hook #'rainbow-delimiters-mode-disable))
             ''}
             (with-eval-after-load 'smartparens
               (add-hook 'nix-mode-hook #'turn-off-smartparens-mode))
+
             (add-hook 'nix-mode-hook #'electric-pair-local-mode)
           '';
         elispPackages =
           with pkgs.emacsPackages;
-          [ nix-mode ] ++ (lib.optional config.ordenada.features.nix.polymode [ polymode ]);
+          [ nix-mode ] ++ (lib.optional config.ordenada.features.nix.enablePolymode polymode);
       };
     };
 }
