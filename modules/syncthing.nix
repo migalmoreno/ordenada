@@ -2,16 +2,19 @@
 
 mkFeature {
   name = "syncthing";
-  options = {
-    devices = lib.mkOption {
-      type = lib.types.attrs;
-      description = "Set of devices to connect to.";
+  options =
+    { pkgs, ... }:
+    {
+      package = lib.mkPackageOption pkgs "syncthing" { };
+      devices = lib.mkOption {
+        type = lib.types.attrs;
+        description = "Set of devices to connect to.";
+      };
+      folders = lib.mkOption {
+        type = lib.types.attrs;
+        description = "Set of folders to sync.";
+      };
     };
-    folders = lib.mkOption {
-      type = lib.types.attrs;
-      description = "Set of folders to sync.";
-    };
-  };
   nixos =
     { config, ... }:
     {
@@ -22,8 +25,10 @@ mkFeature {
       systemd.services.syncthing.environment.STNODEFAULTFOLDER = "true";
       services.syncthing = with config.ordenada.features; {
         enable = true;
+        package = syncthing.package;
         overrideDevices = true;
         overrideFolders = true;
+        extraFlags = [ "--allow-newer-config" ];
         key = config.sops.secrets."hosts/${hostInfo.hostName}/syncthing/key".path;
         cert = config.sops.secrets."hosts/${hostInfo.hostName}/syncthing/cert".path;
         user = userInfo.username;
