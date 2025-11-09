@@ -31,17 +31,17 @@
         };
       };
       perSystem =
-        { pkgs, system, ... }:
+        { pkgs, ... }:
         {
-          # _module.args.pkgs = import inputs.nixpkgs {
-          #   inherit system;
-          #   overlays = [
-          #     inputs.nur.overlays.default
-          #   ];
-          # };
           packages = rec {
             docs = pkgs.callPackage ./mkDocs.nix { inherit pkgs; };
             default = docs;
+          };
+          devShells.default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              home-manager
+              nixos-rebuild
+            ];
           };
         };
     };
