@@ -83,7 +83,7 @@ mkFeature {
                 '') config.ordenada.features.git.gitLinkRemotes
               )
             })
-          (when mode-line-format
+          (with-eval-after-load 'vc-mode
             (setcdr (assq 'vc-mode mode-line-format)
                   '((:eval (truncate-string-to-width vc-mode 25 nil nil "...")))))
         '';
