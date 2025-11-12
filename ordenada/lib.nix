@@ -82,11 +82,9 @@
           inherit earlyInit;
         };
       });
-    string = {
+    lisp = {
       toList = v: '''(${toString (map (x: ''"${x}"'') v)})'';
-    };
-    elisp = {
-      inherit (string) toList;
+      toBoolean = v: if v then "t" else "nil";
       toNilOr = v: v': if v == null then "nil" else v';
       toAlist = v: ''
             '(${
@@ -98,7 +96,14 @@
             }
         )
       '';
-      toBoolean = v: if v then "t" else "nil";
+    };
+    elisp = {
+      inherit (lisp)
+        toAlist
+        toBoolean
+        toNilOr
+        toList
+        ;
     };
   };
 }
