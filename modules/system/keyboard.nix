@@ -33,7 +33,7 @@ mkFeature {
   homeManager =
     { config, ... }:
     {
-      home.keyboard = with config.ordenada.features.keyboard; {
+      home.keyboard = with config.ordenada.features.keyboard.layout; {
         inherit options variant;
         layout = name;
       };
