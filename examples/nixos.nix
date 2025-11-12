@@ -8,6 +8,7 @@
       (
         { config, ... }:
         {
+          imports = [ ./features.nix ];
           fileSystems = {
             "/" = {
               label = "NixOS_image";
@@ -20,12 +21,6 @@
           boot.loader.grub = {
             enable = true;
             device = "/dev/sda";
-          };
-          ordenada.features = {
-            networking.enable = true;
-            userInfo.enable = true;
-            home.enable = true;
-            bash.enable = true;
           };
           home-manager.users.${config.ordenada.features.userInfo.username}.imports = [
             self.homeModules.ordenada
