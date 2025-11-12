@@ -10,13 +10,19 @@ mkFeature {
   options =
     { pkgs, ... }:
     let
-      inherit (lib) mkOption mkPackageOption types;
+      inherit (lib)
+        mkEnableOption
+        mkOption
+        mkPackageOption
+        types
+        ;
     in
     {
       package = mkPackageOption pkgs "firefox-wayland" { };
+      defaultBrowser = mkEnableOption "using Firefox as your default browser";
       defaultSearchEngine = mkOption {
         type = types.str;
-        description = "Default search engine name";
+        description = "Default search engine name.";
         default = "google";
       };
       extraSearchEngines = mkOption {
@@ -69,12 +75,18 @@ mkFeature {
     in
     {
       imports = [ inputs.arkenfox-nixos.hmModules.default ];
-      xdg.mimeApps.defaultApplications = {
-        "text/html" = [ "firefox.desktop" ];
-        "text/xml" = [ "firefox.desktop" ];
-        "x-scheme-handler/http" = [ "firefox.desktop" ];
-        "x-scheme-handler/https" = [ "firefox.desktop" ];
+      home.sessionVariables = lib.mkIf config.ordenada.features.firefox.defaultBrowser {
+        "BROWSER" = lib.getExe config.ordenada.features.firefox.package;
       };
+      xdg.mimeApps.defaultApplications = lib.mkIf config.ordenada.features.firefox.defaultBrowser (
+        lib.genAttrs [
+          "text/html"
+          "text/xml"
+          "x-scheme-handler/http"
+          "x-scheme-handler/https"
+          "x-scheme-handler/about"
+        ] (lib.const "firefox.desktop")
+      );
       programs.firefox = with config.ordenada.features.firefox; {
         inherit package;
         enable = true;
@@ -95,8 +107,7 @@ mkFeature {
             ImproveSuggest = false;
             Locked = true;
           };
-        }
-        // extraPolicies;
+        } // extraPolicies;
         arkenfox = {
           enable = true;
           version = "140.0";
@@ -108,15 +119,13 @@ mkFeature {
             isDefault = true;
             arkenfox = {
               enable = true;
-            }
-            // arkenfoxSettings;
+            } // arkenfoxSettings;
             settings = {
               "browser.aboutwelcome.enabled" = false;
               "extensions.pocket.enabled" = false;
               "trailhead.firstrun.branches" = "nofirstrun-empty";
               "browser.shell.checkDefaultBrowser" = false;
-            }
-            // extraSettings;
+            } // extraSettings;
             search = lib.recursiveUpdate {
               force = true;
               default = defaultSearchEngine;
