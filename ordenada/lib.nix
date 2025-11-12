@@ -18,10 +18,7 @@
     };
     mkKeybindings =
       bindings: optionalArgs:
-      if (builtins.isFunction bindings) then
-        (bindings optionalArgs)
-      else
-        bindings;
+      if (builtins.isFunction bindings) then (bindings optionalArgs) else bindings;
     mkEnableTrueOption =
       name:
       lib.mkOption {
