@@ -47,6 +47,30 @@
       lib.foldr (
         item: acc: acc ++ lib.optionals (builtins.hasAttr class item) item.${class}.imports
       ) [ ] (lib.mapAttrsToList (name: value: value) modules);
+    mkNyxtLispConfig =
+      pkgs:
+      {
+        name,
+        config ? "",
+        lispPackages ? [ ],
+      }:
+      let
+        cfg = pkgs.writeText "${name}.lisp" ''
+          (in-package :nyxt-user)
+          ${config}
+        '';
+      in
+      {
+        config = ''
+          (define-nyxt-user-system-and-load nyxt-user/${name}
+          ${
+            lib.optionalString (lispPackages != [ ]) ''
+              :depends-on (${toString lispPackages})
+            ''
+          } :config-directory "${builtins.dirOf cfg}/"
+            :components ("${builtins.baseNameOf cfg}"))
+        '';
+      };
     mkElispConfig =
       pkgs:
       {

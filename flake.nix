@@ -13,6 +13,13 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixos-wsl.url = "github:nix-community/nixos-wsl/main";
     sops-nix.url = "github:mic92/sops-nix";
+    nx-router.url = "github:migalmoreno/nx-router";
+    nx-tailor.url = "github:migalmoreno/nx-tailor";
+    nx-mosaic.url = "github:migalmoreno/nx-mosaic";
+    nx-search-engines = {
+      url = "github:aartaka/nx-search-engines";
+      flake = false;
+    };
   };
   outputs =
     inputs@{ flake-parts, ... }:
