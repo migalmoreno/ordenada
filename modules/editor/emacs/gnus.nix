@@ -65,6 +65,7 @@ mkFeature {
         config =
           with config.ordenada.features;
           with emacs.gnus;
+          # elisp
           ''
             (defgroup ordenada-gnus nil
               "Customizations for the Gnus newsreader."

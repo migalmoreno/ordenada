@@ -53,40 +53,41 @@ mkFeature {
       };
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-git";
-        config = ''
-          (add-hook 'magit-mode-hook #'toggle-truncate-lines)
-          (with-eval-after-load 'project
-            (keymap-set project-prefix-map "m" #'magit-project-status)
-            (add-to-list 'project-switch-commands
-                         '(magit-project-status "Show Magit Status")))
-          (with-eval-after-load 'magit
-            (keymap-set magit-mode-map "q" #'magit-kill-this-buffer)
-            (setopt magit-display-buffer-function
-                    #'magit-display-buffer-same-window-except-diff-v1)
-            (setopt magit-pull-or-fetch t)
-            (require 'forge))
+        config = # elisp
+          ''
+            (add-hook 'magit-mode-hook #'toggle-truncate-lines)
+            (with-eval-after-load 'project
+              (keymap-set project-prefix-map "m" #'magit-project-status)
+              (add-to-list 'project-switch-commands
+                           '(magit-project-status "Show Magit Status")))
+            (with-eval-after-load 'magit
+              (keymap-set magit-mode-map "q" #'magit-kill-this-buffer)
+              (setopt magit-display-buffer-function
+                      #'magit-display-buffer-same-window-except-diff-v1)
+              (setopt magit-pull-or-fetch t)
+              (require 'forge))
 
-          (with-eval-after-load 'vc
-            (setopt vc-follow-symlinks t))
+            (with-eval-after-load 'vc
+              (setopt vc-follow-symlinks t))
 
-          (with-eval-after-load 'ediff
-            (setopt ediff-window-setup-function #'ediff-setup-windows-plain))
+            (with-eval-after-load 'ediff
+              (setopt ediff-window-setup-function #'ediff-setup-windows-plain))
 
-          (with-eval-after-load 'ordenada-keymaps
-            (keymap-set ordenada-app-map "L" #'git-link))
-          (with-eval-after-load 'git-link
-            ${
-              toString (
-                lib.mapAttrsToList (url: fn: ''
-                  (add-to-list 'git-link-remote-alist '("${url}" ${fn}))
-                  (add-to-list 'git-link-commit-remote-alist '("${url}" ${fn}))
-                '') config.ordenada.features.git.gitLinkRemotes
-              )
-            })
-          (with-eval-after-load 'vc-mode
-            (setcdr (assq 'vc-mode mode-line-format)
-                  '((:eval (truncate-string-to-width vc-mode 25 nil nil "...")))))
-        '';
+            (with-eval-after-load 'ordenada-keymaps
+              (keymap-set ordenada-app-map "L" #'git-link))
+            (with-eval-after-load 'git-link
+              ${
+                toString (
+                  lib.mapAttrsToList (url: fn: ''
+                    (add-to-list 'git-link-remote-alist '("${url}" ${fn}))
+                    (add-to-list 'git-link-commit-remote-alist '("${url}" ${fn}))
+                  '') config.ordenada.features.git.gitLinkRemotes
+                )
+              })
+            (with-eval-after-load 'vc-mode
+              (setcdr (assq 'vc-mode mode-line-format)
+                    '((:eval (truncate-string-to-width vc-mode 25 nil nil "...")))))
+          '';
         elispPackages = with pkgs.emacsPackages; [
           magit
           forge
