@@ -40,6 +40,7 @@
       perSystem =
         { pkgs, ... }:
         {
+          formatter = pkgs.nixfmt-rfc-style;
           packages = rec {
             docs = pkgs.callPackage ./mkDocs.nix { inherit pkgs; };
             default = docs;
