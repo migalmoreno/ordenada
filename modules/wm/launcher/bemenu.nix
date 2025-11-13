@@ -41,9 +41,10 @@ in
 mkFeature {
   name = "bemenu";
   options =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     let
       inherit (lib) mkOption mkPackageOption types;
+      enabled = config.ordenada.features.bemenu.enable;
     in
     {
       package = mkPackageOption pkgs "bemenu" { };
@@ -55,20 +56,24 @@ mkFeature {
       enableLauncher = mkOption {
         type = types.bool;
         description = "Whether to enable this feature as the global launcher.";
-        default = true;
+        default = enabled;
       };
       enablePinentry = mkOption {
         type = types.bool;
         description = "Whether to enable this feature as the global pinentry.";
-        default = true;
+        default = enabled;
       };
     };
   globals =
     { config, pkgs, ... }:
     {
-      apps.launcher = with config.ordenada.features.bemenu; ''
-        ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${package}/bin/bemenu ${mkOpts (mkSettings config)}"
-      '';
+      apps.launcher =
+        with config.ordenada.features.bemenu;
+        lib.mkIf config.ordenada.features.bemenu.enableLauncher (
+          lib.mkForce ''
+            ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${package}/bin/bemenu ${mkOpts (mkSettings config)}"
+          ''
+        );
     };
   homeManager =
     { config, pkgs, ... }:
