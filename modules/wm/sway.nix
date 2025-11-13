@@ -62,7 +62,7 @@ mkFeature {
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
   };
   homeManager =
-    { config, lib, ... }:
+    { config, lib, pkgs, ... }:
     {
       programs.swayr = {
         enable = true;
@@ -182,7 +182,10 @@ mkFeature {
                 // lib.optionalAttrs (apps.terminal != null) {
                   "${modifier}+Return" = "exec ${apps.terminal}";
                 }
-                // ordenada-lib.mkKeybindings extraKeybindings (
+                // lib.optionalAttrs (apps.passwordManager != null) {
+                  "${modifier}+p" = "exec ${apps.passwordManager}";
+                }
+                // ordenada-lib.mkKeybindings keybindings (
                   apps
                   // {
                     modifier = modifier;
@@ -195,5 +198,9 @@ mkFeature {
               );
           } extraConfig;
       };
+      home.packages = with pkgs; [
+        wl-clipboard
+        wtype
+      ];
     };
 }
