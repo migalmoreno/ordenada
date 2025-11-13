@@ -45,6 +45,11 @@ in
             description = "The system wide used application launcher.";
             default = null;
           };
+          passwordManager = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used password manager.";
+            default = null;
+          };
           bar = mkOption {
             type = types.nullOr types.str;
             description = "The system wide used bar.";
