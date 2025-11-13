@@ -90,7 +90,8 @@ mkFeature {
       ];
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-json";
-        config = ''
+        config = # elisp
+          ''
           (require 'cl-lib)
           (require 'json5-ts-mode)
 
