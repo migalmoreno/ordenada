@@ -562,11 +562,11 @@
         "systems": "systems_2"
       },
       "locked": {
-        "lastModified": 1730756994,
-        "narHash": "sha256-ust/k6fbdzV06FFhv74XRwmP+cH6g3FNrh59+8fpqTo=",
+        "lastModified": 1763204389,
+        "narHash": "sha256-qgkNbi2zETjt17jUgZopjMZ/hWNhD+b62H7u12yFjmg=",
         "owner": "migalmoreno",
         "repo": "nx-mosaic",
-        "rev": "5973b15f0cdf0637ac6de331450540ee95b2efcd",
+        "rev": "d93bdd2a9dcb0ba206f6b9d8dfea001d9d0d5bd3",
         "type": "github"
       },
       "original": {
@@ -581,11 +581,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1762988134,
-        "narHash": "sha256-/UcUQ+xPoetbK+Kidejz57OJdSEQtAxRYFkoJ+m/28I=",
+        "lastModified": 1763204601,
+        "narHash": "sha256-2ZKZIihn80tFmUnKWBI3rZwRS3rXaQyFPQRnxaXm6lg=",
         "owner": "migalmoreno",
         "repo": "nx-router",
-        "rev": "cc487287e958307ce66bc2a6fb676b5836bb7f44",
+        "rev": "a9e962d5316f76e7ed35322a9dad7a7b1207f351",
         "type": "github"
       },
       "original": {
@@ -616,11 +616,11 @@
         "systems": "systems_4"
       },
       "locked": {
-        "lastModified": 1730758015,
-        "narHash": "sha256-f5T4ptMQQhooqTsj2TmaMOUqtD5zEuuPkNGihdf2Lcc=",
+        "lastModified": 1763204511,
+        "narHash": "sha256-FRYJy8yF5+6dbPG/48wQQf+v+zz6AEYmJ9croiVKKTE=",
         "owner": "migalmoreno",
         "repo": "nx-tailor",
-        "rev": "cdd8253e8a6d7bd3638458610c4971ffc58be0a8",
+        "rev": "071eb246fbf0a09db1c800996da7b44620ead11a",
         "type": "github"
       },
       "original": {
