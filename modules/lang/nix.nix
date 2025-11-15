@@ -23,7 +23,6 @@ mkFeature {
     { config, pkgs, ... }:
     {
       home.packages = with pkgs; [
-        nil
         nixfmt-rfc-style
       ];
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
@@ -32,7 +31,7 @@ mkFeature {
           ''
             (add-hook 'nix-ts-mode-hook #'eglot-ensure)
             (with-eval-after-load 'eglot
-              (add-to-list 'eglot-server-programs '(nix-ts-mode . ("nil"))))
+              (add-to-list 'eglot-server-programs '(nix-ts-mode . ("${lib.getExe pkgs.nil}"))))
 
             (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
 
