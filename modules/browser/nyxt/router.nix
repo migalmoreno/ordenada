@@ -14,9 +14,15 @@ mkFeature {
   options = {
     routers = lib.mkOption {
       type = lib.types.listOf lib.types.attrs;
-      description = ''
-        A list of nx-router routes.
-      '';
+      description = "A list of nx-router routes.";
+      example = [
+        {
+          name = "google";
+          type = "redirector";
+          route = ".*google.com.*";
+          redirect = "https://search.atlas.engineer";
+        }
+      ];
       default = [ ];
     };
     showBlockBanner = ordenada-lib.mkEnableTrueOption "showing a banner upon navigating to a blocked route";
@@ -49,21 +55,7 @@ mkFeature {
                            :name "${router.name}"
                          ''} :route "${router.route}"
                          ${lib.optionalString (builtins.hasAttr "redirect" router) ''
-                           :redirect ${
-                             if (builtins.isAttrs router.redirect) then
-                               ''
-                                 (list
-                                   ${toString (
-                                     lib.mapAttrsToList (n: v: ''
-                                       (list
-                                        "${n}" ${if (builtins.isList v) then (toString (map (r: ''"${r}"'') v)) else ''"${v}"''})
-                                     '') router.redirect
-                                   )}
-                                 )
-                               ''
-                             else
-                               ''"${router.redirect}"''
-                           }
+                           :redirect ${ordenada-lib.lisp.toVal router.redirect}
                          ''}
                          ${
                            toString (
