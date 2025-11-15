@@ -23,6 +23,8 @@ mkFeature {
       autoStartSlynk = mkEnableOption "connecting to Nyxt remotely via a Lisp REPL";
       startupFlags = mkOption {
         type = types.listOf types.str;
+        description = "Command line arguments used to launch Nyxt.";
+        default = [ ];
       };
       scrollDistance = mkOption {
         type = types.int;
@@ -126,7 +128,8 @@ mkFeature {
                (download-engine :${downloadEngine})))
 
             (define-configuration browser
-              ((default-cookie-policy :${defaultCookiePolicy})
+              ((remote-execution-p t)
+               (default-cookie-policy :${defaultCookiePolicy})
                (restore-session-on-startup-p ${ordenada-lib.lisp.toBoolean restoreSession})
                ${
                  lib.optionalString (defaultNewBufferUrl != null) ''
@@ -158,7 +161,6 @@ mkFeature {
                            (or (find-profile-class
                                 (getf *options* :profile))
                                'tmp-profile)))))
-
             ''}
           '';
       }

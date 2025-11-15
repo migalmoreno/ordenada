@@ -156,6 +156,11 @@ mkFeature {
           ${lib.optionalString swaync.enable ''
             ${systemctl} --user restart swaync
           ''}
+          ${lib.optionalString (nyxt.enable && nyxt.tailor.enable) ''
+            ${nyxt.package}/bin/nyxt -q -r -e '(tailor:load-theme "${
+              nyxt.appearance.defaultThemes.${themeToToggle config}.name
+            }")'
+          ''}
         ''
       );
     in
