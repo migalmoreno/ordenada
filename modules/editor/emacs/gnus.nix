@@ -138,22 +138,7 @@ mkFeature {
                       (ordenada-gnus--get-topic-groups)))
               (setq ordenada-gnus-subscribed-p t))
 
-            (setopt ordenada-gnus-topic-alist '(${
-              toString (
-                lib.mapAttrsToList (name: value: ''
-                  ("${name}" ${
-                    if value != [ ] then
-                      toString (
-                        map (x: ''
-                          "${x}"
-                        '') value
-                      )
-                    else
-                      ""
-                  })
-                '') topicGroups
-              )
-            }))
+            (setopt ordenada-gnus-topic-alist ${ordenada-lib.elisp.toAlist topicGroups})
             (setopt ordenada-gnus-topic-topology '(${toString topicTopology}))
             (with-eval-after-load 'ordenada-keymaps
               (keymap-set ordenada-app-map "${key}" 'gnus))
@@ -173,19 +158,15 @@ mkFeature {
                         (not gnus-thread-sort-by-number)))
               (setopt gnus-permanently-visible-groups "^nnmaildir")
               (setopt gnus-parameters '(${
-                toString (
-                  lib.mapAttrsToList (name: value: ''
-                    ("${name}" ${
-                      if value != { } then
-                        toString (
-                          lib.mapAttrsToList (name': value': ''
-                            (${name'} . ${toString value'})
-                          '') value
-                        )
-                      else
-                        ""
-                    })
-                  '') groupParameters
+                ordenada-lib.elisp.toAlist' groupParameters (
+                  name: value:
+                  lib.optionalString (value != { }) (
+                    toString (
+                      lib.mapAttrsToList (name': value': ''
+                        (${name'} . ${toString value'})
+                      '') value
+                    )
+                  )
                 )
               }))
               (setopt gnus-directory "${directory}")
