@@ -49,13 +49,13 @@ mkFeature {
     {
       statusBufferHeight = mkOption {
         type = types.int;
-        description = "The height of the status buffer (message line below mode line).";
+        description = "Height of the status buffer (i.e. mode line).";
         default = 26;
       };
       enableModeGlyphs = mkEnableOption "showing mode glyphs in the mode line";
       defaultThemes = mkOption {
         type = types.attrs;
-        description = "The themes to use for Nyxt.";
+        description = "Themes to use for Nyxt.";
         default = getDefaultThemes config;
       };
     };
@@ -68,15 +68,114 @@ mkFeature {
       programs.nyxt = ordenada-lib.mkNyxtLispConfig pkgs {
         name = "ordenada-appearance";
         config =
-          with config.ordenada.features.nyxt.appearance; # lisp
+          with config.ordenada.features.nyxt;
+          let
+            mkStyle = name: style: ''
+              ${
+                if tailor.enable then
+                  "(tailor:with-style '${name} ${style})"
+                else
+                  "(str:concat %slot-default% (theme:themed-css (theme *browser*) ${style}))"
+              }
+            '';
+          in
+          # lisp
           ''
             (define-configuration status-buffer
-              ((glyph-mode-presentation-p ${ordenada-lib.lisp.toBoolean enableModeGlyphs})
-               (height ${toString statusBufferHeight})))
+              ((glyph-mode-presentation-p ${ordenada-lib.lisp.toBoolean appearance.enableModeGlyphs})
+               (height ${toString appearance.statusBufferHeight})))
 
             (define-configuration browser
               ((theme (make-instance 'theme:theme
                                      ${toString (lib.mapAttrsToList (n: v: ":${n} \"${v}\"") nyxtTheme)}))))
+
+            (define-configuration status-buffer
+              ((style ${mkStyle "status-buffer" ''
+                `(body
+                  :font-family ,theme:monospace-font-family)
+                `("#container"
+                  :background ,theme:background-)
+                `("#controls"
+                  :color ,theme:on-background
+                  :background inherit)
+                `("#controls button"
+                  :padding "3px")
+                `("#url"
+                  :background inherit
+                  :color ,theme:on-background
+                  :font-weight bold
+                  :font-size "55vh"
+                  :padding "0 5px"
+                  :display flex
+                  :align-items center
+                  :box-sizing border-box
+                  :flex-grow 6
+                  :flex-shrink 3)
+                `("#url button"
+                  :white-space nowrap
+                  :text-overflow ellipsis
+                  :overflow hidden)
+                `("#modes"
+                  :background inherit
+                  :color ,theme:on-background
+                  :font-size "55vh"
+                  :flex-grow 1)
+                `((:or .arrow-right .arrow-left)
+                  :clip-path none
+                  :margin-right 0)
+                `((:and (:or .button .tab "#url") :hover)
+                  :background none
+                  :color ,theme:on-background)
+              ''})))
+
+            (define-configuration prompt-buffer
+              ((style ${mkStyle "prompt-buffer" ''
+                `(body
+                  :font-family ,theme:monospace-font-family
+                  :color ,theme:on-background
+                  :border none)
+                `("#input"
+                  :padding-left "0 !important")
+                `("#input:focus"
+                  :box-shadow none)
+                `("#prompt-area"
+                  :background ,theme:background
+                  :border none)
+                `("#prompt"
+                  :padding-left "10px")
+                `("#suggestions"
+                  :margin-right 0)
+                `("#selection"
+                  :background ,(cl-colors2:print-hex theme:on-primary :alpha 0.5)
+                  :color ,theme:on-background)
+                `(.source
+                  :margin-left 0)
+                `(.source-name
+                  :padding-left "10px"
+                  :color ,theme:secondary
+                  :background ,theme:background)
+                `(.source-content
+                  :border-collapse collapse
+                  :padding-left 0
+                  :margin-left 0
+                  (th
+                   :padding "5px 10px"
+                   :color ,theme:on-background
+                   :background ,theme:background
+                   :font-weight bold)
+                  (td
+                   :padding "5px 10px"
+                   :text-overflow ellipsis))
+                `((:or "#prompt" "#prompt-extra")
+                  :color ,theme:secondary
+                  :background none)
+                `((:or .arrow-right .arrow-left)
+                  :clip-path none
+                  :margin-right 0)
+                `((:or "#prompt-modes" "#close-button" "#previous-source"
+                       "#next-source" "#toggle-attributes")
+                  :display none)
+              ''})))
 
             (defmethod format-status-buttons :around ((status status-buffer))
               (spinneret:with-html-string
@@ -124,6 +223,7 @@ mkFeature {
             (define-configuration prompt-buffer
                 ((mouse-support-p nil)))
           '';
+        lispPackages = lib.optional config.ordenada.features.nyxt.tailor.enable "nx-tailor";
       };
     };
 }
