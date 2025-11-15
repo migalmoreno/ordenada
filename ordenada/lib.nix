@@ -103,27 +103,58 @@
           inherit earlyInit;
         };
       });
-    lisp = {
-      toList = v: '''(${toString (map (x: ''"${x}"'') v)})'';
+    lisp = rec {
+      toVal =
+        v:
+        if builtins.isAttrs v then
+          toAlist v
+        else if builtins.isList v then
+          toList v
+        else if builtins.isString v then
+          ''"${v}"''
+        else if builtins.isInt v then
+          toString v
+        else if builtins.isBool then
+          toBoolean v
+        else
+          v;
+      toVal' =
+        v:
+        if builtins.isAttrs v then
+          toAlist' v (_: v: toVal' v)
+        else if builtins.isList v then
+          toList' v toVal'
+        else if builtins.isString v then
+          ''"${v}"''
+        else if builtins.isInt v then
+          toString v
+        else if builtins.isBool v then
+          toBoolean v
+        else
+          v;
+      toList' = v: f: toString (map f v);
+      toList = v: "'(${toList' v toVal'})";
       toBoolean = v: if v then "t" else "nil";
       toNilOr = v: v': if v == null then "nil" else v';
-      toAlist = v: ''
-            '(${
-              toString (
-                lib.mapAttrsToList (key: val: ''
-                  ("${key}" "${val}")
-                '') v
-              )
-            }
-        )
-      '';
+      toAlist' =
+        v: f:
+        toString (
+          lib.mapAttrsToList (name: val: ''
+            ("${name}" ${f name val})
+          '') v
+        );
+      toAlist = v: "'(${toAlist' v (_: v: toVal' v)})";
     };
     elisp = {
       inherit (lisp)
         toAlist
+        toAlist'
         toBoolean
         toNilOr
         toList
+        toList'
+        toVal
+        toVal'
         ;
     };
   };
