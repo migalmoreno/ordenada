@@ -85,7 +85,8 @@ mkFeature {
             "n" = "script-message osc-visibility always";
             "N" = "script-message osc-visibility never";
             "L" = "cycle-values loop-file \"inf\" \"no\"";
-          };
+          }
+          // extraBindings;
         scripts = with pkgs.mpvScripts; [ mpris ];
       };
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
