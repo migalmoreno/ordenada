@@ -25,6 +25,16 @@ mkFeature {
         type = types.attrsOf (types.listOf types.str);
         description = "Topics-groups attrset to categorize groups into topics.";
         default = { };
+        example = {
+          "Personal" = [
+            "nnmaildir+personal:Inbox"
+            "nnmaildir+personal:Drafts"
+            "nnmaildir+personal:Sent"
+            "nnmaildir+personal:Archive"
+            "nnmaildir+personal:Junk"
+            "nnmaildir+personal:Trash"
+          ];
+        };
       };
       topicTopology = mkOption {
         type = types.listOf types.str;
@@ -35,6 +45,12 @@ mkFeature {
         type = with types; attrsOf (attrsOf (either str int));
         description = "Group-specific settings.";
         default = { };
+        example = {
+          "^nnmaildir" = {
+            "gcc-self" = "nnmaildir+personal:Sent";
+            "display" = 1000;
+          };
+        };
       };
       directory = mkOption {
         type = types.str;
@@ -45,6 +61,10 @@ mkFeature {
         type = types.nullOr (types.listOf types.str);
         description = "Mail method to archive the messages you've sent.";
         default = null;
+        example = [
+          "nnmaildir"
+          "personal"
+        ];
       };
       messageArchiveGroup = mkOption {
         type = types.nullOr (types.listOf types.str);
