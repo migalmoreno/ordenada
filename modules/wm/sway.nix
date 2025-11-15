@@ -39,15 +39,15 @@ mkFeature {
         description = "The key to use for for the down orientation.";
         default = "j";
       };
-      keybindings = mkOption {
+      extraKeybindings = mkOption {
         type = ordenada-lib.types.fnOrAttrs;
-        description = "The Sway keybindings.";
+        description = "Extra Sway keybindings.";
         default = { };
       };
       extraConfig = mkOption {
         type = types.attrs;
         default = { };
-        description = "Extra configuration for Sway.";
+        description = "Extra Sway configuration.";
       };
     };
   globals =
@@ -92,13 +92,14 @@ mkFeature {
             inherit modifier;
             defaultWorkspace = "workspace number 1";
             input = with config.ordenada.features.keyboard.layout; {
-              "type:keyboard" = {
-                xkb_layout = name;
-                xkb_options = lib.strings.concatStringsSep "," options;
-              }
-              // (lib.optionalAttrs (variant != "") {
-                xkb_variant = variant;
-              });
+              "type:keyboard" =
+                {
+                  xkb_layout = name;
+                  xkb_options = lib.strings.concatStringsSep "," options;
+                }
+                // (lib.optionalAttrs (variant != "") {
+                  xkb_variant = variant;
+                });
               "type:touchpad" = {
                 dwt = "enabled";
                 tap = "enabled";
@@ -181,7 +182,7 @@ mkFeature {
                 // lib.optionalAttrs (apps.terminal != null) {
                   "${modifier}+Return" = "exec ${apps.terminal}";
                 }
-                // ordenada-lib.mkKeybindings keybindings (
+                // ordenada-lib.mkKeybindings extraKeybindings (
                   apps
                   // {
                     modifier = modifier;
