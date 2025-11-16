@@ -616,11 +616,11 @@
         "systems": "systems_4"
       },
       "locked": {
-        "lastModified": 1763204511,
-        "narHash": "sha256-FRYJy8yF5+6dbPG/48wQQf+v+zz6AEYmJ9croiVKKTE=",
+        "lastModified": 1763288715,
+        "narHash": "sha256-Gk18rqcYY2H28NymxDKUnB03PfcFTa1rTShst5WxIrs=",
         "owner": "migalmoreno",
         "repo": "nx-tailor",
-        "rev": "071eb246fbf0a09db1c800996da7b44620ead11a",
+        "rev": "2fa070a7636ad848a61e8e9126dac6c04256df7d",
         "type": "github"
       },
       "original": {
