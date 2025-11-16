@@ -3,7 +3,7 @@
 mkFeature {
   name = "gnupg";
   options =
-    { config, ... }:
+    { config, pkgs, ... }:
     with lib;
     {
       sshKeys = mkOption {
@@ -14,7 +14,7 @@ mkFeature {
       pinentryPackage = mkOption {
         type = types.nullOr types.package;
         description = "The package for pinentry input.";
-        default = null;
+        default = pkgs.pinentry-qt;
       };
       defaultTtl = mkOption {
         type = types.int;
