@@ -38,4 +38,9 @@ mkFeature {
         layout = name;
       };
     };
+  nixos =
+    { config, ... }:
+    {
+      console.keyMap = config.ordenada.features.keyboard.layout.name;
+    };
 }
