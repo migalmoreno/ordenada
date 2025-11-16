@@ -61,6 +61,11 @@ in
           description = "Whether or not the WM is running under wayland.";
           default = false;
         };
+        autoloads = mkOption {
+          type = types.listOf types.str;
+          description = "List of applications that should be started once the WM launches.";
+          default = [ ];
+        };
       };
     in
     {
