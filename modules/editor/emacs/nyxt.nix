@@ -31,8 +31,8 @@ mkFeature {
         src = pkgs.fetchFromGitHub {
           owner = "migalmoreno";
           repo = "nyxt.el";
-          rev = "f26834d37ae16e82ac8666a05959182652b412af";
-          hash = "sha256-m6xnx4RjKGYej+z5Q1eXuHcQTCeaD4TDHcTSm3oyDuc=";
+          rev = "955c0a06e81d681f719c63ede65069394d521cdc";
+          hash = "sha256-xgDVbMI3xiHkne52pRJJhFYTBEl79cd4jEcFqmMy9hM=";
         };
         packageRequires = with pkgs.emacsPackages; [ sly ];
       };
