@@ -84,8 +84,8 @@
     # wm
     sway.enable = true;
     waybar.enable = true;
-    bemenu = true;
-    rofi = true;
+    bemenu.enable = true;
+    rofi.enable = true;
 
     # video
     mpv.enable = true;
