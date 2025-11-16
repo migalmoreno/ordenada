@@ -12,6 +12,9 @@
     # shell
     bash.enable = true;
 
+    # terminal
+    alacritty.enable = true;
+
     # system
     keyboard.enable = true;
     networking.enable = true;
@@ -81,6 +84,8 @@
     # wm
     sway.enable = true;
     waybar.enable = true;
+    bemenu = true;
+    rofi = true;
 
     # video
     mpv.enable = true;
