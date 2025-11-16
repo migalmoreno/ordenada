@@ -38,11 +38,6 @@ mkFeature {
         description = "The locale used for this user.";
         default = "en_US.UTF-8";
       };
-      keymap = mkOption {
-        type = types.nullOr types.str;
-        description = "The keymap used for this user.";
-        default = "us";
-      };
       extraGroups = mkOption {
         type = types.listOf types.str;
         description = "The list of extra groups for this user.";
