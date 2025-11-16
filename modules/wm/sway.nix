@@ -186,7 +186,7 @@ mkFeature {
                 // lib.optionalAttrs (apps.passwordManager != null) {
                   "${modifier}+p" = "exec ${apps.passwordManager}";
                 }
-                // ordenada-lib.mkKeybindings keybindings (
+                // ordenada-lib.mkKeybindings extraKeybindings (
                   apps
                   // {
                     modifier = modifier;
