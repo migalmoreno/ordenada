@@ -115,11 +115,10 @@ mkFeature {
     { config, pkgs, ... }:
     let
       inherit (lib) mkOption mkPackageOption types;
-      rofiPkg = if (config.ordenada.globals.wayland == null) then "rofi" else "rofi-wayland";
       enabled = config.ordenada.features.rofi.enable;
     in
     {
-      package = mkPackageOption pkgs rofiPkg { };
+      package = mkPackageOption pkgs "rofi" { };
       showActions = mkOption {
         type = types.bool;
         default = true;
