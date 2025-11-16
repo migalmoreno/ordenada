@@ -10,9 +10,11 @@ mkFeature {
   options =
     { config, pkgs, ... }:
     {
-      package = lib.mkOption {
+      package = let
+        passPkg = if (config.ordenada.globals.wayland == null) then "pass" else "pass-wayland";
+      in lib.mkOption {
         type = lib.types.package;
-        default = pkgs.pass-wayland.withExtensions (exts: [ exts.pass-otp ]);
+        default = pkgs.${passPkg}.withExtensions (exts: [ exts.pass-otp ]);
         description = "The package to use for password-store.";
       };
       storeDir = lib.mkOption {
