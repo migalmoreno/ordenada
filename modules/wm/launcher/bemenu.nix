@@ -1,4 +1,8 @@
-{ lib, mkFeature, ... }:
+{
+  lib,
+  mkFeature,
+  ...
+}:
 
 let
   mkOpts =
@@ -37,6 +41,74 @@ let
       hb = base0D;
       fn = with config.ordenada.features.fontutils.fonts.monospace; "${name} ${toString size}";
     };
+  menuPass =
+    config: pkgs: menuExec:
+    pkgs.stdenv.mkDerivation {
+      pname = "menupass";
+      version = "20250124";
+
+      src = pkgs.fetchFromGitHub {
+        owner = "aehabdelouadoud";
+        repo = "menupass";
+        rev = "9e94543ee43117b42e211bd0845863efc44a622b";
+        sha256 = "psNyzFWUYnnDoqzshh/Nrv0pKdfQNqzZdzE7sFsoTro=";
+      };
+
+      nativeBuildInputs = [
+        pkgs.makeWrapper
+        pkgs.gnused
+        pkgs.patch
+      ];
+
+      dontBuild = true;
+
+      installPhase =
+        let
+          runtimeDeps =
+            with pkgs;
+            [
+              coreutils
+              findutils
+              gnugrep
+              gnused
+              libnotify
+              pass
+            ]
+            ++ (if config.ordenada.globals.wayland then [ wl-clipboard ] else [ xclip ]);
+        in
+        # sh
+        ''
+            runHook p runHook preInstall
+
+            install -Dm755 $src/menupass.sh $out/bin/menupass
+            patchShebangs $out/bin/menupass
+
+            cat > menu <<EOF
+          MENU=${lib.strings.escapeShellArg menuExec}
+          EOF
+
+            sed -i \
+                -e '/^MENU=/,/--fn .*/d' \
+                -e "/# Configure menu tool/r menu" \
+                $out/bin/menupass
+
+            wrapProgram $out/bin/menupass \
+                        --set GNUPGHOME "${config.ordenada.features.gnupg.storeDir}" \
+                        --set PASSWORD_STORE_DIR "${config.ordenada.features.password-store.storeDir}" \
+                        --set WAYLAND_DISPLAY "${
+                          if (config.ordenada.globals.wayland == true) then "wayland-1" else ""
+                        }" \
+                        --prefix PATH : ${pkgs.lib.makeBinPath runtimeDeps}
+
+            runHook postInstall
+        '';
+      meta = {
+        description = "A simple pass menu using bemenu";
+        homepage = "https://github.com/aehabdelouadoud/menupass";
+        license = pkgs.lib.licenses.mit;
+        platforms = pkgs.lib.platforms.linux;
+      };
+    };
 in
 mkFeature {
   name = "bemenu";
@@ -63,17 +135,37 @@ mkFeature {
         description = "Whether to enable this feature as the global pinentry.";
         default = enabled;
       };
+      enablePasswordManager = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global password manager.";
+        default = enabled;
+      };
     };
   globals =
     { config, pkgs, ... }:
+    let
+      cfg = config.ordenada.features.bemenu;
+    in
     {
-      apps.launcher =
-        with config.ordenada.features.bemenu;
-        lib.mkIf config.ordenada.features.bemenu.enableLauncher (
-          lib.mkForce ''
-            ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${package}/bin/bemenu ${mkOpts (mkSettings config)}"
-          ''
-        );
+      apps.launcher = lib.mkIf cfg.enableLauncher (
+        lib.mkForce ''
+          ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop --dmenu="${cfg.package}/bin/bemenu ${mkOpts (mkSettings config)}";
+        ''
+      );
+      apps.passwordManager = lib.mkIf cfg.enablePasswordManager (
+        lib.mkForce "${
+          menuPass config pkgs
+            "${cfg.package}/bin/bemenu ${
+              mkOpts (
+                removeAttrs (mkSettings config) [
+                  "cw"
+                  "hp"
+                  "ch"
+                ]
+              )
+            }"
+        }/bin/menupass"
+      );
     };
   homeManager =
     { config, pkgs, ... }:
