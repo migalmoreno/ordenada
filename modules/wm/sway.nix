@@ -166,6 +166,7 @@ mkFeature {
             };
             gaps.inner = 12;
             bars = [ ];
+            startup = map (x: { command = x; always = true; }) config.ordenada.globals.autoloads;
             up = up;
             down = down;
             left = left;
