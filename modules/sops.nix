@@ -33,18 +33,26 @@ mkFeature {
         name = "ordenada-sops";
         config = # elisp
           ''
-            (global-sops-mode 1)
             (defvar-keymap ordenada-sops-mode-map
               "C-c C-c" #'sops-save-file
               "C-c C-k" #'sops-cancel
               "C-c C-d" #'sops-edit-file)
 
             (define-minor-mode ordenada-sops-mode
-              "Set up local keybindings for `sops-mode'."
-              :keymap ordenada-sops-mode-map)
-
-            (add-hook 'sops-mode-hook #'ordenada-sops-mode)
-
+              "Set up a local minor mode for `sops-mode'."
+              :keymap ordenada-sops-mode-map
+              (when ordenada-sops-mode
+                (sops-mode 1)))
+            ${
+              if config.ordenada.features.yaml.enable then
+                ''
+                  (add-hook 'yaml-mode-hook #'ordenada-sops-mode)
+                ''
+              else
+                ''
+                  (add-to-list 'auto-mode-alist '("\\.y[a]?ml\\'" . ordenada-sops-mode))
+                ''
+            }
             (with-eval-after-load 'sops
               (setopt sops-executable "${lib.getExe config.ordenada.features.sops.package}"))
           '';

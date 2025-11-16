@@ -7,11 +7,12 @@ mkFeature {
     {
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-yaml";
-        config = ''
-          (add-to-list 'auto-mode-alist '("\\.y[a]?ml\\'" . yaml-mode))
-          (with-eval-after-load 'yaml-mode
-            (keymap-set yaml-mode-map "RET" #'newline-and-indent))
-        '';
+        config = # elisp
+          ''
+            (add-to-list 'auto-mode-alist '("\\.y[a]?ml\\'" . yaml-mode))
+            (with-eval-after-load 'yaml-mode
+              (keymap-set yaml-mode-map "RET" #'newline-and-indent))
+          '';
         elispPackages = with pkgs.emacsPackages; [ yaml-mode ];
       };
     };
