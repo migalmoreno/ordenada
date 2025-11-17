@@ -101,6 +101,25 @@ mkFeature {
             };
           };
         };
+        tray = {
+          name = "tray";
+          config = {
+            icon-size = 20;
+            show-passive-items = true;
+            spacing = 10;
+          };
+          style = with config.ordenada.features.theme.scheme.withHashtag; ''
+            #tray {
+              background: ${base02};
+              color: ${base05};
+              font-weight: normal;
+              border: none;
+              border-radius: 0.2em;
+              margin: 0.3em 0.2em;
+              padding: 0.3em 0.4em;
+            }
+          '';
+        };
         swayWorkspaces = {
           name = "sway/workspaces";
           placement = "modules-left";
@@ -191,6 +210,7 @@ mkFeature {
         battery
         pulseaudio
         swayLanguage
+        tray
         clock
         swaync
       ];
@@ -236,14 +256,13 @@ mkFeature {
           inherit package;
           enable = true;
           systemd.enable = true;
-          settings.primary =
-            {
-              inherit height;
-              layer = "top";
-              position = "top";
-            }
-            // (lib.optionalAttrs (output != [ ]) { inherit output; })
-            // extraSettings;
+          settings.primary = {
+            inherit height;
+            layer = "top";
+            position = "top";
+          }
+          // (lib.optionalAttrs (output != [ ]) { inherit output; })
+          // extraSettings;
           style =
             with config.ordenada.features.theme.scheme.withHashtag; # css
             ''

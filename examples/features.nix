@@ -12,6 +12,9 @@
     # shell
     bash.enable = true;
 
+    # terminal
+    alacritty.enable = true;
+
     # system
     keyboard.enable = true;
     networking.enable = true;
@@ -73,6 +76,9 @@
     lisp.enable = true;
     javascript.enable = true;
     nix.enable = true;
+    json.enable = true;
+    yaml.enable = true;
+    markdown.enable = true;
 
     # development
     compile.enable = true;
@@ -81,6 +87,11 @@
     # wm
     sway.enable = true;
     waybar.enable = true;
+    bemenu.enable = true;
+    rofi = {
+      enable = true;
+      enableLauncher = false;
+    };
 
     # video
     mpv.enable = true;

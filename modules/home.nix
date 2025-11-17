@@ -44,6 +44,7 @@ mkFeature {
         (lib.mkIf (autoStartWmOnTty != null) ''
           [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.apps.wm}
         '');
+      i18n.defaultLocale = config.ordenada.features.userInfo.locale;
     };
   homeManager =
     { config, ... }:

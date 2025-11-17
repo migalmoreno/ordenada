@@ -8,12 +8,19 @@
 mkFeature {
   name = "password-store";
   options =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     {
-      package = lib.mkOption {
+      package = let
+        passPkg = if (config.ordenada.globals.wayland == null) then "pass" else "pass-wayland";
+      in lib.mkOption {
         type = lib.types.package;
-        default = pkgs.pass-wayland.withExtensions (exts: [ exts.pass-otp ]);
+        default = pkgs.${passPkg}.withExtensions (exts: [ exts.pass-otp ]);
         description = "The package to use for password-store.";
+      };
+      storeDir = lib.mkOption {
+        type = lib.types.str;
+        default = "${config.ordenada.features.xdg.baseDirs.stateHome}/password-store";
+        description = "The directory used for storing passwords.";
       };
     };
   homeManager =
@@ -23,7 +30,7 @@ mkFeature {
         enable = true;
         package = config.ordenada.features.password-store.package;
         settings = {
-          PASSWORD_STORE_DIR = "${config.ordenada.features.xdg.baseDirs.stateHome}/password-store";
+          PASSWORD_STORE_DIR = config.ordenada.features.password-store.storeDir;
         };
       };
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
