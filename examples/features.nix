@@ -76,6 +76,9 @@
     lisp.enable = true;
     javascript.enable = true;
     nix.enable = true;
+    json.enable = true;
+    yaml.enable = true;
+    markdown.enable = true;
 
     # development
     compile.enable = true;
@@ -84,7 +87,7 @@
     # wm
     sway.enable = true;
     waybar.enable = true;
-    bemenu.enable = true;
+    #bemenu.enable = true;
     rofi.enable = true;
 
     # video
