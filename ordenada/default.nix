@@ -65,9 +65,10 @@ in
           type = types.listOf types.str;
           description = "List of applications that should be started once the WM launches.";
           default = [ ];
+        };
         platform = mkOption {
           type = types.nullOr types.str;
-          description = "The host platform. Will be either `nixos`, `darwin` or `wsl`.";
+          description = "The host platform. Will be either `nixos` or `darwin`.";
           default = null;
         };
       };
@@ -77,6 +78,7 @@ in
         nixosModules.ordenada = {
           imports = ordenada-lib.getClassModules "nixos" config.ordenada.modules;
           options.ordenada.globals = globals;
+          config.ordenada.globals.platform = "nixos";
         };
         homeModules.ordenada = moduleWithSystem (
           { system, ... }:
@@ -96,6 +98,7 @@ in
         darwinModules.ordenada = {
           imports = ordenada-lib.getClassModules "darwin" config.ordenada.modules;
           options.ordenada.globals = globals;
+          config.ordenada.globals.platform = "darwin";
         };
         modules = ordenada-lib.transpose config.ordenada.modules;
       };
