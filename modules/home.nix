@@ -26,6 +26,18 @@ mkFeature {
     { config, ... }:
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
+      home-manager.useGlobalPkgs = true;
+      home-manager.useUserPackages = true;
+      home-manager.backupFileExtension = "backup";
+      home-manager.sharedModules = lib.mkMerge [
+        [
+          (lib.mkIf config.ordenada.features.home.applyFeaturesToAll {
+            ordenada.features = config.ordenada.features;
+          })
+          {
+          }
+        ]
+      ];
     };
   nixos =
     { config, ... }:
