@@ -66,6 +66,17 @@ mkFeature {
         };
       };
     };
+  darwin =
+    { config, ... }:
+    {
+      ordenada.globals.platform = "darwin";
+      users.users = with config.ordenada.features.userInfo; {
+        ${username} = {
+          home = homeDirectory;
+          description = fullName;
+        };
+      };
+    };
   homeManager =
     { config, ... }:
     {
