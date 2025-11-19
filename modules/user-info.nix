@@ -56,7 +56,6 @@ mkFeature {
   nixos =
     { config, ... }:
     {
-      ordenada.globals.platform = "nixos";
       users.users = with config.ordenada.features.userInfo; {
         ${username} = {
           inherit extraGroups;
@@ -69,7 +68,6 @@ mkFeature {
   darwin =
     { config, ... }:
     {
-      ordenada.globals.platform = "darwin";
       users.users = with config.ordenada.features.userInfo; {
         ${username} = {
           home = homeDirectory;
