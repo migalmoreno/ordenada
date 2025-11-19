@@ -15,7 +15,7 @@ mkFeature {
   globals =
     { config, ... }:
     {
-      apps.shell = "${config.ordenada.features.bash.package}/bin/bash";
+      apps.shell = lib.mkIf config.ordenada.features.bash.enable "${config.ordenada.features.bash.package}/bin/bash";
     };
   homeManager =
     { config, pkgs, ... }:
