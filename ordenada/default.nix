@@ -65,6 +65,10 @@ in
           type = types.listOf types.str;
           description = "List of applications that should be started once the WM launches.";
           default = [ ];
+        platform = mkOption {
+          type = types.nullOr types.str;
+          description = "The host platform. Will be either `nixos`, `darwin` or `wsl`.";
+          default = null;
         };
       };
     in
