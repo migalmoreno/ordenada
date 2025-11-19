@@ -34,8 +34,6 @@ mkFeature {
           (lib.mkIf config.ordenada.features.home.applyFeaturesToAll {
             ordenada.features = config.ordenada.features;
           })
-          {
-          }
         ]
       ];
     };
@@ -65,9 +63,12 @@ mkFeature {
     };
   homeManager =
     { config, ... }:
+    let
+      dotProfile = if config.ordenada.globals.platform == "darwin" then ".zprofile" else ".profile";
+    in
     {
       programs.home-manager.enable = true;
-      home.file.".profile" = lib.mkIf (config.ordenada.globals.apps.shell == null) {
+      home.file.${dotProfile} = lib.mkIf (config.ordenada.globals.apps.shell == null) {
         text = ''
           . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
         '';
