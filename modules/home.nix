@@ -22,6 +22,11 @@ mkFeature {
         type = lib.types.bool;
       };
     };
+  darwin =
+    { config, ... }:
+    {
+      imports = [ inputs.home-manager.darwinModules.home-manager ];
+    };
   nixos =
     { config, ... }:
     {
