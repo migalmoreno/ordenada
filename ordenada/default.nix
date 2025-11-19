@@ -87,12 +87,14 @@ in
               pkgs = null;
               nurpkgs = import inputs.nixpkgs { system = "x86_64-linux"; };
             };
+            platform = if (lib.strings.hasInfix "darwin" system) then "darwin" else "nixos";
           in
           {
             imports = ordenada-lib.getClassModules "homeManager" config.ordenada.modules ++ [
               nur-no-pkgs.repos.rycee.hmModules.emacs-init
             ];
             options.ordenada.globals = globals;
+            config.ordenada.globals.platform = platform;
           }
         );
         darwinModules.ordenada = {
