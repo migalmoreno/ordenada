@@ -53,6 +53,7 @@ mkFeature {
   nixos =
     { config, ... }:
     {
+      ordenada.globals.platform = "nixos";
       users.users = with config.ordenada.features.userInfo; {
         ${username} = {
           inherit extraGroups;
