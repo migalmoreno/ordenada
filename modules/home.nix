@@ -5,6 +5,20 @@
   ...
 }:
 
+let
+  commonHmOptions = config: {
+    home-manager.useGlobalPkgs = true;
+    home-manager.useUserPackages = true;
+    home-manager.backupFileExtension = "backup";
+    home-manager.sharedModules = lib.mkMerge [
+      [
+        (lib.mkIf config.ordenada.features.home.applyFeaturesToAll {
+          ordenada.features = config.ordenada.features;
+        })
+      ]
+    ];
+  };
+in
 mkFeature {
   name = "home";
   options =
@@ -26,41 +40,18 @@ mkFeature {
     { config, ... }:
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.backupFileExtension = "backup";
-      home-manager.sharedModules = lib.mkMerge [
-        [
-          (lib.mkIf config.ordenada.features.home.applyFeaturesToAll {
-            ordenada.features = config.ordenada.features;
-          })
-        ]
-      ];
-    };
+    } // commonHmOptions config;
   nixos =
     { config, ... }:
     {
       imports = [ inputs.home-manager.nixosModules.home-manager ];
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.backupFileExtension = "backup";
-      home-manager.sharedModules = lib.mkMerge [
-        [
-          (lib.mkIf config.ordenada.features.home.applyFeaturesToAll {
-            ordenada.features = config.ordenada.features;
-          })
-          {
-            targets.genericLinux.enable = true;
-          }
-        ]
-      ];
       environment.loginShellInit =
         with config.ordenada.features.home;
         (lib.mkIf (autoStartWmOnTty != null) ''
           [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.apps.wm}
         '');
       i18n.defaultLocale = config.ordenada.features.userInfo.locale;
-    };
+    } // commonHmOptions config;
   homeManager =
     { config, ... }:
     let
