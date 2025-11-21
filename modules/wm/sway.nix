@@ -8,7 +8,9 @@
 mkFeature {
   name = "sway";
   options =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
+    with config.ordenada.globals;
+    with config.ordenada.features.xdg;
     let
       inherit (lib) mkOption mkPackageOption types;
     in
@@ -41,6 +43,18 @@ mkFeature {
       };
       extraKeybindings = mkOption {
         type = ordenada-lib.types.fnOrAttrs;
+        apply =
+          x:
+          ordenada-lib.getFnOrAttrsValue x (
+            apps
+            // {
+              modifier = modifier;
+              right = right;
+              left = left;
+              down = down;
+              up = up;
+            }
+          );
         description = "Extra Sway keybindings.";
         default = { };
       };
@@ -62,7 +76,12 @@ mkFeature {
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
   };
   homeManager =
-    { config, lib, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     {
       programs.swayr = {
         enable = true;
@@ -92,14 +111,13 @@ mkFeature {
             inherit modifier;
             defaultWorkspace = "workspace number 1";
             input = with config.ordenada.features.keyboard.layout; {
-              "type:keyboard" =
-                {
-                  xkb_layout = name;
-                  xkb_options = lib.strings.concatStringsSep "," options;
-                }
-                // (lib.optionalAttrs (variant != "") {
-                  xkb_variant = variant;
-                });
+              "type:keyboard" = {
+                xkb_layout = name;
+                xkb_options = lib.strings.concatStringsSep "," options;
+              }
+              // (lib.optionalAttrs (variant != "") {
+                xkb_variant = variant;
+              });
               "type:touchpad" = {
                 dwt = "enabled";
                 tap = "enabled";
@@ -166,7 +184,10 @@ mkFeature {
             };
             gaps.inner = 12;
             bars = [ ];
-            startup = map (x: { command = x; always = true; }) config.ordenada.globals.autoloads;
+            startup = map (x: {
+              command = x;
+              always = true;
+            }) config.ordenada.globals.autoloads;
             up = up;
             down = down;
             left = left;
@@ -186,16 +207,7 @@ mkFeature {
                 // lib.optionalAttrs (apps.passwordManager != null) {
                   "${modifier}+p" = "exec ${apps.passwordManager}";
                 }
-                // ordenada-lib.mkKeybindings extraKeybindings (
-                  apps
-                  // {
-                    modifier = modifier;
-                    right = right;
-                    left = left;
-                    down = down;
-                    up = up;
-                  }
-                )
+                // extraKeybindings
               );
           } extraConfig;
       };
