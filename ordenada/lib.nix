@@ -16,9 +16,9 @@
         check = x: builtins.isFunction x || builtins.isAttrs x;
       };
     };
-    mkKeybindings =
-      bindings: optionalArgs:
-      if (builtins.isFunction bindings) then (bindings optionalArgs) else bindings;
+    getFnOrAttrsValue =
+      fnOrAttrSet: optionalArgs:
+      if (builtins.isFunction fnOrAttrSet) then (fnOrAttrSet optionalArgs) else fnOrAttrSet;
     mkEnableTrueOption =
       name:
       lib.mkOption {
@@ -103,6 +103,9 @@
           inherit earlyInit;
         };
       });
+    str = {
+      capitalize = s: (lib.toUpper (lib.substring 0 1 s)) + (lib.substring 1 (lib.stringLength s - 1) s);
+    };
     lisp = rec {
       toVal =
         v:
