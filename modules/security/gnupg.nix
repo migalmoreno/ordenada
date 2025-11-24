@@ -14,7 +14,8 @@ mkFeature {
       pinentryPackage = mkOption {
         type = types.nullOr types.package;
         description = "The package for pinentry input.";
-        default = pkgs.pinentry-qt;
+        default =
+          if (config.ordenada.globals.platform == "darwin") then pkgs.pinentry_mac else pkgs.pinentry-qt;
       };
       defaultTtl = mkOption {
         type = types.int;
