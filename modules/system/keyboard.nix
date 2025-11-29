@@ -41,6 +41,6 @@ mkFeature {
   nixos =
     { config, ... }:
     {
-      console.keyMap = config.ordenada.features.keyboard.layout.name;
+      console.keyMap = builtins.elemAt (lib.splitString "," config.ordenada.features.keyboard.layout.name) 0;
     };
 }
