@@ -14,7 +14,7 @@ mkFeature {
   options = {
     routers = lib.mkOption {
       type = lib.types.listOf lib.types.attrs;
-      description = "A list of nx-router routes.";
+      description = "A list of nx-router routers.";
       example = [
         {
           name = "google";
