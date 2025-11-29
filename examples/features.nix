@@ -79,6 +79,7 @@
     json.enable = true;
     yaml.enable = true;
     markdown.enable = true;
+    python.enable = true;
 
     # development
     compile.enable = true;
