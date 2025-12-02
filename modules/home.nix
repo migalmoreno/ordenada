@@ -40,6 +40,7 @@ mkFeature {
     { config, ... }:
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
+      home-manager.targets.darwin.linkApps.enable = true;
     } // commonHmOptions config;
   nixos =
     { config, ... }:
