@@ -24,7 +24,6 @@
       url = "github:nix-giant/nix-darwin-emacs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    mac-app-util.url = "github:hraban/mac-app-util";
   };
   outputs =
     inputs@{ flake-parts, ... }:
