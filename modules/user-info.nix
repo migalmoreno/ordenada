@@ -68,6 +68,10 @@ mkFeature {
   darwin =
     { config, ... }:
     {
+         environment.variables = lib.mkIf (config.ordenada.features.userInfo.locale != null) {
+            LANG = config.ordenada.features.userInfo.locale;
+            LC_ALL = config.ordenada.features.userInfo.locale;
+          };
       users.users = with config.ordenada.features.userInfo; {
         ${username} = {
           home = homeDirectory;
