@@ -55,6 +55,13 @@ in
             description = "The system wide used bar.";
             default = null;
           };
+          emacs = {
+            exec-path = lib.mkOption {
+              type = types.listOf types.str;
+              description = "List of environment variable names which to expose to emacs.";
+              default = [ ];
+            };
+          };
         };
         wayland = mkOption {
           type = types.nullOr types.bool;

@@ -53,6 +53,15 @@ mkFeature {
         ];
       };
     };
+  globals =
+    { config, ... }:
+    {
+      apps.emacs.exec-path = lib.mkIf (config.ordenada.features.emacs.exec-path.enable) [
+        "LANG"
+        "LC_ALL"
+        "LC_TYPE"
+      ];
+    };
   nixos =
     { config, ... }:
     {

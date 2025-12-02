@@ -20,6 +20,14 @@ mkFeature {
       default = [ ];
     };
   };
+  globals =
+    { config, ... }:
+    {
+      apps.emacs.exec-path = lib.mkIf (config.ordenada.features.emacs.exec-path.enable) [
+        "SSH_AUTH_SOCK"
+        "SSH_AGENT_PID"
+      ];
+    };
   homeManager =
     { config, ... }:
     {

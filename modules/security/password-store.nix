@@ -23,6 +23,11 @@ mkFeature {
         description = "The directory used for storing passwords.";
       };
     };
+  globals =
+    { config, ... }:
+    {
+      apps.emacs.exec-path = lib.mkIf (config.ordenada.features.emacs.exec-path.enable) ["PASSWORD_STORE_DIR"];
+    };
   homeManager =
     { config, pkgs, ... }:
     lib.mkIf (!config.ordenada.features.passage.enable) {

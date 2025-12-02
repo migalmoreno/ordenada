@@ -28,6 +28,14 @@ mkFeature {
         description = "The directory used for GnuPG.";
       };
     };
+  globals =
+    { config, ... }:
+    {
+      apps.emacs.exec-path = lib.mkIf (config.ordenada.features.emacs.exec-path.enable) [
+        "GPG_AGENT_INFO"
+        "GNUPGHOME"
+      ];
+    };
   homeManager =
     { config, ... }:
     {
