@@ -60,6 +60,7 @@ mkFeature {
     in
     {
       programs.home-manager.enable = true;
+      targets.genericLinux.enable = lib.mkIf (config.ordenada.globals.platform == "nixos") true;
       home.file.${dotProfile} = lib.mkIf (config.ordenada.globals.apps.shell == null) {
         text = ''
           . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
