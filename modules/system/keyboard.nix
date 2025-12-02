@@ -30,6 +30,13 @@ mkFeature {
       };
     };
   };
+  darwin =
+    { config, ... }:
+    with config.ordenada.features.keyboard;
+    {
+      system.keyboard.enableKeyMapping = true;
+      system.keyboard.remapCapsLockToControl = builtins.elem "ctrl:nocaps" layout.options;
+    };
   homeManager =
     { config, ... }:
     {
