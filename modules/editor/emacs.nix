@@ -8,7 +8,7 @@
 mkFeature {
   name = "emacs";
   options =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     let
       inherit (lib)
         mkEnableOption
@@ -16,9 +16,12 @@ mkFeature {
         mkPackageOption
         types
         ;
+
+      platformPackage =
+        if (config.ordenada.globals.platform == "nixos") then "emacs30-pgtk" else "emacs-30";
     in
     {
-      package = mkPackageOption pkgs "emacs" { default = "emacs30-pgtk"; };
+      package = mkPackageOption pkgs "emacs" { default = platformPackage; };
       advancedUser = mkEnableOption "advanced user mode for Emacs features";
       defaultThemes = mkOption {
         type = types.attrs;
