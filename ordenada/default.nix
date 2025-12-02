@@ -101,6 +101,9 @@ in
           imports = ordenada-lib.getClassModules "darwin" config.ordenada.modules;
           options.ordenada.globals = globals;
           config.ordenada.globals.platform = "darwin";
+          config.nixpkgs.overlays = [
+            inputs.emacs-darwin.overlays.emacs
+          ];
         };
         modules = ordenada-lib.transpose config.ordenada.modules;
       };
