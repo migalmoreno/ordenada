@@ -17,6 +17,7 @@ mkFeature {
         types
         ;
 
+      ## TODO: [DARWIN] Emacs doesn't display emojis correctly (wrong font)
       platformPackage =
         if (config.ordenada.globals.platform == "nixos") then "emacs30-pgtk" else "emacs-30";
     in
