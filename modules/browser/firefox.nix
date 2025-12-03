@@ -18,7 +18,7 @@ mkFeature {
         ;
     in
     {
-      package = mkPackageOption pkgs "firefox-wayland" { };
+      package = mkPackageOption pkgs "firefox" { };
       defaultBrowser = mkEnableOption "using Firefox as your default browser";
       defaultSearchEngine = mkOption {
         type = types.str;
