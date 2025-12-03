@@ -38,21 +38,57 @@ mkFeature {
     };
   darwin =
     { config, ... }:
+    with config.ordenada;
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
       home-manager.targets.darwin.linkApps.enable = true;
-    } // commonHmOptions config;
+
+      users.users.${features.userInfo.username}.shell = lib.mkIf (
+        globals.apps.shell != null
+      ) globals.apps.shell;
+      environment.shells = lib.mkIf (globals.apps.shell != null) [
+        globals.apps.shell
+      ];
+
+      ## MacOS doesn't allow nix to change the shell of the users
+      ## if the user itself wasn't created by nix (which it most
+      ## likely wasn't). We therefore set up a launch daemon that
+      ## will force (using `chsh`) the correct shell for the user
+      ## every time we switch (`/bin/zsh` is the default shell).
+      launchd.daemons.defaultShell = {
+        ## needs access to mac system apps
+        path = [
+          "/bin"
+          "/usr/bin"
+          "/usr/local/bin"
+        ];
+        serviceConfig.RunAtLoad = true;
+        serviceConfig.UserName = "root";
+        script = with config.ordenada; ''
+          chsh -s ${
+            if globals.apps.shell != null then globals.apps.shell else "/bin/zsh"
+          } ${features.userInfo.username}
+        '';
+      };
+    }
+    // commonHmOptions config;
   nixos =
     { config, ... }:
     {
       imports = [ inputs.home-manager.nixosModules.home-manager ];
+      environment.shells =
+        with config.ordenada.globals;
+        lib.mkIf (apps.shell != null) [
+          apps.shell
+        ];
       environment.loginShellInit =
         with config.ordenada.features.home;
         (lib.mkIf (autoStartWmOnTty != null) ''
           [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.apps.wm}
         '');
       i18n.defaultLocale = config.ordenada.features.userInfo.locale;
-    } // commonHmOptions config;
+    }
+    // commonHmOptions config;
   homeManager =
     { config, ... }:
     let
