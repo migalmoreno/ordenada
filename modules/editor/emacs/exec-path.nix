@@ -22,7 +22,7 @@ mkFeature {
           ''
             (require 'exec-path-from-shell)
               (dolist (var
-              '(
+              '("EDITOR"
                 "SUDO_ASKPASS"
                 "NIX_SSL_CERT_FILE"
                 ${listToLines config.ordenada.globals.apps.emacs.exec-path}
