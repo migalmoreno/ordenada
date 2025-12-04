@@ -65,6 +65,22 @@ mkFeature {
         default = config.ordenada.globals.platform == "darwin";
       };
     };
+  globals =
+    { config, ... }:
+    {
+      apps.emacs.exec-path = lib.mkIf (config.ordenada.features.emacs.exec-path.enable) [
+        "XDG_CACHE_HOME"
+        "XDG_CONFIG_HOME"
+        "XDG_DATA_HOME"
+        "XDG_DOCUMENTS_DIR"
+        "XDG_DOWNLOAD_DIR"
+        "XDG_MUSIC_DIR"
+        "XDG_PICTURES_DIR"
+        "XDG_PUBLICSHARE_DIR"
+        "XDG_STATE_HOME"
+        "XDG_VIDEOS_DIR"
+      ];
+    };
   nixos =
     { config, pkgs, ... }:
     {
