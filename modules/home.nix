@@ -50,11 +50,12 @@ mkFeature {
         globals.apps.shell
       ];
 
-      ## MacOS doesn't allow nix to change the shell of the users
+      ## MacOS doesn't allow nix to change the shell of the user
       ## if the user itself wasn't created by nix (which it most
       ## likely wasn't). We therefore set up a launch daemon that
       ## will force (using `chsh`) the correct shell for the user
       ## every time we switch (`/bin/zsh` is the default shell).
+      ## TODO: [DARWIN] Document that this requires a relogin to fully work
       launchd.daemons.defaultShell = {
         ## needs access to mac system apps
         path = [
