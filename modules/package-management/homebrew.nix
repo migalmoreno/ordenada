@@ -17,6 +17,16 @@ mkFeature {
         description = "Additional repositories for homebrew to tap into.";
         default = [ ];
       };
+      packages = mkOption {
+        type = types.listOf types.str;
+        description = "List of applications to install using homebrew.";
+        default = [ ];
+      };
+      casks = mkOption {
+        type = types.listOf types.str;
+        description = "List of casks to install using homebrew.";
+        default = [ ];
+      };
       masPackages = mkOption {
         type = types.attrs;
         description = "Attribute set of apps to install from the Mac app store.";
@@ -49,7 +59,8 @@ mkFeature {
         enable = true;
         brews = [
           "mas"
-        ];
+        ] ++ features.homebrew.packages;
+        casks = features.homebrew.casks;
         taps = features.homebrew.repositories;
         masApps = features.homebrew.masPackages;
         onActivation.cleanup = "uninstall";
