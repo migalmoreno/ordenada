@@ -51,6 +51,9 @@ mkFeature {
       };
       autoUpdateBuffers = ordenada-lib.mkEnableTrueOption "automatically updating buffers";
     };
+  globals = {config, ...}: {
+    apps.editor = with config.ordenada.features.emacs; lib.mkIf defaultEditor "${package}/bin/emacs";
+  };
   homeManager =
     {
       config,
