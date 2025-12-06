@@ -102,9 +102,17 @@ mkFeature {
           on-focused-monitor-changed = [ "move-mouse monitor-lazy-center" ];
           automatically-unhide-macos-hidden-apps = true;
 
-          gaps.inner = {
-            horizontal = 12;
-            vertical = 12;
+          gaps = {
+            inner = {
+              horizontal = 12;
+              vertical = 12;
+            };
+            outer = {
+              left = 12;
+              right = 12;
+              top = 12;
+              bottom = 12;
+            };
           };
 
           persistent-workspaces = [
