@@ -27,6 +27,10 @@
         description = "Whether to enable ${name}.";
         type = lib.types.bool;
       };
+    mkLiteral = value: {
+      _type = "literal";
+      inherit value;
+    };
     transposeChild = child: parent: value: {
       ${parent} = {
         ${child} = value;
