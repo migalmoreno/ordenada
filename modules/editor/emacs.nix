@@ -62,7 +62,7 @@ mkFeature {
       ordenada.features.emacs.extraConfig =
         with config.ordenada.features.userInfo;
         "(setenv \"PATH\" \"${
-          builtins.replaceStrings [ "$HOME" "$USER" ] [ username homeDirectory ] config.environment.systemPath
+          builtins.replaceStrings [ "$USER" "$HOME" ] [ username homeDirectory ] config.environment.systemPath
         }\")";
     };
   homeManager =
