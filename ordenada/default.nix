@@ -40,6 +40,11 @@ in
             description = "The system wide used terminal.";
             default = null;
           };
+          editor = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used editor.";
+            default = null;
+          };
           launcher = mkOption {
             type = types.nullOr types.str;
             description = "The system wide used application launcher.";
