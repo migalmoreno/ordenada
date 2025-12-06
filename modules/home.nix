@@ -6,6 +6,7 @@
 }:
 
 let
+  inherit (lib) mkIf mkOption types;
   commonHmOptions = config: {
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
@@ -24,16 +25,22 @@ mkFeature {
   options =
     { config, ... }:
     {
-      autoStartWmOnTty = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
+      autoStartWmOnTty = mkOption {
+        type = types.nullOr types.str;
         description = "The tty to launch the WM in.";
         default = null;
       };
-      applyFeaturesToAll = lib.mkOption {
+      primaryUser = mkOption {
+        default = types.bool;
+        example = false;
+        description = "Whether this is the primary user of the system.";
+        type = types.bool;
+      };
+      applyFeaturesToAll = mkOption {
         default = config.ordenada.features.home.enable;
         example = true;
         description = "Whether to apply all host features to all Home Manager configurations.";
-        type = lib.types.bool;
+        type = types.bool;
       };
     };
   darwin =
@@ -41,12 +48,13 @@ mkFeature {
     with config.ordenada;
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
-      home-manager.targets.darwin.linkApps.enable = true; ## TODO: This requires state version 25.11
+      home-manager.targets.darwin.linkApps.enable = true; # # TODO: This requires state version 25.11
+      system.primaryUser = mkIf features.home.primaryUser features.userInfo.username;
 
-      users.users.${features.userInfo.username}.shell = lib.mkIf (
+      users.users.${features.userInfo.username}.shell = mkIf (
         globals.apps.shell != null
       ) globals.apps.shell;
-      environment.shells = lib.mkIf (globals.apps.shell != null) [
+      environment.shells = mkIf (globals.apps.shell != null) [
         globals.apps.shell
       ];
 
@@ -79,12 +87,12 @@ mkFeature {
       imports = [ inputs.home-manager.nixosModules.home-manager ];
       environment.shells =
         with config.ordenada.globals;
-        lib.mkIf (apps.shell != null) [
+        mkIf (apps.shell != null) [
           apps.shell
         ];
       environment.loginShellInit =
         with config.ordenada.features.home;
-        (lib.mkIf (autoStartWmOnTty != null) ''
+        (mkIf (autoStartWmOnTty != null) ''
           [[ $(tty) == ${autoStartWmOnTty} ]] && exec ${config.ordenada.globals.apps.wm}
         '');
       i18n.defaultLocale = config.ordenada.features.userInfo.locale;
@@ -97,8 +105,8 @@ mkFeature {
     in
     {
       programs.home-manager.enable = true;
-      targets.genericLinux.enable = lib.mkIf (config.ordenada.globals.platform == "nixos") true;
-      home.file.${dotProfile} = lib.mkIf (config.ordenada.globals.apps.shell == null) {
+      targets.genericLinux.enable = mkIf (config.ordenada.globals.platform == "nixos") true;
+      home.file.${dotProfile} = mkIf (config.ordenada.globals.apps.shell == null) {
         text = ''
           . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
         '';
