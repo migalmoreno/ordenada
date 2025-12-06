@@ -50,7 +50,6 @@ mkFeature {
       features = config.ordenada.features;
     in
     {
-      system.primaryUser = features.userInfo.username; # NOTE: Is required for homebrew to work
       environment.systemPath = [
         "/opt/homebrew/bin"
         "/opt/homebrew/sbin"
