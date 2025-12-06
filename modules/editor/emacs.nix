@@ -56,6 +56,15 @@ mkFeature {
     {
       apps.editor = with config.ordenada.features.emacs; lib.mkIf defaultEditor "${package}/bin/emacs";
     };
+  darwin =
+    { config, ... }:
+    {
+      ordenada.features.emacs.extraConfig =
+        with config.ordenada.features.userInfo;
+        "(setenv \"PATH\" \"${
+          builtins.replaceStrings [ "$HOME" "$USER" ] [ username homeDirectory ] config.environment.systemPath
+        }\")";
+    };
   homeManager =
     {
       config,
