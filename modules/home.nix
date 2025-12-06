@@ -41,7 +41,7 @@ mkFeature {
     with config.ordenada;
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
-      home-manager.targets.darwin.linkApps.enable = true;
+      home-manager.targets.darwin.linkApps.enable = true; ## TODO: This requires state version 25.11
 
       users.users.${features.userInfo.username}.shell = lib.mkIf (
         globals.apps.shell != null
