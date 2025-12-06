@@ -46,6 +46,17 @@ mkFeature {
   darwin =
     { config, ... }:
     with config.ordenada;
+    let
+      hmVars = config.home-manager.users.${features.userInfo.username}.home.sessionVariables;
+      systemPath = config.environment.systemPath;
+      fullList = hmVars // {
+        EDITOR = config.ordenada.globals.apps.editor;
+      };
+
+      setEnvScript = lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (name: value: "launchctl setenv ${name} \"${value}\"") fullList
+      );
+    in
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
       home-manager.targets.darwin.linkApps.enable = true; # # TODO: This requires state version 25.11
@@ -57,6 +68,20 @@ mkFeature {
       environment.shells = mkIf (globals.apps.shell != null) [
         globals.apps.shell
       ];
+
+      launchd.user.agents.setupEnv = {
+        ## needs access to mac system apps
+        path = [
+          "/bin"
+          "/usr/bin"
+          "/usr/local/bin"
+        ];
+        serviceConfig.RunAtLoad = true;
+        serviceConfig.UserName = features.userInfo.username;
+        script = ''
+          ${setEnvScript}
+        '';
+      };
 
       ## MacOS doesn't allow nix to change the shell of the user
       ## if the user itself wasn't created by nix (which it most
