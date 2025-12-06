@@ -1,10 +1,12 @@
-{ lib, mkFeature, ... }:
+{
+  lib,
+  mkFeature,
+  ordenada-lib,
+  ...
+}:
 
 let
-  mkLiteral = value: {
-    _type = "literal";
-    inherit value;
-  };
+  inherit (ordenada-lib) mkLiteral;
   mkTheme = config: {
     "*" = with config.ordenada.features.theme.scheme.withHashtag; {
       border = 0;
@@ -194,42 +196,45 @@ mkFeature {
           let
             backend = if config.ordenada.globals.wayland then "wtype" else "xdotool";
             clipboardBackend = if config.ordenada.globals.wayland then "wl-clipboard" else "xclip";
-      imageViewer =
-        if (config.ordenada.globals.wayland == null) then "${pkgs.feh}/bin/feh" else "${pkgs.swayimg}/bin/swayimg";
+            imageViewer =
+              if (config.ordenada.globals.wayland == null) then
+                "${pkgs.feh}/bin/feh"
+              else
+                "${pkgs.swayimg}/bin/swayimg";
           in
           ''
-            _image_viewer () {
-              ${imageViewer} -
-            }
-            _pwgen () {
-	      ${pkgs.pwgen}/bin/pwgen -y "$@"
-            }
-            _rofi () {
-              ${config.ordenada.globals.apps.launcher} -i -no-auto-select "$@"
-            }
+                        _image_viewer () {
+                          ${imageViewer} -
+                        }
+                        _pwgen () {
+            	      ${pkgs.pwgen}/bin/pwgen -y "$@"
+                        }
+                        _rofi () {
+                          ${config.ordenada.globals.apps.launcher} -i -no-auto-select "$@"
+                        }
 
-            default_do='copyMenu'
+                        default_do='copyMenu'
 
-            autotype="Alt+1"
-            type_user="Alt+2"
-            type_pass="Alt+3"
-            open_url="Alt+4"
-            copy_name="Alt+u"
-            copy_url="Alt+l"
-            copy_pass="Alt+y"
-            insert_pass="Alt+Y"
-            show="Alt+o"
-            copy_entry="Alt+2"
-            type_entry="Alt+1"
-            copy_menu="Alt+c"
-            action_menu="Alt+a"
-            type_menu="Alt+t"
-            help="Alt+h"
-            switch="Alt+x"
+                        autotype="Alt+1"
+                        type_user="Alt+2"
+                        type_pass="Alt+3"
+                        open_url="Alt+4"
+                        copy_name="Alt+u"
+                        copy_url="Alt+l"
+                        copy_pass="Alt+y"
+                        insert_pass="Alt+Y"
+                        show="Alt+o"
+                        copy_entry="Alt+2"
+                        type_entry="Alt+1"
+                        copy_menu="Alt+c"
+                        action_menu="Alt+a"
+                        type_menu="Alt+t"
+                        help="Alt+h"
+                        switch="Alt+x"
 
-            clip=both
-            backend=${backend}
-            clipboard_backend=${clipboardBackend}
+                        clip=both
+                        backend=${backend}
+                        clipboard_backend=${clipboardBackend}
           '';
       })
     ];
