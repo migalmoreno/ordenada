@@ -65,6 +65,12 @@ mkFeature {
         globals.apps.shell
       ];
 
+      ## NOTE: On macOS, apps started from the GUI (Spotlight, Finder, ...)
+      ##       Do not inherit the environment variables in .profile or
+      ##       similar. This launchd agent fixes that and ensures that
+      ##       these applications also inherit all the session variables
+      ##       we set.
+      ## TODO: Document this.
       launchd.user.agents.setupEnv = {
         ## needs access to mac system apps
         path = [
@@ -79,12 +85,20 @@ mkFeature {
         '';
       };
 
-      ## MacOS doesn't allow nix to change the shell of the user
-      ## if the user itself wasn't created by nix (which it most
-      ## likely wasn't). We therefore set up a launch daemon that
-      ## will force (using `chsh`) the correct shell for the user
-      ## every time we switch (`/bin/zsh` is the default shell).
-      ## TODO: [DARWIN] Document that this requires a relogin to fully work
+      ## NOTE: However, due to security reasons, macOS does not allow
+      ##       mutating the PATH and SSH_AUTH_SOCK environment
+      ##       variables with disabling SIP, which we're not doing.
+      ##       We can remedy that by forcing the use of the exec-path
+      ##       feature on darwin.
+      ## TODO: Document this.
+      ordenada.features.emacs.exec-path.enable = true;
+
+      ## NOTE: macOS doesn't allow nix to change the shell of the user
+      ##       if the user itself wasn't created by nix (which it most
+      ##       likely wasn't). We therefore set up a launch daemon that
+      ##       will force (using `chsh`) the correct shell for the user
+      ##       every time we switch (`/bin/zsh` is the default shell).
+      ## TODO: Document that this requires a relogin to fully work
       launchd.daemons.defaultShell = {
         ## needs access to mac system apps
         path = [
