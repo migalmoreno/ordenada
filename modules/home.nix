@@ -44,17 +44,13 @@ mkFeature {
       };
     };
   darwin =
-    { config, ... }:
+    { config, pkgs, ... }:
     with config.ordenada;
     let
       hmVars = config.home-manager.users.${features.userInfo.username}.home.sessionVariables;
-      systemPath = config.environment.systemPath;
-      fullList = hmVars // {
-        EDITOR = config.ordenada.globals.apps.editor;
-      };
 
       setEnvScript = lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (name: value: "launchctl setenv ${name} \"${value}\"") fullList
+        lib.mapAttrsToList (name: value: "launchctl setenv ${name} \"${value}\"") hmVars
       );
     in
     {
