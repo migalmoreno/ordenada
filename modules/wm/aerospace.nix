@@ -136,10 +136,10 @@ mkFeature {
                 "${modifier}-enter" = "exec-and-forget ${terminal}";
               }
               // lib.optionalAttrs (launcher != null) {
-                "${modifier}-d" = "exec-and-forget ${launcher}";
+                "${modifier}-shift-d" = "exec-and-forget ${launcher}";
               }
               // lib.optionalAttrs (passwordManager != null) {
-                "${modifier}-p" = "exec-and-forget ${passwordManager}";
+                "${modifier}-shift-p" = "exec-and-forget ${passwordManager}";
               }
               // {
                 "${modifier}-shift-q" = "close";
@@ -154,17 +154,17 @@ mkFeature {
                 "${modifier}-shift-${up}" = "move up";
                 "${modifier}-shift-${right}" = "move right";
 
-                "${modifier}-b" = "join-with right";
-                "${modifier}-shift-b" = "join-with left";
-                "${modifier}-v" = "join-with down";
-                "${modifier}-shift-v" = "join-with up";
-                "${modifier}-f" = "fullscreen";
+                "${modifier}-shift-l" = "join-with right";
+                "${modifier}-shift-h" = "join-with left";
+                "${modifier}-shift-j" = "join-with down";
+                "${modifier}-shift-k" = "join-with up";
+                "${modifier}-shift-f" = "fullscreen";
 
-                "${modifier}-s" = "layout tiles horizontal vertical";
-                "${modifier}-w" = "layout accordion horizontal vertical";
+                "${modifier}-shift-s" = "layout tiles horizontal vertical";
+                "${modifier}-shift-w" = "layout accordion horizontal vertical";
                 "${modifier}-shift-space" = "layout tiling floating";
 
-                "${modifier}-r" = "mode resize";
+                "${modifier}-shift-r" = "mode resize";
 
                 "${modifier}-1" = "workspace 1";
                 "${modifier}-2" = "workspace 2";
