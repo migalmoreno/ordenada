@@ -51,7 +51,7 @@ mkFeature {
             (eval-when-compile
               (require 'modus-themes)
               (require 'cl-seq))
-            (require '${getTheme config}-theme)
+            (require 'modus-themes)
             (eval-when-compile
               (enable-theme '${getTheme config}))
             (defgroup ordenada-modus-themes nil
@@ -89,7 +89,7 @@ mkFeature {
             (defun ordenada-modus-themes-set-custom-faces (&optional _theme)
               "set faces based on the current theme."
               (interactive)
-              (when (modus-themes--current-theme)
+              (when (modus-themes-get-current-theme)
                 (modus-themes-with-colors
                   (custom-set-faces
                    `(window-divider ((,c :foreground ,bg-main)))
@@ -99,16 +99,16 @@ mkFeature {
                    `(tab-bar
                      ((,c :background ,bg-dim
                           :box (:line-width ,ordenada-modus-themes-tab-bar-padding
-            				:color ,bg-dim))))
+                			:color ,bg-dim))))
                    `(mode-line
                      ((,c :box (:line-width ,ordenada-modus-themes-mode-line-padding
-            				:color ,bg-mode-line-active))))
+                			:color ,bg-mode-line-active))))
                    `(mode-line-inactive
                      ((,c :box (:line-width ,ordenada-modus-themes-mode-line-padding
-            				:color ,bg-mode-line-inactive))))
+                			:color ,bg-mode-line-inactive))))
                    `(header-line
                      ((,c :box (:line-width ,ordenada-modus-themes-header-line-padding
-            				:color ,bg-dim))))
+                			:color ,bg-dim))))
                    `(git-gutter-fr:added
                      ((,c :foreground ,bg-added-fringe :background ,bg-main)))
                    `(git-gutter-fr:deleted
@@ -116,7 +116,9 @@ mkFeature {
                    `(git-gutter-fr:modified
                      ((,c :foreground ,bg-changed-fringe :background ,bg-main)))
                    `(aw-leading-char-face
-                     ((,c :height 1.0 :foreground ,blue-cooler)))))))
+                     ((,c :height 1.0 :foreground ,blue-cooler)))))
+                )
+              )
             ${lib.optionalString config.ordenada.features.emacs.appearance.enable ''
               (setopt ordenada-modus-themes-header-line-padding ${toString headerLinePadding})
               (setopt ordenada-modus-themes-tab-bar-padding ${toString tabBarPadding})
@@ -151,9 +153,9 @@ mkFeature {
                                                     (6 . (1.0))
                                                     (7 . (0.9))
                                                     (8 . (0.9))))))
-            (load-theme '${getTheme config} t)
+            (load-theme '${getTheme config} :no-confirm)
           '';
-        elispPackages = with pkgs.emacsPackages.elpaPackages; [
+        elispPackages = with pkgs.emacsPackages.melpaPackages; [
           modus-themes
         ];
       };
