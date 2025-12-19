@@ -159,11 +159,12 @@ mkFeature {
                 "${modifier}-shift-k" = "join-with up";
                 "${modifier}-shift-f" = "fullscreen";
 
-                "${modifier}-shift-s" = "layout tiles horizontal vertical";
-                "${modifier}-shift-w" = "layout accordion horizontal vertical";
+                "${modifier}-s" = "layout tiles horizontal vertical";
+                "${modifier}-w" = "layout accordion horizontal vertical";
+                ## TODO: Rebind to mod-space once we can remap cmd to ctrl
                 "${modifier}-shift-space" = "layout tiling floating";
 
-                "${modifier}-shift-r" = "mode resize";
+                "${modifier}-r" = "mode resize";
 
                 "${modifier}-1" = "workspace 1";
                 "${modifier}-2" = "workspace 2";
