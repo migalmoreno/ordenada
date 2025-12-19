@@ -6,7 +6,12 @@
 }:
 
 let
-  inherit (lib) mkIf mkOption types;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkOption
+    types
+    ;
   commonHmOptions = config: {
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
@@ -55,7 +60,7 @@ mkFeature {
     in
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
-      home-manager.targets.darwin.linkApps.enable = true; # # TODO: This requires state version 25.11
+      home-manager.targets.darwin.copyApps.enable = true;
       system.primaryUser = mkIf features.home.primaryUser features.userInfo.username;
 
       users.users.${features.userInfo.username}.shell = mkIf (
@@ -138,13 +143,21 @@ mkFeature {
     let
       dotProfile = if config.ordenada.globals.platform == "darwin" then ".zprofile" else ".profile";
     in
-    {
-      programs.home-manager.enable = true;
-      targets.genericLinux.enable = mkIf (config.ordenada.globals.platform == "nixos") true;
-      home.file.${dotProfile} = mkIf (config.ordenada.globals.apps.shell == null) {
-        text = ''
-          . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
-        '';
-      };
-    };
+    mkMerge [
+      (mkIf (config.ordenada.globals.platform == "darwin") {
+        targets.darwin = {
+          copyApps.enable = true;
+          linkApps.enable = false;
+        };
+      })
+      {
+        programs.home-manager.enable = true;
+        targets.genericLinux.enable = mkIf (config.ordenada.globals.platform == "nixos") true;
+        home.file.${dotProfile} = mkIf (config.ordenada.globals.apps.shell == null) {
+          text = ''
+            . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
+          '';
+        };
+      }
+    ];
 }
