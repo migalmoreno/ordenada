@@ -71,8 +71,7 @@ mkFeature {
   globals =
     { config, ... }:
     {
-      apps.wm = "${config.ordenada.features.sway.package}/bin/sway";
-      wayland = true;
+      apps.wm = "${config.ordenada.features.aerospace.package}/Applictions/AeroSpace.app";
     };
   homeManager =
     {
