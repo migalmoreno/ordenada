@@ -44,6 +44,7 @@ mkFeature {
         description = "The primary GnuPG key for this user.";
         default = null;
       };
+      ## TODO: Make it a list of strings to allow multiple? First one should be default?
       locale = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         description = "The locale used for this user.";
@@ -97,6 +98,7 @@ mkFeature {
         };
       }
       (mkIf (globals.platform == "darwin") {
+        ## TODO: Also set AppleLanguages?
         targets.darwin.defaults.NSGlobalDomain.AppleLocale =
           "${builtins.elemAt (lib.splitString "." features.userInfo.locale) 0}";
       })
