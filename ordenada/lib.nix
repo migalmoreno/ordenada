@@ -19,6 +19,14 @@
     getFnOrAttrsValue =
       fnOrAttrSet: optionalArgs:
       if (builtins.isFunction fnOrAttrSet) then (fnOrAttrSet optionalArgs) else fnOrAttrSet;
+    attrsToFlags =
+      {
+        separator ? "=",
+      }:
+      attrs:
+      builtins.concatStringsSep " " (
+        lib.mapAttrsToList (name: value: "--${name}${separator}${toString value}") attrs
+      );
     mkEnableTrueOption =
       name:
       lib.mkOption {
