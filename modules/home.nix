@@ -35,12 +35,15 @@ mkFeature {
         description = "The tty to launch the WM in.";
         default = null;
       };
-      primaryUser = mkOption {
-        default = types.bool;
-        example = false;
-        description = "Whether this is the primary user of the system.";
-        type = types.bool;
-      };
+      primaryUser =
+        let
+          isDarwin = config.ordenada.globals.platform == "darwin";
+        in
+        mkOption {
+          type = types.bool;
+          description = "Whether this is the primary user of the system.";
+          default = isDarwin;
+        };
       applyFeaturesToAll = mkOption {
         default = config.ordenada.features.home.enable;
         example = true;
