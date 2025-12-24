@@ -20,6 +20,10 @@
       url = "github:aartaka/nx-search-engines";
       flake = false;
     };
+    darwin = {
+      url = "github:lnl7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     emacs-darwin = {
       url = "github:nix-giant/nix-darwin-emacs";
       inputs.nixpkgs.follows = "nixpkgs";

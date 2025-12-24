@@ -38,6 +38,27 @@
         "type": "github"
       }
     },
+    "darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1766524813,
+        "narHash": "sha256-N/sxS27+t9nGvGWqwwAceSMW/Y5ddcypS/aiTnZ7ScA=",
+        "owner": "lnl7",
+        "repo": "nix-darwin",
+        "rev": "c2b36207f2c396c79dbed9d40536db221bd4e363",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lnl7",
+        "ref": "master",
+        "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
     "emacs-darwin": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -692,6 +713,7 @@
       "inputs": {
         "arkenfox-nixos": "arkenfox-nixos",
         "base16": "base16",
+        "darwin": "darwin",
         "emacs-darwin": "emacs-darwin",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
