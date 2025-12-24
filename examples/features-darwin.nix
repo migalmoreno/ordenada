@@ -1,6 +1,6 @@
 {
   ordenada.features = {
-    home.primaryUser = true;
     aerospace.enable = true;
+    homebrew.enable = true;
   };
 }

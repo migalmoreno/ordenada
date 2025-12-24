@@ -23,6 +23,7 @@
     # editor
     emacs = {
       enable = true;
+      exec-path.enable = true;
       keymaps.enable = true;
       appearance.enable = true;
       ace-window.enable = true;
