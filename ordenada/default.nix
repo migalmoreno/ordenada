@@ -40,6 +40,11 @@ in
             description = "The system wide used terminal.";
             default = null;
           };
+          editor = mkOption {
+            type = types.nullOr types.str;
+            description = "The system wide used editor.";
+            default = null;
+          };
           launcher = mkOption {
             type = types.nullOr types.str;
             description = "The system wide used application launcher.";
@@ -66,6 +71,11 @@ in
           description = "List of applications that should be started once the WM launches.";
           default = [ ];
         };
+        platform = mkOption {
+          type = types.nullOr types.str;
+          description = "The host platform. Will be either `nixos` or `darwin`.";
+          default = null;
+        };
       };
     in
     {
@@ -73,6 +83,7 @@ in
         nixosModules.ordenada = {
           imports = ordenada-lib.getClassModules "nixos" config.ordenada.modules;
           options.ordenada.globals = globals;
+          config.ordenada.globals.platform = "nixos";
         };
         homeModules.ordenada = moduleWithSystem (
           { system, ... }:
@@ -81,17 +92,23 @@ in
               pkgs = null;
               nurpkgs = import inputs.nixpkgs { system = "x86_64-linux"; };
             };
+            platform = if (lib.strings.hasInfix "darwin" system) then "darwin" else "nixos";
           in
           {
             imports = ordenada-lib.getClassModules "homeManager" config.ordenada.modules ++ [
               nur-no-pkgs.repos.rycee.hmModules.emacs-init
             ];
             options.ordenada.globals = globals;
+            config.ordenada.globals.platform = platform;
           }
         );
         darwinModules.ordenada = {
           imports = ordenada-lib.getClassModules "darwin" config.ordenada.modules;
           options.ordenada.globals = globals;
+          config.ordenada.globals.platform = "darwin";
+          config.nixpkgs.overlays = [
+            inputs.emacs-darwin.overlays.emacs
+          ];
         };
         modules = ordenada-lib.transpose config.ordenada.modules;
       };

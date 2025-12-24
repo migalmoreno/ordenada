@@ -23,6 +23,7 @@
     # editor
     emacs = {
       enable = true;
+      exec-path.enable = true;
       keymaps.enable = true;
       appearance.enable = true;
       ace-window.enable = true;
@@ -57,18 +58,6 @@
 
     # browser
     firefox.enable = true;
-    nyxt = {
-      enable = true;
-      defaultBrowser = true;
-      appearance.enable = true;
-      blocker.enable = true;
-      emacs.enable = true;
-      userscript.enable = true;
-      search-engines.enable = true;
-      router.enable = true;
-      tailor.enable = true;
-      mosaic.enable = true;
-    };
 
     # lang
     clojure.enable = true;
@@ -85,23 +74,10 @@
     compile.enable = true;
     direnv.enable = true;
 
-    # wm
-    sway.enable = true;
-    waybar.enable = true;
-    bemenu.enable = true;
-    rofi = {
-      enable = true;
-      enableLauncher = false;
-    };
-
     # video
-    mpv.enable = true;
     yt-dlp.enable = true;
 
     # torrent
     transmission.enable = true;
-
-    # scripts
-    scripts.screenshot.enable = true;
   };
 }

@@ -1,12 +1,17 @@
 { lib, mkFeature, ... }:
 
+let
+  inherit (lib)
+    mkIf
+    mkOption
+    mkMerge
+    types
+    ;
+in
 mkFeature {
   name = "userInfo";
   options =
     { config, ... }:
-    let
-      inherit (lib) mkOption types;
-    in
     {
       username = mkOption {
         type = types.str;
@@ -23,16 +28,23 @@ mkFeature {
         description = "Email of Ordenada user.";
         default = "";
       };
-      homeDirectory = mkOption {
-        type = types.str;
-        description = "Home directory of primary Ordenada user.";
-        default = "/home/${config.ordenada.features.userInfo.username}";
-      };
+      homeDirectory =
+        with config.ordenada.features.userInfo;
+        mkOption {
+          type = types.str;
+          description = "Home directory of primary Ordenada user.";
+          default =
+            if (config.ordenada.globals.platform == "darwin") then
+              "/Users/${username}"
+            else
+              "/home/${username}";
+        };
       gpgPrimaryKey = mkOption {
         type = types.nullOr types.str;
         description = "The primary GnuPG key for this user.";
         default = null;
       };
+      ## TODO: Make it a list of strings to allow multiple? First one should be default?
       locale = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         description = "The locale used for this user.";
@@ -62,11 +74,33 @@ mkFeature {
         };
       };
     };
-  homeManager =
+  darwin =
     { config, ... }:
+    with config.ordenada.features.userInfo;
     {
-      home = with config.ordenada.features.userInfo; {
-        inherit username homeDirectory;
+      environment.variables = lib.mkIf (locale != null) {
+        LANG = locale;
+      };
+      users.users = with config.ordenada.features.userInfo; {
+        ${username} = {
+          home = homeDirectory;
+          description = fullName;
+        };
       };
     };
+  homeManager =
+    { config, ... }:
+    with config.ordenada;
+    mkMerge [
+      {
+        home = with features.userInfo; {
+          inherit username homeDirectory;
+        };
+      }
+      (mkIf (globals.platform == "darwin") {
+        ## TODO: Also set AppleLanguages?
+        targets.darwin.defaults.NSGlobalDomain.AppleLocale =
+          "${builtins.elemAt (lib.splitString "." features.userInfo.locale) 0}";
+      })
+    ];
 }

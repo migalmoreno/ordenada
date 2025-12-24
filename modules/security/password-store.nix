@@ -10,8 +10,8 @@ mkFeature {
   options =
     { config, pkgs, ... }:
     {
-      package = let
-        passPkg = if (config.ordenada.globals.wayland == null) then "pass" else "pass-wayland";
+      package = with config.ordenada.globals; let
+        passPkg = if (wayland == true && platform == "nixos") then "pass-wayland" else "pass";
       in lib.mkOption {
         type = lib.types.package;
         default = pkgs.${passPkg}.withExtensions (exts: [ exts.pass-otp ]);

@@ -8,7 +8,7 @@
 mkFeature {
   name = "emacs";
   options =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     let
       inherit (lib)
         mkEnableOption
@@ -16,9 +16,15 @@ mkFeature {
         mkPackageOption
         types
         ;
+
+      enabled = config.ordenada.features.emacs.enable;
+
+      ## TODO: [DARWIN] Emacs doesn't display emojis correctly (wrong font)
+      platformPackage =
+        if (config.ordenada.globals.platform == "nixos") then "emacs30-pgtk" else "emacs-30";
     in
     {
-      package = mkPackageOption pkgs "emacs" { default = "emacs30-pgtk"; };
+      package = mkPackageOption pkgs "emacs" { default = platformPackage; };
       advancedUser = mkEnableOption "advanced user mode for Emacs features";
       defaultThemes = mkOption {
         type = types.attrs;
@@ -27,6 +33,11 @@ mkFeature {
           light = "tango";
           dark = "tango-dark";
         };
+      };
+      defaultEditor = mkOption {
+        type = types.bool;
+        description = "Whether to use emacs as the default text editor.";
+        default = enabled;
       };
       extraConfig = mkOption {
         type = types.lines;
@@ -40,6 +51,9 @@ mkFeature {
       };
       autoUpdateBuffers = ordenada-lib.mkEnableTrueOption "automatically updating buffers";
     };
+  globals = {config, ...}: {
+    apps.editor = with config.ordenada.features.emacs; lib.mkIf defaultEditor "${package}/bin/emacs";
+  };
   homeManager =
     {
       config,

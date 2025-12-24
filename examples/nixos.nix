@@ -8,7 +8,10 @@
       (
         { config, ... }:
         {
-          imports = [ ./features.nix ];
+          imports = [
+            ./features.nix
+            ./features-nixos.nix
+          ];
           fileSystems = {
             "/" = {
               label = "NixOS_image";

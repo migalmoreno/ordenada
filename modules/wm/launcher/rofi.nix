@@ -1,10 +1,12 @@
-{ lib, mkFeature, ... }:
+{
+  lib,
+  mkFeature,
+  ordenada-lib,
+  ...
+}:
 
 let
-  mkLiteral = value: {
-    _type = "literal";
-    inherit value;
-  };
+  inherit (ordenada-lib) mkLiteral;
   mkTheme = config: {
     "*" = with config.ordenada.features.theme.scheme.withHashtag; {
       border = 0;
@@ -194,15 +196,18 @@ mkFeature {
           let
             backend = if config.ordenada.globals.wayland then "wtype" else "xdotool";
             clipboardBackend = if config.ordenada.globals.wayland then "wl-clipboard" else "xclip";
-      imageViewer =
-        if (config.ordenada.globals.wayland == null) then "${pkgs.feh}/bin/feh" else "${pkgs.swayimg}/bin/swayimg";
-          in
+            imageViewer =
+              if (config.ordenada.globals.wayland == null) then
+                "${pkgs.feh}/bin/feh"
+              else
+                "${pkgs.swayimg}/bin/swayimg";
+          in # shell
           ''
             _image_viewer () {
               ${imageViewer} -
             }
             _pwgen () {
-	      ${pkgs.pwgen}/bin/pwgen -y "$@"
+              ${pkgs.pwgen}/bin/pwgen -y "$@"
             }
             _rofi () {
               ${config.ordenada.globals.apps.launcher} -i -no-auto-select "$@"

@@ -27,6 +27,19 @@ mkFeature {
           font = with config.ordenada.features.fontutils.fonts; {
             normal = {
               family = monospace.name;
+              style = "Regular";
+            };
+            bold = {
+              family = monospace.name;
+              style = "Bold";
+            };
+            italic = {
+              family = monospace.name;
+              style = "Italic";
+            };
+            bold_italic = {
+              family = monospace.name;
+              style = "Bold Italic";
             };
             size = monospace.size;
           };
