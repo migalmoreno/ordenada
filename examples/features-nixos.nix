@@ -22,11 +22,12 @@
       enable = true;
       enableLauncher = false;
     };
+
+    # video
+    mpv.enable = true;
+
+    # scripts
+    scripts.screenshot.enable = true;
   };
 
-  # video
-  mpv.enable = true;
-
-  # scripts
-  scripts.screenshot.enable = true;
 }
