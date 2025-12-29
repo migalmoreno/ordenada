@@ -19,7 +19,6 @@ mkFeature {
     with config.ordenada.globals;
     with config.ordenada.features.xdg;
     {
-      package = mkPackageOption pkgs "aerospace" { };
       modifier = mkOption {
         type = types.str;
         description = "The modifier to bind aerospace keys to.";
@@ -68,10 +67,13 @@ mkFeature {
         description = "Extra Aerospace configuration.";
       };
     };
-  globals =
-    { config, ... }:
+  darwin =
+    { config, pkgs, ... }:
     {
-      apps.wm = "${config.ordenada.features.aerospace.package}/Applictions/AeroSpace.app";
+      options.ordenada = {
+        features.aerospace.package = mkPackageOption pkgs "aerospace" { };
+        globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
+      };
     };
   homeManager =
     {
