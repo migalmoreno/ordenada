@@ -67,12 +67,6 @@ mkFeature {
         description = "Extra Aerospace configuration.";
       };
     };
-  darwin =
-    { config, pkgs, ... }:
-    {
-      options.ordenada.features.aerospace.package = mkPackageOption pkgs "aerospace" { };
-      ordenada.globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
-    };
   homeManager =
     {
       config,
@@ -80,9 +74,10 @@ mkFeature {
       pkgs,
       ...
     }:
-    with config.ordenada.features.aerospace;
     {
-      programs.aerospace = {
+      options.ordenada.features.aerospace.package = mkPackageOption pkgs "aerospace" { };
+      ordenada.globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
+      programs.aerospace = with config.ordenada.features.aerospace; {
         enable = true;
         package = package;
 
@@ -203,6 +198,5 @@ mkFeature {
           };
         } extraConfig;
       };
-
     };
 }
