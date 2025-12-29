@@ -71,6 +71,7 @@
     python.enable = true;
 
     # development
+    android.enable = true;
     compile.enable = true;
     direnv.enable = true;
 
