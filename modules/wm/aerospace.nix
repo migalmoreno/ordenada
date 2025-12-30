@@ -70,8 +70,10 @@ mkFeature {
   darwin =
     { config, pkgs, ... }:
     {
-      options.ordenada.features.aerospace.package = mkPackageOption pkgs "aerospace" { };
-      ordenada.globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
+      options.ordenada = {
+        features.aerospace.package = mkPackageOption pkgs "aerospace" { };
+        globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applictions/AeroSpace.app";
+      };
     };
   homeManager =
     {
