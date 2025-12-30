@@ -72,7 +72,7 @@ mkFeature {
     {
       options.ordenada = {
         features.aerospace.package = mkPackageOption pkgs "aerospace" { };
-        globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applictions/AeroSpace.app";
+        globals.apps.wm = "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
       };
     };
   homeManager =
