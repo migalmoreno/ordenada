@@ -7,6 +7,7 @@
 
 let
   inherit (lib)
+    mkIf
     mkOption
     mkPackageOption
     types
@@ -19,7 +20,14 @@ mkFeature {
     with config.ordenada.globals;
     with config.ordenada.features.xdg;
     {
-      package = mkPackageOption pkgs "aerospace" { };
+      package =
+        if (platform == "darwin") then
+          mkPackageOption pkgs "aerospace" { }
+        else
+          mkOption {
+            type = types.nullOr types.str;
+            default = null;
+          };
       modifier = mkOption {
         type = types.str;
         description = "The modifier to bind aerospace keys to.";
@@ -71,7 +79,9 @@ mkFeature {
   globals =
     { config, ... }:
     {
-      apps.wm = "${config.ordenada.features.aerospace.package}/Applictions/AeroSpace.app";
+      apps.wm = mkIf (
+        config.ordenada.globals.platform == "darwin"
+      ) "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
     };
   homeManager =
     {
