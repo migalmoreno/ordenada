@@ -52,7 +52,6 @@ mkFeature {
         };
 
         script = ''
-          # TODO: Fix flags
           ${pkgs.colima}/bin/colima start ${ordenada-lib.attrsToFlags { separator = " "; } docker.colimaFlags}
           ${pkgs.docker}/bin/docker context use colima
         '';
