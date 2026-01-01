@@ -36,6 +36,6 @@ jobs:
       - name: HM build
         run: nix develop -c home-manager build --flake .#example
       - name: Darwin build
-        run: nix run github:lnl7/nix-darwin -- build --flake .#example
+        run: nix build .#darwinConfigurations.example.config.system.build.toplevel
       - name: Deploy
         run: cachix push migalmoreno ./result*
