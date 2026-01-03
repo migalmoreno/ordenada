@@ -84,11 +84,12 @@ mkFeature {
         home.packages = with pkgs; [ docker ];
         programs.emacs = ordenada-lib.mkElispConfig pkgs {
           name = "ordenada-docker";
-          config = ''
-            (with-eval-after-load 'ordenada-keymaps
-              (keymap-set ordenada-app-map "${docker.key}" #'docker))
-            (add-to-list 'auto-mode-alist '(".*Dockerfile\\'" . dockerfile-mode))
-          '';
+          config = # elisp
+            ''
+              (with-eval-after-load 'ordenada-keymaps
+                (keymap-set ordenada-app-map "${docker.key}" #'docker))
+              (add-to-list 'auto-mode-alist '(".*Dockerfile\\'" . dockerfile-mode))
+            '';
           elispPackages = with pkgs.emacsPackages; [
             docker
             dockerfile-mode
