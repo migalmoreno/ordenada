@@ -35,34 +35,6 @@ mkFeature {
     virtualisation.docker.enable = true;
     ordenada.features.userInfo.extraGroups = [ "docker" ];
   };
-  darwin =
-    { config, pkgs, ... }:
-    with config.ordenada.features;
-    {
-      launchd.user.agents.colima = {
-        path = [
-          "/bin"
-          "/usr/bin"
-          "/usr/local/bin"
-          "${pkgs.docker}/bin"
-        ];
-
-        environment = {
-          COLIMA_HOME = "${xdg.baseDirs.stateHome}/colima";
-        };
-
-        script = ''
-          ${pkgs.colima}/bin/colima start ${ordenada-lib.attrsToFlags { separator = " "; } docker.colimaFlags}
-          ${pkgs.docker}/bin/docker context use colima
-        '';
-        serviceConfig = with userInfo; {
-          RunAtLoad = true;
-          UserName = username;
-          StandardErrorPath = "${homeDirectory}/Library/Logs/colima/error.log";
-          StandardOutPath = "${homeDirectory}/Library/Logs/colima/output.log";
-        };
-      };
-    };
   homeManager =
     { config, pkgs, ... }:
     with config.ordenada.features;
@@ -75,6 +47,38 @@ mkFeature {
         home.sessionVariables = {
           COLIMA_HOME = "${xdg.baseDirs.stateHome}/colima";
         };
+        launchd.agents.start-colima =
+          let
+            label = "start-colima";
+          in
+          {
+            enable = true;
+            config = with userInfo; {
+              Label = "org.ordenada.${label}";
+              RunAtLoad = true;
+              StandardErrorPath = "${homeDirectory}/Library/Logs/ordenada/${label}/error.log";
+              StandardOutPath = "${homeDirectory}/Library/Logs/ordenada/${label}/output.log";
+              EnvironmentVariables = {
+                COLIMA_HOME = "${xdg.baseDirs.stateHome}/colima";
+              };
+              ProgramArguments =
+                let
+                  startColima = pkgs.writeShellScript label ''
+                      export PATH="${
+                        lib.makeBinPath [
+                          "/bin"
+                          "/usr/bin"
+                          "/usr/local/bin"
+                          pkgs.docker
+                        ]
+                      }"
+                    ${pkgs.colima}/bin/colima start ${ordenada-lib.attrsToFlags { separator = " "; } docker.colimaFlags}
+                    ${pkgs.docker}/bin/docker context use colima
+                  '';
+                in
+                [ "${startColima}" ];
+            };
+          };
       })
       {
         home.packages = with pkgs; [ docker ];
