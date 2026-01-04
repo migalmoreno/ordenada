@@ -172,5 +172,36 @@
         toVal'
         ;
     };
+    darwin = rec {
+      mkAgent =
+        {
+          type ? "home",
+        }:
+        config: label: options:
+        let
+          configKey = if (type == "home") then "config" else "serviceConfig";
+          agentOptions = builtins.removeAttrs options [ "config" ];
+          agentConfig = options.config or {};
+        in
+        lib.mkMerge [
+          (lib.mkIf (type == "home") { enable = true; })
+          agentOptions
+          {
+            "${configKey}" =
+              with config.ordenada.features;
+              lib.mkMerge [
+                {
+                  RunAtLoad = true;
+                  Label = "org.ordenada.${type}.${label}";
+                  StandardErrorPath = "${userInfo.homeDirectory}/Library/Logs/ordenada/${type}/${label}/error.log";
+                  StandardOutPath = "${userInfo.homeDirectory}/Library/Logs/ordenada/${type}/${label}/output.log";
+                }
+                agentConfig
+              ];
+          }
+        ];
+      mkHomeAgent = mkAgent { type = "home"; };
+      mkSystemAgent = mkAgent { type = "system"; };
+    };
   };
 }
