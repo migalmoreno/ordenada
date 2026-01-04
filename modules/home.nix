@@ -2,6 +2,7 @@
   inputs,
   lib,
   mkFeature,
+  ordenada-lib,
   ...
 }:
 
@@ -54,13 +55,6 @@ mkFeature {
   darwin =
     { config, pkgs, ... }:
     with config.ordenada;
-    let
-      hmVars = config.home-manager.users.${features.userInfo.username}.home.sessionVariables;
-
-      setEnvScript = lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (name: value: "launchctl setenv ${name} \"${value}\"") hmVars
-      );
-    in
     {
       imports = [ inputs.home-manager.darwinModules.home-manager ];
       home-manager.targets.darwin.copyApps.enable = true;
@@ -72,26 +66,6 @@ mkFeature {
       environment.shells = mkIf (globals.apps.shell != null) [
         globals.apps.shell
       ];
-
-      ## NOTE: On macOS, apps started from the GUI (Spotlight, Finder, ...)
-      ##       Do not inherit the environment variables in .profile or
-      ##       similar. This launchd agent fixes that and ensures that
-      ##       these applications also inherit all the session variables
-      ##       we set.
-      ## TODO: Document this.
-      launchd.user.agents.setupEnv = {
-        ## needs access to mac system apps
-        path = [
-          "/bin"
-          "/usr/bin"
-          "/usr/local/bin"
-        ];
-        serviceConfig.RunAtLoad = true;
-        serviceConfig.UserName = features.userInfo.username;
-        script = ''
-          ${setEnvScript}
-        '';
-      };
 
       ## NOTE: However, due to security reasons, macOS does not allow
       ##       mutating the PATH and SSH_AUTH_SOCK environment
@@ -142,7 +116,7 @@ mkFeature {
     }
     // commonHmOptions config;
   homeManager =
-    { config, ... }:
+    { config, pkgs, ... }:
     let
       dotProfile = if config.ordenada.globals.platform == "darwin" then ".zprofile" else ".profile";
     in
@@ -151,6 +125,29 @@ mkFeature {
         targets.darwin = {
           copyApps.enable = true;
           linkApps.enable = false;
+        };
+
+        ## NOTE: On macOS, apps started from the GUI (Spotlight, Finder, ...)
+        ##       Do not inherit the environment variables in .profile or
+        ##       similar. This launchd agent fixes that and ensures that
+        ##       these applications also inherit all the session variables
+        ##       we set.
+        ## TODO: Document this.
+        ## TODO: Investigate whether this can be replaced with nix-darwin's launchd.envVariables.
+        launchd.agents.launchd-environment = ordenada-lib.darwin.mkHomeAgent config "launchd-environment" {
+          config = {
+            ProgramArguments =
+              let
+                hmVars = config.home.sessionVariables;
+                script = pkgs.writeShellScript "launchd-environment" ''
+                  export PATH="/bin:/usr/bin:/usr/local/bin"
+                  ${lib.concatStringsSep "\n" (
+                    lib.mapAttrsToList (name: value: "launchctl setenv ${name} \"${value}\"") hmVars
+                  )}
+                '';
+              in
+              [ "${script}" ];
+          };
         };
       })
       {
