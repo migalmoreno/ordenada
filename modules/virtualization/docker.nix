@@ -47,38 +47,22 @@ mkFeature {
         home.sessionVariables = {
           COLIMA_HOME = "${xdg.baseDirs.stateHome}/colima";
         };
-        launchd.agents.start-colima =
-          let
-            label = "start-colima";
-          in
-          {
-            enable = true;
-            config = with userInfo; {
-              Label = "org.ordenada.${label}";
-              RunAtLoad = true;
-              StandardErrorPath = "${homeDirectory}/Library/Logs/ordenada/${label}/error.log";
-              StandardOutPath = "${homeDirectory}/Library/Logs/ordenada/${label}/output.log";
-              EnvironmentVariables = {
-                COLIMA_HOME = "${xdg.baseDirs.stateHome}/colima";
-              };
-              ProgramArguments =
-                let
-                  startColima = pkgs.writeShellScript label ''
-                      export PATH="${
-                        lib.makeBinPath [
-                          "/bin"
-                          "/usr/bin"
-                          "/usr/local/bin"
-                          pkgs.docker
-                        ]
-                      }"
-                    ${pkgs.colima}/bin/colima start ${ordenada-lib.attrsToFlags { separator = " "; } docker.colimaFlags}
-                    ${pkgs.docker}/bin/docker context use colima
-                  '';
-                in
-                [ "${startColima}" ];
+        launchd.agents.colima-start = ordenada-lib.darwin.mkHomeAgent config "colima-start" {
+          config = {
+            EnvironmentVariables = {
+              COLIMA_HOME = "${xdg.baseDirs.stateHome}/colima";
             };
+            ProgramArguments =
+              let
+                script = pkgs.writeShellScript "start-colima" ''
+                  export PATH="/bin:/usr/bin:/usr/local/bin:${pkgs.docker}/bin"
+                  ${pkgs.colima}/bin/colima start ${ordenada-lib.attrsToFlags { separator = " "; } docker.colimaFlags}
+                  ${pkgs.docker}/bin/docker context use colima
+                '';
+              in
+              [ "${script}" ];
           };
+        };
       })
       {
         home.packages = with pkgs; [ docker ];
