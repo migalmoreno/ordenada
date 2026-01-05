@@ -153,10 +153,12 @@ mkFeature {
                         '("j/tsx" . ordenada-javascript-jtsx-command-map))
             (keymap-set ordenada-javascript-mode-map "C-c f"
                         '("Format buffer" . eslint-fix))
-            (keymap-set ordenada-javascript-mode-map "C-c c i"
-                        #'ordenada-javascript--eglot-code-action-missing-imports)
-            (keymap-set ordenada-javascript-mode-map "C-c c I"
-                        #'ordenada-javascript--eglot-code-action-unused-imports)
+
+            (with-eval-after-load 'eglot
+              (keymap-set ordenada-javascript-mode-map "C-c c i"
+                          #'ordenada-javascript--eglot-code-action-missing-imports)
+              (keymap-set ordenada-javascript-mode-map "C-c c I"
+                          #'ordenada-javascript--eglot-code-action-unused-imports))
 
             (mapcar (lambda (hook)
                       (add-hook (intern (concat (symbol-name hook) "-hook")) 'ordenada-javascript-mode))
