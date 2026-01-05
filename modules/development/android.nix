@@ -49,8 +49,9 @@ mkFeature {
             (with-eval-after-load 'ordenada-keymaps
               (keymap-set ordenada-app-map "${config.ordenada.features.android.fdroidKey}" 'fdroid-map))
           '';
-        elispPackages = [
+        elispPackages = with pkgs.emacsPackages; [
           emacs-fdroid
+          android-mode
         ];
       };
     };
