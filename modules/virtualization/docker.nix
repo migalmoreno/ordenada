@@ -65,7 +65,10 @@ mkFeature {
         };
       })
       {
-        home.packages = with pkgs; [ docker ];
+        home.packages = with pkgs; [
+          docker
+          docker-buildx
+        ];
         programs.emacs = ordenada-lib.mkElispConfig pkgs {
           name = "ordenada-docker";
           config = # elisp
