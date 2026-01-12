@@ -1,7 +1,17 @@
-{ lib, mkFeature, ... }:
+{
+  lib,
+  mkFeature,
+  ordenada-lib,
+  ...
+}:
 
 let
-  inherit (lib) mkOption mkIf types;
+  inherit (lib)
+    mkMerge
+    mkOption
+    mkIf
+    types
+    ;
 in
 mkFeature {
   name = "gnupg";
@@ -37,39 +47,46 @@ mkFeature {
     };
   ## TODO: [DARWIN] Ttl seems to be ignored, is cached until restart
   homeManager =
-    { config, ... }:
-    {
-      services.gpg-agent = with config.ordenada.features.gnupg; {
-        inherit sshKeys;
-        enable = true;
-        defaultCacheTtl = defaultTtl;
-        defaultCacheTtlSsh = defaultTtl;
-        maxCacheTtl = defaultTtl;
-        maxCacheTtlSsh = defaultTtl;
-        enableSshSupport = true;
-        pinentry.package = pinentryPackage;
-      };
-      programs.gpg = {
-        enable = true;
-        homedir = config.ordenada.features.gnupg.storeDir;
-      };
-    };
-  darwin =
-    { config, ... }:
-    {
-      launchd.user.agents.pinentry-mac = {
-        ## needs access to mac system apps
-        path = [
-          "/bin"
-          "/usr/bin"
-          "/usr/local/bin"
-        ];
-        serviceConfig.RunAtLoad = true;
-        script = with config.ordenada.features.gnupg; ''
-          export PATH="/bin:/usr/bin:/usr/local/bin:$PATH"
-          defaults write org.gpgtools.pinentry-mac UseKeychain -bool ${if keychainInteraction then "YES" else "NO"}
-          defaults write org.gpgtools.pinentry-mac DisableKeychain -bool ${if keychainInteraction then "NO" else "YES"}
-        '';
-      };
-    };
+    { config, pkgs, ... }:
+    mkMerge [
+      {
+        services.gpg-agent = with config.ordenada.features.gnupg; {
+          inherit sshKeys;
+          enable = true;
+          defaultCacheTtl = defaultTtl;
+          defaultCacheTtlSsh = defaultTtl;
+          maxCacheTtl = defaultTtl;
+          maxCacheTtlSsh = defaultTtl;
+          enableSshSupport = true;
+          pinentry.package = pinentryPackage;
+        };
+        programs.gpg = {
+          enable = true;
+          homedir = config.ordenada.features.gnupg.storeDir;
+        };
+      }
+      (mkIf (config.ordenada.globals.platform == "darwin") {
+        launchd.agents.pinentry-keychainIntegration =
+          ordenada-lib.darwin.mkHomeAgent config "pinentry-keychainIntegration"
+            {
+              config = {
+                ProgramArguments =
+                  let
+                    script =
+                      with config.ordenada.features.gnupg;
+                      pkgs.writeShellScript "pinentry-keychainIntegration" ''
+                        export PATH="/bin:/usr/bin:/usr/local/bin"
+                        defaults write org.gpgtools.pinentry-mac UseKeychain -bool ${
+                          if keychainInteraction then "YES" else "NO"
+                        }
+                        defaults write org.gpgtools.pinentry-mac DisableKeychain -bool ${
+                          if keychainInteraction then "NO" else "YES"
+                        }
+                      '';
+                  in
+                  [ "${script}" ];
+              };
+            };
+      })
+    ];
 }
