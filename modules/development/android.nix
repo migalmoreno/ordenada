@@ -15,7 +15,6 @@ mkFeature {
   nixos =
     { pkgs, ... }:
     {
-      programs.adb.enable = true;
       virtualisation.waydroid.enable = true;
       environment.systemPackages = [ pkgs.wl-clipboard ];
       ordenada.features.userInfo.extraGroups = [ "adbusers" ];
