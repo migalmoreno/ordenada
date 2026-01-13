@@ -30,6 +30,7 @@ mkFeature {
         clojure
         jdk
         leiningen
+        babashka
       ];
       home.file.".zprint.edn".text = # edn
         ''
