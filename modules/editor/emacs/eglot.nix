@@ -10,6 +10,13 @@ mkFeature {
     "emacs"
     "eglot"
   ];
+  options = {
+    connectTimeout = lib.mkOption {
+      type = lib.types.int;
+      default = 60;
+      description = "Number of seconds before timing out LSP connection attempts.";
+    };
+  };
   homeManager =
     { config, pkgs, ... }:
     {
@@ -20,6 +27,7 @@ mkFeature {
             (with-eval-after-load 'eglot
               (setopt eglot-confirm-server-edits nil)
               (setopt eglot-extend-to-xref t)
+              (setopt eglot-connect-timeout ${toString config.ordenada.features.emacs.eglot.connectTimeout})
               (let ((map eglot-mode-map))
                 (keymap-set map "C-c c a" #'eglot-code-actions)
                 (keymap-set map "C-c c o" #'eglot-code-action-organize-imports)
