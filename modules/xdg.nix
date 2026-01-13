@@ -76,8 +76,7 @@ mkFeature {
       };
     };
   homeManager =
-    {
-      osConfig,
+    args@{
       config,
       lib,
       pkgs,
@@ -97,7 +96,7 @@ mkFeature {
           stateHome = lib.mkForce baseDirs.stateHome;
         };
       }
-      (lib.mkIf (!osConfig.ordenada.features.xdg.enable) {
+      (lib.mkIf (!(builtins.hasAttr "osConfig" args) || !(args.osConfig.ordenada.features.xdg.enable)) {
         xdg.portal = {
           enable = true;
           extraPortals =
