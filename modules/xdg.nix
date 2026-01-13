@@ -83,8 +83,10 @@ mkFeature {
       pkgs,
       ...
     }:
-    with config.ordenada.globals;
-    with config.ordenada.features.xdg;
+    let
+      inherit (config.ordenada.globals) platform wayland;
+      inherit (config.ordenada.features.xdg) baseDirs userDirs;
+    in
     lib.mkMerge [
       {
         xdg = {
@@ -103,7 +105,7 @@ mkFeature {
             [
               xdg-desktop-portal-gtk
             ]
-            ++ lib.optional wayland xdg.desktop-portal-wlr;
+            ++ lib.optional wayland xdg-desktop-portal-wlr;
           config = {
             common.default = [
               "gtk"
@@ -117,32 +119,32 @@ mkFeature {
         xdg = {
           mime.enable = true;
           mimeApps.enable = true;
-          userDirs =
-            with config.ordenada.features.xdg;
-            lib.mkMerge [
-              userDirs
-              {
-                enable = true;
-                createDirectories = true;
-              }
-            ];
+          userDirs = lib.mkMerge [
+            userDirs
+            {
+              enable = true;
+              createDirectories = true;
+            }
+          ];
         };
       })
       (
         ## TODO: Create directories if they don't exist
-        with config.ordenada.features.xdg.userDirs;
         lib.mkIf (platform == "darwin") {
           home.sessionVariables = (
-            lib.attrsets.filterAttrs (_: v: v != null) {
-              XDG_DESKTOP_DIR = desktop;
-              XDG_DOCUMENTS_DIR = documents;
-              XDG_DOWNLOAD_DIR = download;
-              XDG_MUSIC_DIR = music;
-              XDG_PICTURES_DIR = pictures;
-              XDG_PUBLICSHARE_DIR = publicShare;
-              XDG_TEMPLATES_DIR = templates;
-              XDG_VIDEOS_DIR = videos;
-            }
+            lib.attrsets.filterAttrs (_: v: v != null) (
+              with userDirs;
+              {
+                XDG_DESKTOP_DIR = desktop;
+                XDG_DOCUMENTS_DIR = documents;
+                XDG_DOWNLOAD_DIR = download;
+                XDG_MUSIC_DIR = music;
+                XDG_PICTURES_DIR = pictures;
+                XDG_PUBLICSHARE_DIR = publicShare;
+                XDG_TEMPLATES_DIR = templates;
+                XDG_VIDEOS_DIR = videos;
+              }
+            )
           );
         }
       )
