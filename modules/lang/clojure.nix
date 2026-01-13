@@ -36,6 +36,7 @@ mkFeature {
         ''
           {:search-config? true}
         '';
+      home.sessionVariables."LEIN_HOME" = "${config.ordenada.features.xdg.baseDirs.dataHome}/lein";
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-clojure";
         config =
