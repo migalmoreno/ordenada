@@ -70,13 +70,14 @@ mkFeature {
     {
       xdg.portal = with config.ordenada.globals; {
         enable = true;
-        config.common.default = if (wayland == true) then "wlr" else "gtk";
+        config.common.default = if wayland then "wlr" else "gtk";
         extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
         wlr.enable = wayland;
       };
     };
   homeManager =
     {
+      osConfig,
       config,
       lib,
       pkgs,
@@ -94,26 +95,28 @@ mkFeature {
           stateHome = lib.mkForce baseDirs.stateHome;
         };
       }
+      (lib.mkIf (!osConfig.ordenada.features.xdg.enable) {
+        xdg.portal = {
+          enable = true;
+          extraPortals =
+            with pkgs;
+            [
+              xdg-desktop-portal-gtk
+            ]
+            ++ lib.optional wayland xdg.desktop-portal-wlr;
+          config = {
+            common.default = [
+              "gtk"
+            ]
+            ++ lib.optional wayland "wlr";
+          };
+        };
+      })
       (lib.mkIf (platform == "nixos") {
         home.packages = with pkgs; [ xdg-utils ];
         xdg = {
           mime.enable = true;
           mimeApps.enable = true;
-          portal = {
-            enable = true;
-            extraPortals =
-              with pkgs;
-              [
-                xdg-desktop-portal-gtk
-              ]
-              ++ lib.optional (wayland == true) xdg.desktop-portal-wlr;
-            config = {
-              common.default = [
-                "gtk"
-              ]
-              ++ lib.optional (wayland == true) "wlr";
-            };
-          };
           userDirs =
             with config.ordenada.features.xdg;
             lib.mkMerge [
