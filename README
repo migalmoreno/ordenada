@@ -249,7 +249,64 @@ emacs
 
 And it should open a new Emacs window with the Ordenada Emacs configuration.
 
-* Adding features
+** Overriding inputs
+If your personal Nix configuration flake contains inputs that Ordenada already tracks (e.g. =nixpkgs=, =home-manager=) things might break due to version mismatches, incompatible configuration options, etc. Therefore, it's usually recommended to not include these by default in your configuration and just rely on the versions of the inputs that Ordenada provides.
+
+However, it could be the case you need the latest version of a package or want to test a new feature from a specific input, in which case you can make Ordenada's inputs follow your inputs like this:
+
+#+begin_src nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    ordenada = {
+      url = "github:migalmoreno/ordenada";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        home-manager.follows = "home-manager";
+      };
+    };
+  };
+}
+#+end_src
+
+With the above setup, you can update your inputs freely without having to wait for Ordenada to update them.
+
+If you encounter a breaking change with an update, you should [[* Contributing][contribute to Ordenada]] with a version bump of the input that broke things, like the example below with =nixpkgs=:
+
+#+begin_src sh
+cd /path/to/ordenada
+nix flake lock --override-input nixpkgs github:nixos/nixpkgs/<new_rev>
+#+end_src
+
+* Contributing
+** Basic setup
+Clone the repository to your system:
+
+#+begin_src sh
+git clone https://github.com/migalmoreno/ordenada /path/to/ordenada
+#+end_src
+
+Now, if you want to test new features or changes against your cloned Ordenada copy you can either change its input URL to something as follows:
+
+#+begin_src nix
+{
+  inputs = {
+    ordenada.url = "path:///path/to/ordenada";
+  };
+}
+#+end_src
+
+Or override its input on particular Nix commands, like:
+
+#+begin_src sh
+nixos-rebuild switch --flake . --sudo --override-input ordenada path:///path/to/ordenada
+#+end_src
+
+** Adding features
 To add a new Ordenada feature you'll need to create a new file inside =./modules= and use the =mkFeature= utility to define the feature. An example is shown below:
 
 #+begin_src nix
