@@ -92,7 +92,7 @@ mkFeature {
                            '(((clojure-mode :language-id "clojure")
                               (clojurec-mode :language-id "clojure")
                               (clojurescript-mode :language-id "clojurescript"))
-                             . ("${pkgs.clojure-lsp}/bin/clojure-lsp"))))
+                             . ("${lib.getExe pkgs.clojure-lsp}"))))
 
             (define-minor-mode ordenada-clojure-mode
               "Set up convenient tweaks for Clojure development."
