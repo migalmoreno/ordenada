@@ -11,15 +11,21 @@ mkFeature {
     { pkgs, ... }:
     {
       node = lib.mkPackageOption pkgs "nodejs" { };
+      bun = lib.mkPackageOption pkgs "bun" { };
     };
   homeManager =
     { config, pkgs, ... }:
     {
-      home.packages = with pkgs; [
-        config.ordenada.features.javascript.node
-        (yarn.override { nodejs = null; })
-        nodePackages.prettier
-      ];
+      home.packages =
+        with config.ordenada.features.javascript;
+        [
+          node
+          bun
+        ]
+        ++ (with pkgs; [
+          (yarn.override { nodejs = null; })
+          nodePackages.prettier
+        ]);
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-javascript";
         ## TODO: `ordenada-javascript--next-line-function-or-arrow-p` is too
