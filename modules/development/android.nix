@@ -192,6 +192,14 @@ mkFeature {
         packageRequires = with pkgs.emacsPackages; [ embark ];
       };
 
+      androidPkgs = import pkgs.path {
+        system = pkgs.system;
+        config = {
+          allowUnfree = true;
+          android_sdk.accept_license = true;
+        };
+      };
+
       sdkRoot = "${cfg.androidUserHome}/sdk";
       avdRoot = "${cfg.androidUserHome}/avd";
       activeSdkRoot = "${sdkRoot}/${cfg.activeSdkVersion}/libexec/android-sdk";
@@ -202,13 +210,6 @@ mkFeature {
       mkAndroidEnv =
         sdkConfig:
         let
-          androidPkgs = import pkgs.path {
-            system = pkgs.system;
-            config = {
-              allowUnfree = true;
-              android_sdk.accept_license = true;
-            };
-          };
           androidEnv = androidPkgs.androidenv;
           baseConfig = {
             includeSystemImages = true;
@@ -254,14 +255,6 @@ mkFeature {
           emuSpec = if emu.name != null then sanitizeName emu.name else "${emu.platformVersion}";
           name = "android-emulator-${emuSpec}";
 
-          androidPkgs = import pkgs.path {
-            system = pkgs.system;
-            config = {
-              allowUnfree = true;
-              android_sdk.accept_license = true;
-            };
-          };
-
           emulator = androidPkgs.androidenv.emulateApp {
             name = name;
             deviceName = name;
@@ -293,6 +286,34 @@ mkFeature {
           exec ${emulator}/bin/run-test-emulator "$@"
         '';
 
+      activeAndroidEnv = mkAndroidEnv (
+        lib.findFirst (sdk: sdk.platformVersion == cfg.activeSdkVersion) null cfg.sdks
+      );
+      activePlatformTools = activeAndroidEnv.platform-tools;
+
+      mkEmulatorDesktopEntry =
+        emu: emuPkg:
+        let
+          emuSpec = if emu.name != null then "${emu.name}" else emu.platformVersion;
+          emuName = "Android Emulator \(${emuSpec}\)";
+          emuExe = builtins.baseNameOf (lib.getExe emuPkg);
+        in
+        {
+          name = "android-emulator-${emuSpec}";
+          value = {
+            name = emuName;
+            genericName = "Emulator";
+            icon = "${activeAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${cfg.activeSdkVersion}/templates/ic_launcher_xhdpi.png";
+            exec = "${emuPkg}/bin/${emuExe} %U";
+            terminal = false;
+            categories = [
+              "Development"
+              "Emulator"
+            ];
+            mimeType = [ "application/vnd.android.package-archive" ];
+          };
+        };
+
       mkEmulatorAppBundle =
         emu: emuPkg:
         let
@@ -309,14 +330,9 @@ mkFeature {
       emulatorAppBundles = lib.lists.imap0 (
         i: emu: mkEmulatorAppBundle emu (builtins.elemAt emulators i)
       ) cfg.emulators;
-
-      activePlatformTools =
-        let
-          activeComposition = mkAndroidEnv (
-            lib.findFirst (sdk: sdk.platformVersion == cfg.activeSdkVersion) null cfg.sdks
-          );
-        in
-        activeComposition.platform-tools;
+      emulatorDesktopEntries = builtins.listToAttrs (
+        lib.lists.imap0 (i: emu: mkEmulatorDesktopEntry emu (builtins.elemAt emulators i)) cfg.emulators
+      );
 
       mkSdkLink = sdkConfig: {
         name = "android/sdk/${toString sdkConfig.platformVersion}";
@@ -365,7 +381,9 @@ mkFeature {
       ];
 
       wayland.windowManager.sway.config.floating.criteria = [ { app_id = "Waydroid"; } ];
+
       xdg.dataFile = builtins.listToAttrs (map mkSdkLink features.android.sdks);
+      xdg.desktopEntries = emulatorDesktopEntries;
 
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-android";
