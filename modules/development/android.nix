@@ -321,10 +321,38 @@ mkFeature {
           emuSpec = if emu.name != null then emu.name else emu.platformVersion;
           name = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
+          pngIcon = "${activeAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${cfg.activeSdkVersion}/templates/ic_launcher_xhdpi.png";
         in
-        pkgs.runCommand name { } ''
-          mkdir -p "$out/Applications/${name}.app/Contents/MacOS"
+          pkgs.runCommand name {
+            nativeBuildInputs = [ pkgs.libicns pkgs.imagemagick ];
+        } ''
+          APP_DIR="$out/Applications/${name}.app/Contents"
+          mkdir -p "$APP_DIR/MacOS"
+          mkdir -p "$APP_DIR/Resources"
+
+          convert "${pngIcon}" -resize 512x512 -background none -gravity center -extent 512x512 icon.png
+          png2icns "$APP_DIR/Resources/icon.icns" icon.png
+
           ln -s "${emuPkg}/bin/${emuExe}" "$out/Applications/${name}.app/Contents/MacOS/${name}"
+
+          cat <<EOF > "$APP_DIR/Info.plist"
+              <?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+              <plist version="1.0">
+              <dict>
+                  <key>CFBundleExecutable</key>
+                  <string>${name}</string>
+                  <key>CFBundleIconFile</key>
+                  <string>icon.icns</string>
+                  <key>CFBundleIdentifier</key>
+                  <string>org.ordenada.${sanitizeName name}</string>
+                  <key>CFBundleName</key>
+                  <string>${name}</string>
+                  <key>CFBundlePackageType</key>
+                  <string>APPL</string>
+              </dict>
+              </plist>
+              EOF
         '';
 
       emulators = lib.map mkEmulator cfg.emulators;
@@ -384,7 +412,7 @@ mkFeature {
       wayland.windowManager.sway.config.floating.criteria = [ { app_id = "Waydroid"; } ];
 
       xdg.dataFile = builtins.listToAttrs (map mkSdkLink features.android.sdks);
-      xdg.desktopEntries = emulatorDesktopEntries;
+      xdg.desktopEntries = mkIf (config.ordenada.globals.platform == "nixos") emulatorDesktopEntries;
 
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-android";
