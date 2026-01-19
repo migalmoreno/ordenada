@@ -127,7 +127,7 @@ mkFeature {
               abiVersion = mkOption {
                 type = types.str;
                 description = "ABI platform version (e.g. arm64-v8a)";
-                default = if (config.ordenada.globals.platform == "darwin") then "arm64-v8a" else "x86";
+                default = if (config.ordenada.globals.platform == "darwin") then "arm64-v8a" else "x86_64";
               };
               systemImageType = mkOption {
                 type = types.nullOr types.str;
