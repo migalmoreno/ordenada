@@ -13,7 +13,6 @@ let
     ;
 in
 
-## TODO: Add desktop file on linux
 mkFeature {
   name = "android";
   options =
