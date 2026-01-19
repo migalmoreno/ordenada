@@ -105,7 +105,7 @@ mkFeature {
               persistentData = lib.mkOption {
                 type = lib.types.bool;
                 description = ''
-                  Whether the emulators AVD data should be saved persistently.
+                  Whether the emulator's AVD data should be saved persistently.
 
                   If this option is set to `false`, the emulator will be isolated from
                   the rest of the environment. Tools like `avdmanager` won't be able to
@@ -127,7 +127,7 @@ mkFeature {
               abiVersion = mkOption {
                 type = types.str;
                 description = "ABI platform version (e.g. arm64-v8a)";
-                default = "arm64-v8a";
+                default = if (config.ordenada.globals.platform == "darwin") then "arm64-v8a" else "x86";
               };
               systemImageType = mkOption {
                 type = types.nullOr types.str;
@@ -252,7 +252,7 @@ mkFeature {
       mkEmulator =
         emu:
         let
-          emuSpec = if emu.name != null then sanitizeName (emu.name) else "${emu.platformVersion}";
+          emuSpec = if emu.name != null then sanitizeName emu.name else "${emu.platformVersion}";
           name = "android-emulator-${emuSpec}";
 
           androidPkgs = import pkgs.path {
