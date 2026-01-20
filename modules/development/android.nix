@@ -201,8 +201,12 @@ mkFeature {
 
       sdkRoot = "${cfg.androidUserHome}/sdk";
       avdRoot = "${cfg.androidUserHome}/avd";
-      activeSdkRoot = "${sdkRoot}/${cfg.activeSdkVersion}/libexec/android-sdk";
-      activeNdkRoot = "${activeSdkRoot}/ndk-bundle";
+      activeSdkRoot =
+        if (cfg.activeSdkVersion != null) then
+          "${sdkRoot}/${cfg.activeSdkVersion}/libexec/android-sdk"
+        else
+          null;
+      activeNdkRoot = if (activeSdkRoot != null) then "${activeSdkRoot}/ndk-bundle" else null;
 
       latestOr = x: if (x != null) then x else "latest";
 
@@ -288,7 +292,8 @@ mkFeature {
       activeAndroidEnv = mkAndroidEnv (
         lib.findFirst (sdk: sdk.platformVersion == cfg.activeSdkVersion) null cfg.sdks
       );
-      activePlatformTools = activeAndroidEnv.platform-tools;
+      activePlatformTools =
+        if (cfg.activeSdkVersion != null) then activeAndroidEnv.platform-tools else null;
 
       mkEmulatorDesktopEntry =
         emu: emuPkg:
@@ -321,37 +326,42 @@ mkFeature {
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
           pngIcon = "${activeAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${cfg.activeSdkVersion}/templates/ic_launcher_xhdpi.png";
         in
-          pkgs.runCommand name {
-            nativeBuildInputs = [ pkgs.libicns pkgs.imagemagick ];
-        } ''
-          APP_DIR="$out/Applications/${name}.app/Contents"
-          mkdir -p "$APP_DIR/MacOS"
-          mkdir -p "$APP_DIR/Resources"
+        pkgs.runCommand name
+          {
+            nativeBuildInputs = [
+              pkgs.libicns
+              pkgs.imagemagick
+            ];
+          }
+          ''
+            APP_DIR="$out/Applications/${name}.app/Contents"
+            mkdir -p "$APP_DIR/MacOS"
+            mkdir -p "$APP_DIR/Resources"
 
-          convert "${pngIcon}" -resize 512x512 -background none -gravity center -extent 512x512 icon.png
-          png2icns "$APP_DIR/Resources/icon.icns" icon.png
+            convert "${pngIcon}" -resize 512x512 -background none -gravity center -extent 512x512 icon.png
+            png2icns "$APP_DIR/Resources/icon.icns" icon.png
 
-          ln -s "${emuPkg}/bin/${emuExe}" "$out/Applications/${name}.app/Contents/MacOS/${name}"
+            ln -s "${emuPkg}/bin/${emuExe}" "$out/Applications/${name}.app/Contents/MacOS/${name}"
 
-          cat <<EOF > "$APP_DIR/Info.plist"
-              <?xml version="1.0" encoding="UTF-8"?>
-              <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-              <plist version="1.0">
-              <dict>
-                  <key>CFBundleExecutable</key>
-                  <string>${name}</string>
-                  <key>CFBundleIconFile</key>
-                  <string>icon.icns</string>
-                  <key>CFBundleIdentifier</key>
-                  <string>org.ordenada.${sanitizeName name}</string>
-                  <key>CFBundleName</key>
-                  <string>${name}</string>
-                  <key>CFBundlePackageType</key>
-                  <string>APPL</string>
-              </dict>
-              </plist>
-              EOF
-        '';
+            cat <<EOF > "$APP_DIR/Info.plist"
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                <plist version="1.0">
+                <dict>
+                    <key>CFBundleExecutable</key>
+                    <string>${name}</string>
+                    <key>CFBundleIconFile</key>
+                    <string>icon.icns</string>
+                    <key>CFBundleIdentifier</key>
+                    <string>org.ordenada.${sanitizeName name}</string>
+                    <key>CFBundleName</key>
+                    <string>${name}</string>
+                    <key>CFBundlePackageType</key>
+                    <string>APPL</string>
+                </dict>
+                </plist>
+                EOF
+          '';
 
       emulators = lib.map mkEmulator cfg.emulators;
       emulatorAppBundles = lib.lists.imap0 (
@@ -396,7 +406,6 @@ mkFeature {
               (if cfg.activeSdkVersion != null then [ activePlatformTools ] else [ android-tools ])
               (
                 [
-                  activePlatformTools
                   payload-dumper-go
                   fdroidcl
                 ]
@@ -480,7 +489,7 @@ mkFeature {
                                      (ordenada-android-mode)))))
 
             (with-eval-after-load 'android-mode
-              (setopt android-mode-sdk-dir "${activeSdkRoot}")
+              (setopt android-mode-sdk-dir "${if (activeSdkRoot != null) then activeSdkRoot else ""}")
               (setopt android-mode-key-prefix "") ;; Do not use the provided way of binding android-mode commands
               (setopt android-mode-map (make-sparse-keymap)) ;; Overriding default map to avoid collisions
 
