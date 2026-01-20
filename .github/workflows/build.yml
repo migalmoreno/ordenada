@@ -27,7 +27,7 @@ jobs:
       - name: Deploy
         run: cachix push migalmoreno ./result*
   build-darwin:
-    runs-on: macos-latest
+    runs-on: macos-26
     permissions:
       contents: read
       id-token: write
