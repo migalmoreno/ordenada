@@ -70,26 +70,6 @@
     markdown.enable = true;
     python.enable = true;
 
-    # development
-    android = {
-      enable = true;
-      allowUnfreeAndAcceptLicenses = true;
-      activeSdkVersion = "35";
-      sdks = [
-        { platformVersion = "35"; }
-        { platformVersion = "36"; }
-      ];
-      emulators = [
-        {
-          name = "Small Phone";
-          platformVersion = "35";
-          persistentData = true;
-        }
-        {
-          platformVersion = "36";
-        }
-      ];
-    };
     compile.enable = true;
     direnv.enable = true;
 
