@@ -27,7 +27,7 @@ jobs:
       - name: Deploy
         run: cachix push migalmoreno ./result*
   build-darwin:
-    runs-on: macos-15-intel
+    runs-on: macos-latest
     permissions:
       contents: read
       id-token: write
@@ -35,7 +35,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: wimpysworld/nothing-but-nix@main
         with:
-          nix-permission-edict: true
+          hatchet-protocol: 'carve'
+          #nix-permission-edict: true
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
