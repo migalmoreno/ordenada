@@ -34,10 +34,21 @@ mkFeature {
         description = "Attrs of Git remote URLs to git-link functions.";
         default = { };
       };
+      extraSettings = mkOption {
+        type = types.attrs;
+        description = "Extra Git configuration settings.";
+        default = { };
+      };
     };
   homeManager =
     { config, pkgs, ... }:
+    let
+      inherit (config.ordenada.features) git emacs;
+    in
     {
+      programs.gh = {
+        enable = true;
+      };
       programs.git = with config.ordenada.features.git; {
         enable = true;
         settings = {
@@ -45,7 +56,8 @@ mkFeature {
             inherit email;
             name = username;
           };
-        };
+        }
+        // extraSettings;
         signing = {
           signByDefault = signCommits;
           key = signingKey;
@@ -67,6 +79,15 @@ mkFeature {
               (setopt magit-pull-or-fetch t)
               (require 'forge))
 
+            ${lib.optionalString emacs.consult.enable ''
+              (with-eval-after-load 'consult
+                (require 'consult-gh-transient)
+                (require 'consult-gh-embark)
+                (require 'consult-gh-forge)
+                (consult-gh-embark-mode 1)
+                (consult-gh-forge-mode 1))
+            ''}
+
             (with-eval-after-load 'vc
               (setopt vc-follow-symlinks t))
 
@@ -81,7 +102,7 @@ mkFeature {
                   lib.mapAttrsToList (url: fn: ''
                     (add-to-list 'git-link-remote-alist '("${url}" ${fn}))
                     (add-to-list 'git-link-commit-remote-alist '("${url}" ${fn}))
-                  '') config.ordenada.features.git.gitLinkRemotes
+                  '') git.gitLinkRemotes
                 )
               })
             (with-eval-after-load 'vc-mode
@@ -92,6 +113,11 @@ mkFeature {
           magit
           forge
           git-link
+          pr-review
+          consult-gh
+          consult-gh-embark
+          consult-gh-forge
+          consult-gh-with-pr-review
         ];
       };
     };
