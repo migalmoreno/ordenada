@@ -96,7 +96,7 @@ mkFeature {
         default = defaultThemeSchemes;
       };
       wallpaper = mkOption {
-        type = types.pathInStore;
+        type = types.nullOr types.pathInStore;
         description = "The theme wallpaper.";
         default =
           with (defaultThemeWallpapers pkgs);
@@ -131,7 +131,11 @@ mkFeature {
       specialisation.${themeToToggle config}.configuration = {
         ordenada.features.theme = {
           scheme = lib.mkForce defaultThemeSchemes.${themeToToggle config};
-          wallpaper = lib.mkForce (defaultThemeWallpapers pkgs).${themeToToggle config};
+          wallpaper =
+            if (config.ordenada.features.theme.wallpaper != null) then
+              lib.mkForce (defaultThemeWallpapers pkgs).${themeToToggle config}
+            else
+              null;
           polarity = lib.mkForce (themeToToggle config);
         };
       };
