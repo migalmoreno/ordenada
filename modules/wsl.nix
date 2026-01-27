@@ -39,7 +39,7 @@ mkFeature {
       systemd.user.services.wsl-clipboard = {
         Unit = {
           Description = "WSL clipboard sharing";
-          After = [ "sway-session.target" ];
+          After = [ "graphical-session.target" ];
         };
         Install = {
           WantedBy = [ "default.target" ];
