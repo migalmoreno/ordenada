@@ -125,9 +125,13 @@ mkFeature {
               };
             };
             output = {
-              "*" = {
-                bg = "${config.ordenada.features.theme.wallpaper} fill";
-              };
+              "*" =
+                let
+                  inherit (config.ordenada.features.theme) wallpaper;
+                in
+                {
+                  bg = if wallpaper == null then "${base00} solid_color" else "${wallpaper} fill";
+                };
             };
             seat."*" = with config.ordenada.features.gtk.cursorTheme; {
               xcursor_theme = "${name} ${toString config.ordenada.features.gtk.cursorSize}";

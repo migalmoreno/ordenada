@@ -24,7 +24,9 @@ mkFeature {
             indicator-thickness = 7;
             effect-vignette = "0.5:0.5";
             hide-keyboard-layout = true;
-            image = "${config.ordenada.features.theme.wallpaper}";
+            image = lib.mkIf (
+              config.ordenada.features.theme.wallpaper != null
+            ) "${config.ordenada.features.theme.wallpaper}";
             color = base00;
             inside-color = base00;
             inside-clear-color = base00;
