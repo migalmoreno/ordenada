@@ -12,7 +12,12 @@ mkFeature {
     with config.ordenada.globals;
     with config.ordenada.features.xdg;
     let
-      inherit (lib) mkOption mkPackageOption types;
+      inherit (lib)
+        mkEnableOption
+        mkOption
+        mkPackageOption
+        types
+        ;
     in
     {
       package = mkPackageOption pkgs "sway" { };
@@ -40,6 +45,12 @@ mkFeature {
         type = types.str;
         description = "The key to use for for the down orientation.";
         default = "j";
+      };
+      useGlobalBar = mkEnableOption "managing the global system bar from Sway";
+      extraGlobalBarSettings = mkOption {
+        type = types.attrs;
+        description = "Extra settings to use for the default bar configuration.";
+        default = { };
       };
       extraKeybindings = mkOption {
         type = ordenada-lib.types.fnOrAttrs;
@@ -69,6 +80,7 @@ mkFeature {
     {
       apps.wm = "${config.ordenada.features.sway.package}/bin/sway";
       wayland = true;
+      wmControlledBar = config.ordenada.features.sway.useGlobalBar;
     };
   nixos = {
     hardware.graphics.enable = true;
@@ -187,7 +199,16 @@ mkFeature {
               border = 2;
             };
             gaps.inner = 12;
-            bars = [ ];
+            bars = [
+              (lib.mkIf useGlobalBar (
+                {
+                  command = config.ordenada.globals.apps.bar;
+                  mode = "dock";
+                  extraConfig = "modifier none";
+                }
+                // extraGlobalBarSettings
+              ))
+            ];
             startup = map (x: {
               command = x;
               always = true;
@@ -210,6 +231,9 @@ mkFeature {
                 }
                 // lib.optionalAttrs (apps.passwordManager != null) {
                   "${modifier}+p" = "exec ${apps.passwordManager}";
+                }
+                // lib.optionalAttrs useGlobalBar {
+                  "${modifier}+b" = "bar mode toggle";
                 }
                 // extraKeybindings
               );

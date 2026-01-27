@@ -8,7 +8,7 @@
 }:
 
 let
-  inherit (lib) mkOption types;
+  inherit (lib) mkEnableOption mkOption types;
   autoload = import ./autoload.nix { inherit lib; };
 in
 {
@@ -66,6 +66,7 @@ in
           description = "Whether or not the WM is running under wayland.";
           default = false;
         };
+        wmControlledBar = mkEnableOption "the window manager to control the global bar";
         autoloads = mkOption {
           type = types.listOf types.str;
           description = "List of applications that should be started once the WM launches.";

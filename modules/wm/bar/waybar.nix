@@ -255,11 +255,12 @@ mkFeature {
         (with config.ordenada.features.waybar; {
           inherit package;
           enable = true;
-          systemd.enable = true;
+          systemd.enable = !config.ordenada.globals.wmControlledBar;
           settings.primary = {
             inherit height;
             layer = "top";
             position = "top";
+            ipc = true;
           }
           // (lib.optionalAttrs (output != [ ]) { inherit output; })
           // extraSettings;
