@@ -198,7 +198,11 @@ mkFeature {
               titlebar = false;
               border = 2;
             };
-            gaps.inner = 12;
+            gaps = {
+              inner = 12;
+              smartBorders = "on";
+              smartGaps = true;
+            };
             bars = [
               (lib.mkIf useGlobalBar (
                 {
