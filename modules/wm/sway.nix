@@ -49,7 +49,7 @@ mkFeature {
       useGlobalBar = mkEnableOption "managing the global system bar from Sway";
       extraGlobalBarSettings = mkOption {
         type = types.attrs;
-        description = "Extra settings to use for the default bar configuration.";
+        description = "Extra settings to use for the global bar configuration.";
         default = { };
       };
       extraKeybindings = mkOption {
