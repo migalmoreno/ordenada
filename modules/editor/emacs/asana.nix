@@ -32,7 +32,10 @@ mkFeature {
         name = "ordenada-asana";
         config = # elisp
           ''
-            (setq asana-token (auth-source-pick-first-password :host "asana"))
+            (with-eval-after-load 'asana-autoloads
+              (require 'helm))
+            (with-eval-after-load 'asana
+              (setq asana-token (auth-source-pick-first-password :host "asana")))
           '';
         elispPackages = [
           emacs-asana
