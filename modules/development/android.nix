@@ -444,6 +444,9 @@ mkFeature {
             (defvar ordenada-android-mode-build-command-map nil
               "Map to bind `android-mode' commands that build something under.")
             (define-prefix-command 'ordenada-android-mode-build-command-map)
+            (defvar ordenada-android-mode-logcat-command-map nil
+              "Map to bind `android-mode' commands that build something under.")
+            (define-prefix-command 'ordenada-android-mode-logcat-command-map)
 
             (defcustom ordenada-android-project-files
               '("android"
@@ -512,12 +515,21 @@ mkFeature {
               (keymap-set map "a" '("app" . android-start-app))
               (keymap-set map "d" '("ddms" . android-start-ddms)))
 
+            (let ((map ordenada-android-mode-logcat-command-map))
+              (keymap-set map "e" '("erase" . android-logcat-erase-buffer))
+              (keymap-set map "l" '("logcat" . android-logcat))
+              (keymap-set map "c" '("clear filter" . android-logcat-clear-filter))
+              (keymap-set map "s" '("set filter" . android-logcat-set-filter))
+              (keymap-set map "m" '("find file mouse" . android-logcat-find-file-mouse))
+              (keymap-set map "f" '("find file" . android-logcat-find-file)))
+
             (let ((map ordenada-android-mode-command-map))
               (keymap-set map "b"
                           '("build" . ordenada-android-mode-build-command-map))
               (keymap-set map "s"
                           '("start" . ordenada-android-mode-start-command-map))
-              (keymap-set map "l" '("logcat" . android-logcat)))
+              (keymap-set map "l"
+                          '("logcat" . ordenada-android-mode-logcat-command-map)))
               (keymap-set ordenada-android-mode-map "C-c A"
                           '("android" . ordenada-android-mode-command-map)))
           '';
