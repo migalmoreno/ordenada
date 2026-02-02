@@ -209,7 +209,7 @@ mkFeature {
           null;
       activeNdkRoot = if (activeSdkRoot != null) then "${activeSdkRoot}/ndk-bundle" else null;
 
-      latestOr = x: if (x != null) then x else "latest";
+      latestOr = x: s: if (x ? s) then x else "latest";
 
       mkAndroidEnv =
         sdkConfig:
@@ -221,11 +221,11 @@ mkFeature {
             includeNDK = true;
 
             platformVersions = [ sdkConfig.platformVersion ];
-            cmdLineToolsVersion = latestOr (sdkConfig.cmdLineToolsVersion);
-            toolsVersion = latestOr (sdkConfig.toolsVersion);
-            platformToolsVersion = latestOr (sdkConfig.platformToolsVersion);
+            cmdLineToolsVersion = latestOr sdkConfig "cmdLineToolsVersion";
+            toolsVersion = latestOr sdkConfig "toolsVersion";
+            platformToolsVersion = latestOr sdkConfig "platformToolsVersion";
             buildToolsVersions =
-              if (sdkConfig.buildToolsVersion != null) then [ sdkConfig.buildToolsVersion ] else [ "latest" ];
+              if (sdkConfig.buildToolsVersion != null) then [ sdkConfig.buildToolsVersion ] else [ "${sdkConfig.platformVersion}.0.0" ];
 
             extraLicenses = [
               "android-sdk-license"
@@ -293,8 +293,9 @@ mkFeature {
       activeAndroidEnv = mkAndroidEnv (
         lib.findFirst (sdk: sdk.platformVersion == cfg.activeSdkVersion) null cfg.sdks
       );
-      activePlatformTools =
-        if (cfg.activeSdkVersion != null) then activeAndroidEnv.platform-tools else null;
+      activePlatformTools = builtins.trace activeAndroidEnv (
+        if (cfg.activeSdkVersion != null) then activeAndroidEnv.platform-tools else null
+      );
 
       mkEmulatorDesktopEntry =
         emu: emuPkg:
@@ -302,13 +303,14 @@ mkFeature {
           emuSpec = if emu.name != null then "${emu.name}" else emu.platformVersion;
           emuName = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
+          emuAndroidEnv = mkAndroidEnv ({ platformVersion = emu.platformVersion; buildToolsVersion = null; });
         in
         {
           name = "android-emulator-${emuSpec}";
           value = {
             name = emuName;
             genericName = "Emulator";
-            icon = "${activeAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${cfg.activeSdkVersion}/templates/ic_launcher_xhdpi.png";
+            icon = "${emuAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${emu.platformVersion}/templates/ic_launcher_xhdpi.png";
             exec = "${emuPkg}/bin/${emuExe} %U";
             terminal = false;
             categories = [
@@ -325,7 +327,8 @@ mkFeature {
           emuSpec = if emu.name != null then emu.name else emu.platformVersion;
           name = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
-          pngIcon = "${activeAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${cfg.activeSdkVersion}/templates/ic_launcher_xhdpi.png";
+          emuAndroidEnv = mkAndroidEnv ({ platformVersion = emu.platformVersion; buildToolsVersion = null; });
+          pngIcon = "${emuAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${emu.platformVersion}/templates/ic_launcher_xhdpi.png";
         in
         pkgs.runCommand name
           {
@@ -493,7 +496,7 @@ mkFeature {
                                      (ordenada-android-mode)))))
 
             (with-eval-after-load 'android-mode
-              (setopt android-mode-sdk-dir "${if (activeSdkRoot != null) then activeSdkRoot else ""}")
+              (setopt android-mode-sdk-dir ${ordenada-lib.elisp.toNilOr activeSdkRoot ''"${activeSdkRoot}"''})
               (setopt android-mode-key-prefix "") ;; Do not use the provided way of binding android-mode commands
               (setopt android-mode-map (make-sparse-keymap)) ;; Overriding default map to avoid collisions
 
