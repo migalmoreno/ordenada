@@ -538,6 +538,7 @@ mkFeature {
         elispPackages = with pkgs.emacsPackages; [
           emacs-fdroid
           android-mode
+          groovy-mode
         ];
       };
     };
