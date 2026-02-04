@@ -28,15 +28,8 @@ jobs:
         run: cachix push migalmoreno ./result*
   build-darwin:
     runs-on: macos-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v5
-      - uses: wimpysworld/nothing-but-nix@v5
-        with:
-          hatchet-protocol: 'cleave'
-          nix-permission-edict: true
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
