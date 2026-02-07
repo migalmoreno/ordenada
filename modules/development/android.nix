@@ -136,17 +136,17 @@ mkFeature {
               width = mkOption {
                 type = types.str;
                 description = "Width of the AVD in px (e.g. \"500\")";
-                default = "1280";
+                default = "640";
               };
               height = mkOption {
                 type = types.str;
                 description = "height of the AVD in px (e.g. \"1000\")";
-                default = "2856";
+                default = "1080";
               };
               density = mkOption {
                 type = types.str;
                 description = "density of the AVD in PPI (e.g. \"350\")";
-                default = "495";
+                default = "300";
               };
               extraConfig = mkOption {
                 type = types.attrs;
@@ -224,7 +224,10 @@ mkFeature {
             toolsVersion = latestOr sdkConfig "toolsVersion";
             platformToolsVersion = latestOr sdkConfig "platformToolsVersion";
             buildToolsVersions =
-              if (sdkConfig.buildToolsVersion != null) then [ sdkConfig.buildToolsVersion ] else [ "${sdkConfig.platformVersion}.0.0" ];
+              if (sdkConfig.buildToolsVersion != null) then
+                [ sdkConfig.buildToolsVersion ]
+              else
+                [ "${sdkConfig.platformVersion}.0.0" ];
 
             extraLicenses = [
               "android-sdk-license"
@@ -258,34 +261,107 @@ mkFeature {
           emuSpec = if emu.name != null then sanitizeName emu.name else "${emu.platformVersion}";
           name = "android-emulator-${emuSpec}";
 
-          emulator = androidPkgs.androidenv.emulateApp {
-            name = name;
-            deviceName = name;
+          emulatorConfig = {
+            "hw.gpu.enabled" = "true";
+            "hw.gpu.mode" = "host";
+            "hw.ramSize" = "2048";
+            "hw.keyboard" = "true";
 
-            configOptions = {
-              "hw.gpu.enabled" = "true";
-              "hw.gpu.mode" = "host";
-              "hw.ramSize" = "2048";
-              "hw.keyboard" = "true";
+            "hw.lcd.height" = emu.height;
+            "hw.lcd.width" = emu.width;
+            "hw.lcd.density" = emu.density;
+          }
+          // emu.extraConfig;
 
-              "hw.lcd.height" = emu.height;
-              "hw.lcd.width" = emu.width;
-              "hw.lcd.density" = emu.density;
+          # Generate the config append commands
+          configLines = pkgs.lib.concatStringsSep "\n    " (
+            pkgs.lib.mapAttrsToList (key: value: ''echo "${key} = ${value}" >> "$CONFIG_FILE"'') emulatorConfig
+          );
+
+          script = # shell
+            ''
+              AVD_NAME="${name}"
+              AVD_DIR="$ANDROID_AVD_HOME/$AVD_NAME.avd"
+              CONFIG_FILE="$AVD_DIR/config.ini"
+              ORIGINAL_CONFIG_FILE="$AVD_DIR/config.ini.original"
+              SDK_DIR="$ANDROID_SDK_ROOT/../../"
+
+              if [ "$($SDK_DIR/bin/avdmanager list avd | grep "Name: $AVD_NAME")" = "" ]
+              then
+                  echo "Creating new AVD: $AVD_NAME"
+
+                  # Create a virtual android device
+                  yes "" | $SDK_DIR/bin/avdmanager create avd --force -n $AVD_NAME -k "system-images;android-${emu.platformVersion};${emu.systemImageType};${emu.abiVersion}" -p "$AVD_DIR" $NIX_ANDROID_AVD_FLAGS
+
+                  # Save original copy before modifications
+                  cp "$CONFIG_FILE" "$ORIGINAL_CONFIG_FILE"
+
+                  # Append our custom config
+                  ${configLines}
+              else
+                  echo "AVD already exists: $AVD_NAME"
+
+                  # Check if original config exists
+                  if [ -f "$ORIGINAL_CONFIG_FILE" ]; then
+                      echo "Restoring original config and reapplying custom settings..."
+                      cp "$ORIGINAL_CONFIG_FILE" "$CONFIG_FILE"
+
+                      # Reapply our custom config
+                      ${configLines}
+                  else
+                      echo "WARNING: Original config not found at $ORIGINAL_CONFIG_FILE"
+                      echo "Proceeding with existing config.ini - your custom settings may not be applied correctly."
+                      echo "To fix this, delete the AVD and let it be recreated, or manually create $ORIGINAL_CONFIG_FILE"
+                  fi
+              fi
+            '';
+
+          emulatorInstance = (
+            androidPkgs.androidenv.emulateApp {
+              name = name;
+              deviceName = name;
+
+              configOptions = {
+              };
+
+              androidUserHome = if (emu.persistentData == true) then cfg.androidUserHome else null;
+              androidAvdHome = if (emu.persistentData == true) then avdRoot else null;
+              avdHomeDir = if (emu.persistentData == true) then avdRoot else null;
+
+              platformVersion = emu.platformVersion;
+              abiVersion = emu.abiVersion;
+              systemImageType = emu.systemImageType;
             }
-            // emu.extraConfig;
+          );
 
-            androidUserHome = if (emu.persistentData == true) then cfg.androidUserHome else null;
-            androidAvdHome = if (emu.persistentData == true) then avdRoot else null;
-            avdHomeDir = if (emu.persistentData == true) then avdRoot else null;
+          emulator = emulatorInstance.overrideAttrs (oldAttrs: {
+            buildCommand = oldAttrs.buildCommand + ''
+              execScript="$out/bin/run-test-emulator"
 
-            platformVersion = emu.platformVersion;
-            abiVersion = emu.abiVersion;
-            systemImageType = emu.systemImageType;
-          };
+              # Fixing host gpu support
+              LIB_PATH="${pkgs.libglvnd}/lib:${pkgs.vulkan-loader}/lib:${pkgs.xorg.libX11}/lib:${pkgs.xorg.libXext}/lib"
+              DRIVER_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib"
+
+              cat > fix_env.sh <<EOF
+              export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
+              export VK_ICD_FILENAMES=\$(ls /run/opengl-driver/share/vulkan/icd.d/*.json 2>/dev/null | tr "\n" ":")
+              export LD_LIBRARY_PATH=$DRIVER_PATH:$LIB_PATH:\$LD_LIBRARY_PATH
+              EOF
+
+              sed -i '2r fix_env.sh' "$execScript"
+              rm fix_env.sh
+
+              ## Injecting our own settings write mechanism
+              sed -i '/# Create a virtual android device for testing if it does not exist/,/# Launch the emulator/{//!d;}' "$execScript"
+              sed -i '/# Launch the emulator/e cat ${pkgs.writeText "replacement.sh" script}' "$execScript"
+            '';
+          });
+
         in
         pkgs.writeShellScriptBin name ''
           unset ANDROID_HOME
           unset ANDROID_SDK_ROOT
+          unset ANDROID_AVD_HOME
           exec ${emulator}/bin/run-test-emulator "$@"
         '';
 
@@ -302,7 +378,10 @@ mkFeature {
           emuSpec = if emu.name != null then "${emu.name}" else emu.platformVersion;
           emuName = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
-          emuAndroidEnv = mkAndroidEnv ({ platformVersion = emu.platformVersion; buildToolsVersion = null; });
+          emuAndroidEnv = mkAndroidEnv ({
+            platformVersion = emu.platformVersion;
+            buildToolsVersion = null;
+          });
         in
         {
           name = "android-emulator-${emuSpec}";
@@ -326,7 +405,10 @@ mkFeature {
           emuSpec = if emu.name != null then emu.name else emu.platformVersion;
           name = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
-          emuAndroidEnv = mkAndroidEnv ({ platformVersion = emu.platformVersion; buildToolsVersion = null; });
+          emuAndroidEnv = mkAndroidEnv ({
+            platformVersion = emu.platformVersion;
+            buildToolsVersion = null;
+          });
           pngIcon = "${emuAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${emu.platformVersion}/templates/ic_launcher_xhdpi.png";
         in
         pkgs.runCommand name
@@ -419,7 +501,15 @@ mkFeature {
         }
       ];
 
-      wayland.windowManager.sway.config.floating.criteria = [ { app_id = "Waydroid"; } ];
+      wayland.windowManager.sway.config = mkIf config.ordenada.features.sway.enable {
+        floating.criteria = [ { app_id = "Waydroid"; } ];
+        window.commands = [
+          {
+            command = "resize set width 30 ppt";
+            criteria.title = ".*Emulator.*";
+          }
+        ];
+      };
 
       xdg.dataFile = builtins.listToAttrs (map mkSdkLink features.android.sdks);
       xdg.desktopEntries = mkIf (config.ordenada.globals.platform == "nixos") emulatorDesktopEntries;
