@@ -142,6 +142,9 @@ mkFeature {
               (add-hook 'after-init-hook #'savehist-mode)
               (run-with-idle-timer 30 t #'savehist-save)
 
+              (setopt inhibit-startup-echo-area-message "${config.ordenada.features.userInfo.username}")
+              (setopt warning-minimum-level :error)
+
               (show-paren-mode 1)
               (subword-mode 1)
               (setq-default indent-tabs-mode nil)
