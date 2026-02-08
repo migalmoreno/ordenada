@@ -29,11 +29,35 @@ mkFeature {
         name = "ordenada-nix";
         config = # elisp
           ''
-            (add-hook 'nix-ts-mode-hook #'eglot-ensure)
+            (defgroup ordenada-nix nil
+              "General nix programming utilities."
+              :group 'ordenada)
+
+            (defvar ordenada-nix-mode-map (make-sparse-keymap))
+
+            (keymap-set ordenada-nix-mode-map "C-c f"
+                        '("Format buffer" . nix-format-buffer))
+
+            (define-minor-mode ordenada-nix-mode
+              "Set up convenient tweaks for nix development."
+              :group 'ordenada-nix :keymap ordenada-nix-mode-map
+              (when ordenada-javascript-mode
+                (eglot-ensure)
+                (electric-pair-local-mode)))
+
+            (add-hook 'nix-ts-mode-hook #'ordenada-nix-mode)
+
             (with-eval-after-load 'eglot
               (add-to-list 'eglot-server-programs '(nix-ts-mode . ("${lib.getExe pkgs.nil}"))))
 
             (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
+
+            (eval-and-compile
+              (require 'nix-mode)
+              (require 'nix-format))
+
+            (with-eval-after-load 'nix-format
+              (setopt nix-nixfmt-bin "${pkgs.nixfmt}/bin/nixfmt"))
 
             ${lib.optionalString config.ordenada.features.nix.enablePolymode ''
               (eval-and-compile
@@ -56,10 +80,9 @@ mkFeature {
               (with-eval-after-load 'rainbow-delimiters
                 (add-hook 'nix-ts-mode-hook #'rainbow-delimiters-mode-disable))
             ''}
+
             (with-eval-after-load 'smartparens
               (add-hook 'nix-ts-mode-hook #'turn-off-smartparens-mode))
-
-            (add-hook 'nix-ts-mode-hook #'electric-pair-local-mode)
           '';
         elispPackages =
           with pkgs.emacsPackages;
