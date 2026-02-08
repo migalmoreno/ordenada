@@ -115,6 +115,12 @@ mkFeature {
                      ((,c :foreground ,bg-removed-fringe :background ,bg-main)))
                    `(git-gutter-fr:modified
                      ((,c :foreground ,bg-changed-fringe :background ,bg-main)))
+                   `(diff-hl-insert
+                     ((,c :foreground ,bg-added-fringe)))
+                   `(diff-hl-delete
+                     ((,c :foreground ,bg-removed-fringe)))
+                   `(diff-hl-change
+                     ((,c :foreground ,bg-changed-fringe)))
                    `(aw-leading-char-face
                      ((,c :height 1.0 :foreground ,blue-cooler)))))
                 )
