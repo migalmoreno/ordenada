@@ -96,6 +96,18 @@ mkFeature {
 
             (with-eval-after-load 'ordenada-keymaps
               (keymap-set ordenada-app-map "L" #'git-link))
+
+            (global-diff-hl-mode)
+
+            (with-eval-after-load 'ordenada-keymaps
+              (keymap-set ordenada-toggle-map "g" '("Toggle diff-hl mode" . global-diff-hl-mode)))
+
+            (with-eval-after-load 'diff-hl
+              (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+
+              (when (package-installed-p 'psvn)
+                (advice-add 'svn-status-update-modeline :after #'diff-hl-update)))
+
             (with-eval-after-load 'git-link
               ${
                 toString (
@@ -118,6 +130,7 @@ mkFeature {
           consult-gh-embark
           consult-gh-forge
           consult-gh-with-pr-review
+          diff-hl
         ];
       };
     };
