@@ -80,7 +80,7 @@ mkFeature {
     { config, ... }:
     {
       apps.wm = mkIf (
-        config.ordenada.globals.platform == "darwin"
+        config.ordenada.globals.platform == "darwin" && config.ordenada.features.aerospace.enable == true
       ) "${config.ordenada.features.aerospace.package}/Applications/AeroSpace.app";
     };
   homeManager =
