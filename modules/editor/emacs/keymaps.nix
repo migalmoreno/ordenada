@@ -52,9 +52,19 @@ mkFeature {
           (defvar ordenada-toggle-map nil
             "Prefix keymap for binding various minor modes for toggling functionality.")
           (define-prefix-command 'ordenada-toggle-map nil)
+          (defun ordenada-toggle-line-numbers-mode ()
+          "Toggles between absolute and relative line numbers mode."
+          (interactive)
+            (if (or (eq display-line-numbers 'absolute) (eq display-line-numbers t))
+             (menu-bar--display-line-numbers-mode-relative)
+             (menu-bar--display-line-numbers-mode-absolute)))
+
           (define-key mode-specific-map (kbd "${appMapPrefix}") '("applications" . ordenada-app-map))
           (define-key mode-specific-map (kbd "${toggleMapPrefix}") '("toggles" . ordenada-toggle-map))
-          (keymap-set ordenada-toggle-map "f" #'display-fill-column-indicator-mode)
+
+          (keymap-set ordenada-toggle-map "f" '("Toggle fill column indicator" . display-fill-column-indicator-mode))
+          (keymap-set ordenada-toggle-map "n" '("Toggle line numbers" . display-line-numbers-mode))
+          (keymap-set ordenada-toggle-map "N" '("Toggle relative / absolute line numbers" . ordenada-toggle-line-numbers-mode))
         '';
       };
     };
