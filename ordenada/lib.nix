@@ -155,12 +155,10 @@
             ];
           };
         in
-        lib.mkMerge (
-          builtins.trace aerospaceRule [
-            (lib.mkIf (wmEnabled "sway") swayRule)
-            (lib.mkIf (wmEnabled "aerospace") aerospaceRule)
-          ]
-        );
+        lib.mkMerge [
+          (lib.mkIf (wmEnabled "sway") swayRule)
+          (lib.mkIf (wmEnabled "aerospace") aerospaceRule)
+        ];
     };
     lisp = rec {
       toVal =
