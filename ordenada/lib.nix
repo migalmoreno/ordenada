@@ -118,6 +118,50 @@
     str = {
       capitalize = s: (lib.toUpper (lib.substring 0 1 s)) + (lib.substring 1 (lib.stringLength s - 1) s);
     };
+    wm = {
+      mkWindowRule =
+        config: app: commands:
+        let
+          appId = if lib.isString app then null else app.app-id or null;
+          appTitle = if lib.isString app then app else app.title or app.app;
+
+          wmEnabled = wm: config.ordenada.features.${wm}.enable or false;
+
+          swayCommands =
+            (lib.optional (commands.layout or null == "floating") "floating enable")
+            ++ (lib.optional (commands.layout or null == "tiling") "floating disable")
+            ++ (lib.optional (commands.width or null != null) "resize set width ${toString commands.width} px");
+
+          aerospaceCommands =
+            (lib.optional (commands.layout or null != null) "layout ${commands.layout}")
+            ++ (lib.optional (commands.width or null != null) "resize width ${toString commands.width}");
+
+          # Sway-specific window rule
+          swayRule = {
+            wayland.windowManager.sway.config.window.commands = map (cmd: {
+              command = cmd;
+              criteria = if appId != null then { app_id = appId; } else { title = ".*${appTitle}.*"; };
+            }) swayCommands;
+          };
+
+          # Aerospace-specific window rule
+          aerospaceRule = {
+            programs.aerospace.settings.on-window-detected = [
+              {
+                "if" =
+                  if appId != null then { "app-id" = appId; } else { "window-title-regex-substring" = appTitle; };
+                run = aerospaceCommands;
+              }
+            ];
+          };
+        in
+        lib.mkMerge (
+          builtins.trace aerospaceRule [
+            (lib.mkIf (wmEnabled "sway") swayRule)
+            (lib.mkIf (wmEnabled "aerospace") aerospaceRule)
+          ]
+        );
+    };
     lisp = rec {
       toVal =
         v:
@@ -181,7 +225,7 @@
         let
           configKey = if (type == "home") then "config" else "serviceConfig";
           agentOptions = builtins.removeAttrs options [ "config" ];
-          agentConfig = options.config or {};
+          agentConfig = options.config or { };
         in
         lib.mkMerge [
           (lib.mkIf (type == "home") { enable = true; })
