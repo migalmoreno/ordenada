@@ -83,11 +83,6 @@ mkFeature {
             (defun ordenada-javascript--disable-eglot-parts ()
               (setq-local eglot-stay-out-of '(flymake)))
 
-            (defun ordenada-javascript--setup-electric-pairs-for-jsx-tsx ()
-              (electric-pair-local-mode)
-              (setq-local electric-pair-pairs (append electric-pair-pairs '((60 . 62))))
-              (setq-local electric-pair-text-pairs electric-pair-pairs))
-
             (defun ordenada-javascript--setup-flymake-for-eglot ()
               (flymake-mode t)
               (when (derived-mode-p 'typescript-ts-mode 'js-ts-mode 'tsx-ts-mode 'jsx-ts-mode)
@@ -120,7 +115,6 @@ mkFeature {
                 (setq tab-width 2)
 
                 (ordenada-javascript--disable-eglot-parts)
-                (ordenada-javascript--setup-electric-pairs-for-jsx-tsx)
 
                 (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
                 (add-hook 'js2-mode-hook #'js2-refactor-mode)
