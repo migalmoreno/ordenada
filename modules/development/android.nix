@@ -338,18 +338,25 @@ mkFeature {
             buildCommand = oldAttrs.buildCommand + ''
               execScript="$out/bin/run-test-emulator"
 
-              # Fixing host gpu support
-              LIB_PATH="${pkgs.libglvnd}/lib:${pkgs.vulkan-loader}/lib:${pkgs.xorg.libX11}/lib:${pkgs.xorg.libXext}/lib"
-              DRIVER_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib"
+              ${
+                if (config.ordenada.globals.platform == "linux") then
+                  ''
+                    # Fixing host gpu support
+                    LIB_PATH="${pkgs.libglvnd}/lib:${pkgs.vulkan-loader}/lib:${pkgs.xorg.libX11}/lib:${pkgs.xorg.libXext}/lib"
+                    DRIVER_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib"
 
-              cat > fix_env.sh <<EOF
-              export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
-              export VK_ICD_FILENAMES=\$(ls /run/opengl-driver/share/vulkan/icd.d/*.json 2>/dev/null | tr "\n" ":")
-              export LD_LIBRARY_PATH=$DRIVER_PATH:$LIB_PATH:\$LD_LIBRARY_PATH
-              EOF
+                    cat > fix_env.sh <<EOF
+                    export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
+                    export VK_ICD_FILENAMES=\$(ls /run/opengl-driver/share/vulkan/icd.d/*.json 2>/dev/null | tr "\n" ":")
+                    export LD_LIBRARY_PATH=$DRIVER_PATH:$LIB_PATH:\$LD_LIBRARY_PATH
+                    EOF
 
-              sed -i '2r fix_env.sh' "$execScript"
-              rm fix_env.sh
+                    sed -i '2r fix_env.sh' "$execScript"
+                    rm fix_env.sh
+                  ''
+                else
+                  ""
+              }
 
               ## Injecting our own settings write mechanism
               sed -i '/# Create a virtual android device for testing if it does not exist/,/# Launch the emulator/{//!d;}' "$execScript"
