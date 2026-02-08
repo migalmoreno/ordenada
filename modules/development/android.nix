@@ -402,9 +402,8 @@ mkFeature {
       activeAndroidEnv = mkAndroidEnv (
         lib.findFirst (sdk: sdk.platformVersion == cfg.activeSdkVersion) null cfg.sdks
       );
-      activePlatformTools = builtins.trace activeAndroidEnv (
-        if (cfg.activeSdkVersion != null) then activeAndroidEnv.platform-tools else null
-      );
+      activePlatformTools =
+        if (cfg.activeSdkVersion != null) then activeAndroidEnv.platform-tools else null;
 
       mkEmulatorDesktopEntry =
         emu: emuPkg:
