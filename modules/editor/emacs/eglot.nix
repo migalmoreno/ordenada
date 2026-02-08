@@ -29,11 +29,11 @@ mkFeature {
               (setopt eglot-extend-to-xref t)
               (setopt eglot-connect-timeout ${toString config.ordenada.features.emacs.eglot.connectTimeout})
               (let ((map eglot-mode-map))
-                (keymap-set map "C-c c a" #'eglot-code-actions)
-                (keymap-set map "C-c c o" #'eglot-code-action-organize-imports)
-                (keymap-set map "C-c c q" #'eglot-code-action-quickfix)
-                (keymap-set map "C-c c r" #'eglot-rename)
-                (keymap-set map "C-c c f" #'eglot-format)))
+                (keymap-set map "C-c c a" '("Actions" . eglot-code-actions))
+                (keymap-set map "C-c c o" '("Organize imports" . eglot-code-action-organize-imports))
+                (keymap-set map "C-c c q" '("Quickfix" . eglot-code-action-quickfix))
+                (keymap-set map "C-c c r" '("Rename symbol" . eglot-rename))
+                (keymap-set map "C-c c f" '("Format buffer" . eglot-format))))
           '';
         elispPackages =
           with pkgs.emacsPackages;
