@@ -479,173 +479,188 @@ mkFeature {
         };
       };
     in
-    {
-      assertions = [
-        (mkIf ((builtins.length cfg.sdks > 0) && (cfg.activeSdkVersion != null)) {
-          assertion = lib.any (sdk: sdk.platformVersion == cfg.activeSdkVersion) cfg.sdks;
-          message = "The list of SDK versions must include the active sdk version.";
-        })
-        (mkIf (builtins.length cfg.sdks > 0 || builtins.length cfg.emulators > 0) {
-          assertion = cfg.allowUnfreeAndAcceptLicenses == true;
-          message = "The `allowUnfreeAndAcceptLicenses` option needs to be set to `true` in order to build an android environment";
-        })
-      ];
-
-      home = mkMerge [
-        (mkIf (cfg.activeSdkVersion != null) {
-          sessionVariables.ANDROID_HOME = activeSdkRoot;
-          sessionVariables.ANDROID_SDK_ROOT = activeSdkRoot;
-          sessionVariables.ANDROID_NDK_ROOT = activeNdkRoot;
-          sessionVariables.ANDROID_USER_HOME = cfg.androidUserHome;
-          sessionVariables.ANDROID_AVD_HOME = avdRoot;
-          sessionVariables.AVD_HOME_DIR = avdRoot;
-        })
+    mkMerge [
+      (ordenada-lib.wm.mkWindowRule config
         {
-          packages =
-            with pkgs;
-            mkMerge [
-              (if cfg.activeSdkVersion != null then [ activePlatformTools ] else [ android-tools ])
-              (
-                [
-                  payload-dumper-go
-                  fdroidcl
-                ]
-                ++ emulators
-              )
-              (mkIf (config.ordenada.globals.platform == "darwin") emulatorAppBundles)
-            ];
+          app-id = "Waydroid";
+          title = "Waydroid"; # fallback
         }
-      ];
+        {
+          layout = "floating";
+        }
+      )
+      (ordenada-lib.wm.mkWindowRule config { title = "Emulator"; } {
+        layout = "tiling";
+        width = 200;
+      })
+      {
+        assertions = [
+          (mkIf ((builtins.length cfg.sdks > 0) && (cfg.activeSdkVersion != null)) {
+            assertion = lib.any (sdk: sdk.platformVersion == cfg.activeSdkVersion) cfg.sdks;
+            message = "The list of SDK versions must include the active sdk version.";
+          })
+          (mkIf (builtins.length cfg.sdks > 0 || builtins.length cfg.emulators > 0) {
+            assertion = cfg.allowUnfreeAndAcceptLicenses == true;
+            message = "The `allowUnfreeAndAcceptLicenses` option needs to be set to `true` in order to build an android environment";
+          })
+        ];
 
-      wayland.windowManager.sway.config = mkIf config.ordenada.features.sway.enable {
-        floating.criteria = [ { app_id = "Waydroid"; } ];
-        window.commands = [
+        home = mkMerge [
+          (mkIf (cfg.activeSdkVersion != null) {
+            sessionVariables.ANDROID_HOME = activeSdkRoot;
+            sessionVariables.ANDROID_SDK_ROOT = activeSdkRoot;
+            sessionVariables.ANDROID_NDK_ROOT = activeNdkRoot;
+            sessionVariables.ANDROID_USER_HOME = cfg.androidUserHome;
+            sessionVariables.ANDROID_AVD_HOME = avdRoot;
+            sessionVariables.AVD_HOME_DIR = avdRoot;
+          })
           {
-            command = "resize set width 30 ppt";
-            criteria.title = ".*Emulator.*";
+            packages =
+              with pkgs;
+              mkMerge [
+                (if cfg.activeSdkVersion != null then [ activePlatformTools ] else [ android-tools ])
+                (
+                  [
+                    payload-dumper-go
+                    fdroidcl
+                  ]
+                  ++ emulators
+                )
+                (mkIf (config.ordenada.globals.platform == "darwin") emulatorAppBundles)
+              ];
           }
         ];
-      };
 
-      xdg.dataFile = builtins.listToAttrs (map mkSdkLink features.android.sdks);
-      xdg.desktopEntries = mkIf (config.ordenada.globals.platform == "nixos") emulatorDesktopEntries;
+        # wayland.windowManager.sway.config = mkIf config.ordenada.features.sway.enable {
+        #   floating.criteria = [ { app_id = "Waydroid"; } ];
+        #   window.commands = [
+        #     {
+        #       command = "resize set width 30 ppt";
+        #       criteria.title = ".*Emulator.*";
+        #     }
+        #   ];
+        # };
 
-      programs.emacs = ordenada-lib.mkElispConfig pkgs {
-        name = "ordenada-android";
-        config = # elisp
-          ''
-            (with-eval-after-load 'ordenada-keymaps
-              (keymap-set ordenada-app-map "${features.android.fdroidKey}" 'fdroid-map))
+        xdg.dataFile = builtins.listToAttrs (map mkSdkLink features.android.sdks);
+        xdg.desktopEntries = mkIf (config.ordenada.globals.platform == "nixos") emulatorDesktopEntries;
 
-            (defgroup ordenada-android nil
-              "General Android programming utilities."
-              :group 'ordenada)
+        programs.emacs = ordenada-lib.mkElispConfig pkgs {
+          name = "ordenada-android";
+          config = # elisp
+            ''
+              (with-eval-after-load 'ordenada-keymaps
+                (keymap-set ordenada-app-map "${features.android.fdroidKey}" 'fdroid-map))
 
-            (defvar ordenada-android-mode-map (make-sparse-keymap))
+              (defgroup ordenada-android nil
+                "General Android programming utilities."
+                :group 'ordenada)
 
-            (defvar ordenada-android-mode-command-map nil
-              "Map to bind `android-mode' commands under.")
-            (define-prefix-command 'ordenada-android-mode-command-map)
-            (defvar ordenada-android-mode-start-command-map nil
-              "Map to bind `android-mode' commands that start something under.")
-            (define-prefix-command 'ordenada-android-mode-start-command-map)
-            (defvar ordenada-android-mode-build-command-map nil
-              "Map to bind `android-mode' commands that build something under.")
-            (define-prefix-command 'ordenada-android-mode-build-command-map)
-            (defvar ordenada-android-mode-logcat-command-map nil
-              "Map to bind `android-mode' commands that build something under.")
-            (define-prefix-command 'ordenada-android-mode-logcat-command-map)
+              (defvar ordenada-android-mode-map (make-sparse-keymap))
 
-            (defcustom ordenada-android-project-files
-              '("android"
-                "AndroidManifest.xml"
-                "src/main/AndroidManifest.xml"
-                "app/src/main/AndroidManifest.xml"
+              (defvar ordenada-android-mode-command-map nil
+                "Map to bind `android-mode' commands under.")
+              (define-prefix-command 'ordenada-android-mode-command-map)
+              (defvar ordenada-android-mode-start-command-map nil
+                "Map to bind `android-mode' commands that start something under.")
+              (define-prefix-command 'ordenada-android-mode-start-command-map)
+              (defvar ordenada-android-mode-build-command-map nil
+                "Map to bind `android-mode' commands that build something under.")
+              (define-prefix-command 'ordenada-android-mode-build-command-map)
+              (defvar ordenada-android-mode-logcat-command-map nil
+                "Map to bind `android-mode' commands that build something under.")
+              (define-prefix-command 'ordenada-android-mode-logcat-command-map)
 
-                "build.gradle"
-                "build.gradle.kts"
-                "settings.gradle"
-                "settings.gradle.kts"
-                "gradlew"
-                "gradlew.bat"
+              (defcustom ordenada-android-project-files
+                '("android"
+                  "AndroidManifest.xml"
+                  "src/main/AndroidManifest.xml"
+                  "app/src/main/AndroidManifest.xml"
 
-                "capacitor.config.ts"
-                "react-native.config.js"
-                "metro.config.js"
+                  "build.gradle"
+                  "build.gradle.kts"
+                  "settings.gradle"
+                  "settings.gradle.kts"
+                  "gradlew"
+                  "gradlew.bat"
 
-                "config.xml"
-                "pubspec.yml")
-              "List of files that each may denote an Android project."
-              :group 'ordenada-android)
+                  "capacitor.config.ts"
+                  "react-native.config.js"
+                  "metro.config.js"
 
-            (defun ordenada-android--is-android-project-p ()
-              (cl-some #'file-exists-p
-                       (mapcar (lambda (s) (concat (project-root (project-current)) s))
-                               ordenada-android-project-files)))
+                  "config.xml"
+                  "pubspec.yml")
+                "List of files that each may denote an Android project."
+                :group 'ordenada-android)
 
-            (define-minor-mode ordenada-android-mode
-              "Set up convenient tweaks for Android development."
-              :group 'ordenada-android :keymap ordenada-android-mode-map
-              (when ordenada-android-mode
-                (android-mode)))
+              (defun ordenada-android--is-android-project-p ()
+                (cl-some #'file-exists-p
+                         (mapcar (lambda (s) (concat (project-root (project-current)) s))
+                                 ordenada-android-project-files)))
 
-            ;; Android projects don't have a designated major-mode we can hook into.
-            ;; Instead, we check on every project switch whether the one we switch to
-            ;; classifies as an Android project and if so, we activate our minor mode.
-            (with-eval-after-load 'project
-              (advice-add 'project-switch-project
-                          :after (lambda (&rest _)
-                                   (when (and
-                                          (project-current)
-                                          (ordenada-android--is-android-project-p))
-                                     (ordenada-android-mode)))))
+              (define-minor-mode ordenada-android-mode
+                "Set up convenient tweaks for Android development."
+                :group 'ordenada-android :keymap ordenada-android-mode-map
+                (when ordenada-android-mode
+                  (android-mode)))
 
-            (with-eval-after-load 'android-mode
-              (setopt android-mode-sdk-dir ${ordenada-lib.elisp.toNilOr activeSdkRoot ''"${activeSdkRoot}"''})
-              (setopt android-mode-key-prefix "") ;; Do not use the provided way of binding android-mode commands
-              (setopt android-mode-map (make-sparse-keymap)) ;; Overriding default map to avoid collisions
+              ;; Android projects don't have a designated major-mode we can hook into.
+              ;; Instead, we check on every project switch whether the one we switch to
+              ;; classifies as an Android project and if so, we activate our minor mode.
+              (with-eval-after-load 'project
+                (advice-add 'project-switch-project
+                            :after (lambda (&rest _)
+                                     (when (and
+                                            (project-current)
+                                            (ordenada-android--is-android-project-p))
+                                       (ordenada-android-mode)))))
 
-              (advice-add
-               'android-local-sdk-dir
-               :override (lambda (&rest r)
-                           android-mode-sdk-dir))
+              (with-eval-after-load 'android-mode
+                (setopt android-mode-sdk-dir ${ordenada-lib.elisp.toNilOr activeSdkRoot ''"${activeSdkRoot}"''})
+                (setopt android-mode-key-prefix "") ;; Do not use the provided way of binding android-mode commands
+                (setopt android-mode-map (make-sparse-keymap)) ;; Overriding default map to avoid collisions
 
-            (let ((map ordenada-android-mode-build-command-map))
-              (keymap-set map "c" '("clean" . android-build-clean))
-              (keymap-set map "d" '("debug" . android-build-debug))
-              (keymap-set map "i" '("install" . android-build-install))
-              (keymap-set map "r" '("reinstall" . android-build-reinstall))
-              (keymap-set map "t" '("test" . android-build-test))
-              (keymap-set map "u" '("uninstall" . android-build-uninstall)))
+                (advice-add
+                 'android-local-sdk-dir
+                 :override (lambda (&rest r)
+                             android-mode-sdk-dir))
 
-            (let ((map ordenada-android-mode-start-command-map))
-              (keymap-set map "e" '("emulator" . android-start-emulator))
-              (keymap-set map "a" '("app" . android-start-app))
-              (keymap-set map "d" '("ddms" . android-start-ddms)))
+              (let ((map ordenada-android-mode-build-command-map))
+                (keymap-set map "c" '("clean" . android-build-clean))
+                (keymap-set map "d" '("debug" . android-build-debug))
+                (keymap-set map "i" '("install" . android-build-install))
+                (keymap-set map "r" '("reinstall" . android-build-reinstall))
+                (keymap-set map "t" '("test" . android-build-test))
+                (keymap-set map "u" '("uninstall" . android-build-uninstall)))
 
-            (let ((map ordenada-android-mode-logcat-command-map))
-              (keymap-set map "e" '("erase" . android-logcat-erase-buffer))
-              (keymap-set map "l" '("logcat" . android-logcat))
-              (keymap-set map "c" '("clear filter" . android-logcat-clear-filter))
-              (keymap-set map "s" '("set filter" . android-logcat-set-filter))
-              (keymap-set map "m" '("find file mouse" . android-logcat-find-file-mouse))
-              (keymap-set map "f" '("find file" . android-logcat-find-file)))
+              (let ((map ordenada-android-mode-start-command-map))
+                (keymap-set map "e" '("emulator" . android-start-emulator))
+                (keymap-set map "a" '("app" . android-start-app))
+                (keymap-set map "d" '("ddms" . android-start-ddms)))
 
-            (let ((map ordenada-android-mode-command-map))
-              (keymap-set map "b"
-                          '("build" . ordenada-android-mode-build-command-map))
-              (keymap-set map "s"
-                          '("start" . ordenada-android-mode-start-command-map))
-              (keymap-set map "l"
-                          '("logcat" . ordenada-android-mode-logcat-command-map)))
-              (keymap-set ordenada-android-mode-map "C-c A"
-                          '("android" . ordenada-android-mode-command-map)))
-          '';
-        elispPackages = with pkgs.emacsPackages; [
-          emacs-fdroid
-          android-mode
-          groovy-mode
-        ];
-      };
-    };
+              (let ((map ordenada-android-mode-logcat-command-map))
+                (keymap-set map "e" '("erase" . android-logcat-erase-buffer))
+                (keymap-set map "l" '("logcat" . android-logcat))
+                (keymap-set map "c" '("clear filter" . android-logcat-clear-filter))
+                (keymap-set map "s" '("set filter" . android-logcat-set-filter))
+                (keymap-set map "m" '("find file mouse" . android-logcat-find-file-mouse))
+                (keymap-set map "f" '("find file" . android-logcat-find-file)))
+
+              (let ((map ordenada-android-mode-command-map))
+                (keymap-set map "b"
+                            '("build" . ordenada-android-mode-build-command-map))
+                (keymap-set map "s"
+                            '("start" . ordenada-android-mode-start-command-map))
+                (keymap-set map "l"
+                            '("logcat" . ordenada-android-mode-logcat-command-map)))
+                (keymap-set ordenada-android-mode-map "C-c A"
+                            '("android" . ordenada-android-mode-command-map)))
+            '';
+          elispPackages = with pkgs.emacsPackages; [
+            emacs-fdroid
+            android-mode
+            groovy-mode
+          ];
+        };
+      }
+    ];
 }
