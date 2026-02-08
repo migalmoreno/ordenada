@@ -366,7 +366,7 @@ mkFeature {
               execScript="$out/bin/run-test-emulator"
 
               ${
-                if (config.ordenada.globals.platform == "linux") then
+                if (config.ordenada.globals.platform == "nixos") then
                   ''
                     # Fixing host gpu support
                     LIB_PATH="${pkgs.libglvnd}/lib:${pkgs.vulkan-loader}/lib:${pkgs.xorg.libX11}/lib:${pkgs.xorg.libXext}/lib"
