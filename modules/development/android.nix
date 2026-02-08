@@ -2,6 +2,7 @@
   lib,
   mkFeature,
   ordenada-lib,
+  fetchgit,
   ...
 }:
 let
@@ -179,6 +180,32 @@ mkFeature {
     let
       features = config.ordenada.features;
       cfg = features.android;
+
+      android-icons = pkgs.stdenv.mkDerivation {
+        pname = "android-icons";
+        version = "1.0.0";
+
+        src = builtins.fetchGit {
+          url = "https://github.com/minikN/android-icons.git";
+          ref = "main";
+          rev = "496752f7965851dbeb86ed90299db59fc09da380";
+        };
+
+        dontBuild = true;
+
+        installPhase = ''
+          mkdir -p $out/share/icons
+          cp *.png $out/share/icons/
+          cp *.icns $out/share/icons/
+        '';
+
+        meta = with lib; {
+          description = "Android icons";
+          license = licenses.gpl3;
+          platforms = platforms.all;
+        };
+      };
+
       emacs-fdroid = pkgs.emacsPackages.melpaBuild {
         pname = "fdroid";
         version = "0.1.1";
@@ -385,17 +412,13 @@ mkFeature {
           emuSpec = if emu.name != null then "${emu.name}" else emu.platformVersion;
           emuName = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
-          emuAndroidEnv = mkAndroidEnv ({
-            platformVersion = emu.platformVersion;
-            buildToolsVersion = null;
-          });
         in
         {
           name = "android-emulator-${emuSpec}";
           value = {
             name = emuName;
             genericName = "Emulator";
-            icon = "${emuAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${emu.platformVersion}/templates/ic_launcher_xhdpi.png";
+            icon = "${android-icons}/share/icons/android.png";
             exec = "${emuPkg}/bin/${emuExe} %U";
             terminal = false;
             categories = [
@@ -412,48 +435,35 @@ mkFeature {
           emuSpec = if emu.name != null then emu.name else emu.platformVersion;
           name = "Android Emulator \(${emuSpec}\)";
           emuExe = builtins.baseNameOf (lib.getExe emuPkg);
-          emuAndroidEnv = mkAndroidEnv ({
-            platformVersion = emu.platformVersion;
-            buildToolsVersion = null;
-          });
-          pngIcon = "${emuAndroidEnv.androidsdk}/libexec/android-sdk/platforms/android-${emu.platformVersion}/templates/ic_launcher_xhdpi.png";
         in
-        pkgs.runCommand name
-          {
-            nativeBuildInputs = [
-              pkgs.libicns
-              pkgs.imagemagick
-            ];
-          }
-          ''
-            APP_DIR="$out/Applications/${name}.app/Contents"
-            mkdir -p "$APP_DIR/MacOS"
-            mkdir -p "$APP_DIR/Resources"
+        pkgs.runCommand name { } ''
+          APP_DIR="$out/Applications/${name}.app/Contents"
+          mkdir -p "$APP_DIR/MacOS"
+          mkdir -p "$APP_DIR/Resources"
 
-            convert "${pngIcon}" -resize 512x512 -background none -gravity center -extent 512x512 icon.png
-            png2icns "$APP_DIR/Resources/icon.icns" icon.png
+          cp "${android-icons}/share/icons/android.icns" "$APP_DIR/Resources/icon.icns"
 
-            ln -s "${emuPkg}/bin/${emuExe}" "$out/Applications/${name}.app/Contents/MacOS/${name}"
+          ln -s "${emuPkg}/bin/${emuExe}" "$out/Applications/${name}.app/Contents/MacOS/${name}"
 
-            cat <<EOF > "$APP_DIR/Info.plist"
-                <?xml version="1.0" encoding="UTF-8"?>
-                <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-                <plist version="1.0">
-                <dict>
-                    <key>CFBundleExecutable</key>
-                    <string>${name}</string>
-                    <key>CFBundleIconFile</key>
-                    <string>icon.icns</string>
-                    <key>CFBundleIdentifier</key>
-                    <string>org.ordenada.${sanitizeName name}</string>
-                    <key>CFBundleName</key>
-                    <string>${name}</string>
-                    <key>CFBundlePackageType</key>
-                    <string>APPL</string>
-                </dict>
-                </plist>
-                EOF
-          '';
+          cat <<EOF > "$APP_DIR/Info.plist"
+              <?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+              <plist version="1.0">
+              <dict>
+                  <key>CFBundleExecutable</key>
+                  <string>${name}</string>
+                  <key>CFBundleIconFile</key>
+                  <string>icon.icns</string>
+                  <key>CFBundleIdentifier</key>
+                  <string>org.ordenada.${sanitizeName name}</string>
+                  <key>CFBundleName</key>
+                  <string>${name}</string>
+                  <key>CFBundlePackageType</key>
+                  <string>APPL</string>
+              </dict>
+              </plist>
+              EOF
+        '';
 
       emulators = lib.map mkEmulator cfg.emulators;
       emulatorAppBundles = lib.lists.imap0 (
