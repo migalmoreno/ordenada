@@ -126,31 +126,31 @@ mkFeature {
                 (npm-mode)))
 
             (let ((map ordenada-javascript-nodejs-repl-mode-command-map))
-              (keymap-set map "e" #'nodejs-repl-send-last-expression)
-              (keymap-set map "j" #'nodejs-repl-send-line)
-              (keymap-set map "r" #'nodejs-repl-send-region)
-              (keymap-set map "C-c" #'nodejs-repl-send-buffer)
-              (keymap-set map "C-l" #'nodejs-repl-load-file)
-              (keymap-set map "C-z" #'nodejs-repl-switch-to-repl))
+              (keymap-set map "e" '("Send last expression" . nodejs-repl-send-last-expression))
+              (keymap-set map "j" '("Send line" . nodejs-repl-send-line))
+              (keymap-set map "r" '("Send region" . nodejs-repl-send-region))
+              (keymap-set map "C-c" '("Send buffer" . nodejs-repl-send-buffer))
+              (keymap-set map "C-l" '("Load file" . nodejs-repl-load-file))
+              (keymap-set map "C-z" '("Switch to REPL" . nodejs-repl-switch-to-repl)))
             (let ((map ordenada-javascript-jtsx-command-map))
-              (keymap-set map "j" #'jtsx-jump-jsx-element-tag-dwim)
-              (keymap-set map "r" #'jtsx-rename-jsx-element)
-              (keymap-set map "<down>" #'jtsx-move-jsx-element-forward)
-              (keymap-set map "<up>" #'jtsx-move-jsx-element-backward)
-              (keymap-set map "<right>" #'jtsx-move-jsx-element-step-in-forward)
-              (keymap-set map "<left>" #'jtsx-move-jsx-element-step-in-backward)
-              (keymap-set map "C-<down>" #'jtsx-move-jsx-element-tag-forward)
-              (keymap-set map "C-<up>" #'jtsx-move-jsx-element-tag-backward)
-              (keymap-set map "w" #'jtsx-wrap-in-jsx-element)
-              (keymap-set map "W" #'jtsx-unwrap-jsx)
-              (keymap-set map "d" #'jtsx-delete-jsx-attribute)
-              (keymap-set map "D" #'jtsx-delete-jsx-node)
-              (keymap-set map "t" #'jtsx-toggle-jsx-attributes-orientation))
+              (keymap-set map "j" '("Jump to element boundary" . jtsx-jump-jsx-element-tag-dwim))
+              (keymap-set map "r" '("Rename element" . jtsx-rename-jsx-element))
+              (keymap-set map "<down>" '("Move element forward" . jtsx-move-jsx-element-forward))
+              (keymap-set map "<up>" '("Move element backward" . jtsx-move-jsx-element-backward))
+              (keymap-set map "<right>" '("Move element in forward" . jtsx-move-jsx-element-step-in-forward))
+              (keymap-set map "<left>" '("Move element in backward" . jtsx-move-jsx-element-step-in-backward))
+              (keymap-set map "C-<down>" '("Move tag forward" . jtsx-move-jsx-element-tag-forward))
+              (keymap-set map "C-<up>" '("Move tag backward" . jtsx-move-jsx-element-tag-backward))
+              (keymap-set map "w" '("Wrap in JSX element" . jtsx-wrap-in-jsx-element))
+              (keymap-set map "W" '("Unwrap JSX element" . jtsx-unwrap-jsx))
+              (keymap-set map "d" '("Delete JSX Element attribute" . jtsx-delete-jsx-attribute))
+              (keymap-set map "D" '("Delete JSX Element" . jtsx-delete-jsx-node))
+              (keymap-set map "t" '("Toggle attribute orientation" . jtsx-toggle-jsx-attributes-orientation)))
 
             (keymap-set ordenada-javascript-mode-map "C-c N"
-                        '("node repl" . ordenada-javascript-nodejs-repl-mode-command-map))
+                        '("Node REPL" . ordenada-javascript-nodejs-repl-mode-command-map))
             (keymap-set ordenada-javascript-mode-map "C-c j"
-                        '("j/tsx" . ordenada-javascript-jtsx-command-map))
+                        '("JSX/TSX" . ordenada-javascript-jtsx-command-map))
             (keymap-set ordenada-javascript-mode-map "C-c f"
                         '("Format buffer" . eslint-fix))
 
@@ -187,7 +187,7 @@ mkFeature {
 
             (with-eval-after-load 'npm-mode
               (fset 'npm-mode-command-keymap npm-mode-command-keymap)
-              (keymap-set npm-mode-keymap "C-c n" '("npm" . npm-mode-command-keymap)))
+              (keymap-set npm-mode-keymap "C-c n" '("NPM" . npm-mode-command-keymap)))
 
             (with-eval-after-load 'js2-refactor
               (setopt js2r-prefer-let-over-var t)
