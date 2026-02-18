@@ -27,7 +27,8 @@ mkFeature {
     {
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-corfu";
-        config = with config.ordenada.features.emacs.corfu; ''
+        config = with config.ordenada.features.emacs.corfu; # elisp
+        ''
           (autoload 'corfu-history-mode "corfu-history")
           (corfu-history-mode)
           (with-eval-after-load 'corfu
