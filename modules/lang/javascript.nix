@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "javascript";
   options =
@@ -26,6 +31,16 @@ mkFeature {
           (yarn.override { nodejs = null; })
           nodePackages.prettier
         ]);
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "js-ts-mode"
+        "jsx-ts-mode"
+        "typescript-ts-mode"
+        "tsx-ts-mode"
+        "css-ts-mode"
+        "web-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-javascript";
         ## TODO: `ordenada-javascript--next-line-function-or-arrow-p` is too

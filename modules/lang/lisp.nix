@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "lisp";
   options =
@@ -108,6 +113,10 @@ mkFeature {
 
           ${config.ordenada.features.lisp.extraSbclConfig}
         '';
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "lisp-mode"
+      ];
 
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-lisp";

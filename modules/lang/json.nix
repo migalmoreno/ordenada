@@ -8,6 +8,11 @@
 ## TODO: - apheleia integration
 ##       - schemas
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "json";
   options = {
@@ -81,6 +86,14 @@ mkFeature {
         jq
         prantlf-jsonlint
       ];
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "json-mode"
+        "jsonc-mode"
+        "json-ts-mode"
+        "js-json-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-json";
         config = # elisp

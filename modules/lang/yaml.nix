@@ -1,10 +1,24 @@
-{ mkFeature, ordenada-lib, ... }:
+{
+  lib,
+  mkFeature,
+  ordenada-lib,
+  ...
+}:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "yaml";
   homeManager =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     {
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "yaml-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-yaml";
         config = # elisp

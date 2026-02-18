@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "elisp";
   options.ielmKey = lib.mkOption {
@@ -15,6 +20,10 @@ mkFeature {
   homeManager =
     { config, pkgs, ... }:
     {
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "emacs-lisp-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-elisp";
         config =
