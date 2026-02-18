@@ -42,6 +42,10 @@ mkFeature {
               (keymap-set map "M-d" #'corfu-info-documentation)
               (keymap-set map "M-l" #'corfu-info-location))
 
+            ;; Emacs 31+ supports this ootb
+            (if (and (<= emacs-major-version 30) (not (display-graphic-p)))
+              (corfu-terminal-mode +1))
+
             (defun ordenada-corfu-move-to-minibuffer ()
               (interactive)
               (let ((completion-extra-properties corfu--extra)
@@ -59,13 +63,14 @@ mkFeature {
             (setopt corfu-auto-prefix 2)
             (setopt corfu-min-width 60)
             (setopt corfu-cycle t)
-            ${if autoShow then ''
-              (setopt corfu-auto t)
-            '' else ""}
+            (setopt corfu-auto ${if autoShow then "t" else "nil"})
             (setopt global-corfu-modes '(${toString globalModes}))
+
             (global-corfu-mode 1)
+
             (add-hook 'after-init-hook #'corfu-candidate-overlay-mode)
             (add-hook 'corfu-mode-hook #'corfu-popupinfo-mode)
+
             (setopt kind-icon-default-face #'corfu-default)
             (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
             (set-face-attribute 'corfu-default nil :inherit 'fixed-pitch))
@@ -73,6 +78,7 @@ mkFeature {
         elispPackages = with pkgs.emacsPackages; [
           cape
           corfu
+          corfu-terminal
           corfu-candidate-overlay
         ];
       };
