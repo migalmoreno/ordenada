@@ -57,6 +57,10 @@ mkFeature {
 
             window-padding-x = 8;
             window-padding-y = 8;
+
+            clipboard-read = "allow";
+            clipboard-write = "allow";
+            clipboard-paste-protection = false;
           };
 
           themes = with config.ordenada.features.theme.scheme.withHashtag; {
