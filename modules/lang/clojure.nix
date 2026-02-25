@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "clojure";
   options = with lib; {
@@ -37,6 +42,11 @@ mkFeature {
           {:search-config? true}
         '';
       home.sessionVariables."LEIN_HOME" = "${config.ordenada.features.xdg.baseDirs.dataHome}/lein";
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "clojure-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-clojure";
         config =

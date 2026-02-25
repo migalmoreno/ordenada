@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "nix";
   options = {
@@ -25,6 +30,12 @@ mkFeature {
       home.packages = with pkgs; [
         nixfmt-rfc-style
       ];
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "nix-mode"
+        "nix-ts-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-nix";
         config = # elisp

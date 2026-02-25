@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "python";
   options =
@@ -56,6 +61,11 @@ mkFeature {
                   atexit.register(write_history)
             '';
       };
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "python-ts-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-python";
         config =
