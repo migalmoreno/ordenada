@@ -184,19 +184,32 @@ mkFeature {
 
               ;; terminal
               (unless (display-graphic-p)
-	        (defun ordenada-osc52-copy (text)
-                  (let ((encoded (base64-encode-string text t)))
-                     (send-string-to-terminal (concat "\e]52;c;" encoded "\a"))))
-                (setq interprogram-cut-function 'ordenada-osc52-copy)
-  
-                (setq interprogram-paste-function
-                  ${if (config.ordenada.globals.platform == "darwin") then ''
-                    (lambda () (shell-command-to-string "/usr/bin/pbpaste"))
-                  '' else ""}
-                  ${if (config.ordenada.globals.platform == "nixos") then ''
-                    ;; x11?
-                    (lambda () (shell-command-to-string "${pkgs.wl-clipboard}/bin/wlpaste"))
-                  '' else ""}))
+                (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
+
+                ${if (config.ordenada.globals.platform == "darwin") then ''
+                  (setq interprogram-cut-function
+                        (lambda (text &optional _)
+                          (let ((process-connection-type nil))
+                            (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+                              ;; Send plain text without properties
+                              (process-send-string proc (substring-no-properties text))
+                              (process-send-eof proc)))))
+
+                  (setq interprogram-paste-function
+                        (lambda ()
+                          (with-temp-buffer
+                            (call-process "pbpaste" nil t nil)
+                            (let ((text (buffer-string)))
+                              ;; If evil-mode is available and text ends with newline,
+                              ;; mark it as linewise yank to fix p,P behaviour
+                              (when (and (featurep 'evil)
+                                         (> (length text) 0)
+                                         (eq (aref text (1- (length text))) ?\n))
+                                (setq text (propertize text 'yank-handler
+                                                       '(evil-yank-line-handler nil t))))
+                              text))))
+                '' else ""}
+                )
             '';
         };
       }
