@@ -5,18 +5,20 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkOption
+    mkPackageOption
+    types
+    ;
+in
 mkFeature {
   name = "emacs";
   options =
     { config, pkgs, ... }:
     let
-      inherit (lib)
-        mkEnableOption
-        mkOption
-        mkPackageOption
-        types
-        ;
-
       enabled = config.ordenada.features.emacs.enable;
 
       ## TODO: [DARWIN] Emacs doesn't display emojis correctly (wrong font)
@@ -179,6 +181,22 @@ mkFeature {
 
               (with-eval-after-load 'treesit
                 (setopt treesit-font-lock-level ${toString config.ordenada.features.emacs.treesitFontLockLevel}))
+
+              ;; terminal
+              (unless (display-graphic-p)
+	        (defun ordenada-osc52-copy (text)
+                  (let ((encoded (base64-encode-string text t)))
+                     (send-string-to-terminal (concat "\e]52;c;" encoded "\a"))))
+                (setq interprogram-cut-function 'ordenada-osc52-copy)
+  
+                (setq interprogram-paste-function
+                  ${if (config.ordenada.globals.platform == "darwin") then ''
+                    (lambda () (shell-command-to-string "/usr/bin/pbpaste"))
+                  '' else ""}
+                  ${if (config.ordenada.globals.platform == "nixos") then ''
+                    ;; x11?
+                    (lambda () (shell-command-to-string "${pkgs.wl-clipboard}/bin/wlpaste"))
+                  '' else ""}))
             '';
         };
       }
