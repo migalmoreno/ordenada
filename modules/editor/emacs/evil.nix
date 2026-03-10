@@ -1,4 +1,5 @@
 {
+  lib,
   mkFeature,
   ordenada-lib,
   ...
@@ -115,11 +116,18 @@ mkFeature {
               ;; Is this a bug in evil-collection?
               (setq evil-collection-company-use-tng nil)
               (setq evil-collection-outline-bind-tab-p nil)
+
+              ${lib.optionalString config.ordenada.features.emacs.centerSearchResultInBuffer ''
+                (advice-add 'evil-search-next :after (lambda (&rest _) (recenter)))
+                (advice-add 'evil-search-previous :after (lambda (&rest _) (recenter)))
+              ''}
+
               (with-eval-after-load
                   'winner
                 (let ((map evil-window-map))
                   (define-key map (kbd "u") 'winner-undo)
                   (define-key map (kbd "U") 'winner-redo))))
+
             (with-eval-after-load
                 'evil-collection
               (setq evil-collection-mode-list

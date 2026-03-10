@@ -52,6 +52,7 @@ mkFeature {
         default = [ ];
       };
       autoUpdateBuffers = ordenada-lib.mkEnableTrueOption "automatically updating buffers";
+      centerSearchResultInBuffer = ordenada-lib.mkEnableTrueOption "automatically recenter the buffer after an isearch operation (also works with evil mode)";
       treesitFontLockLevel = lib.mkOption {
         type = types.int;
         description = "Decoration level to be used by tree-sitter fontifications.";
@@ -167,6 +168,14 @@ mkFeature {
               ${lib.optionalString config.ordenada.features.emacs.autoUpdateBuffers ''
                 (setopt global-auto-revert-non-file-buffers t)
                 (global-auto-revert-mode 1)
+              ''}
+
+              ${lib.optionalString config.ordenada.features.emacs.centerSearchResultInBuffer ''
+                (defun ordenada--isearch-recenter ()
+                  "Recenter after each isearch match."
+                  (when (and isearch-success (not isearch-mode-end-hook-quit))
+                    (recenter)))
+                (add-hook 'isearch-update-post-hook 'ordenada--isearch-recenter)
               ''}
 
               (with-eval-after-load 'mwheel
