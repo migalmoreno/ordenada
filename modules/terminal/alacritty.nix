@@ -1,16 +1,36 @@
 { lib, mkFeature, ... }:
 
+let
+  inherit (lib)
+    types
+    mkIf
+    mkForce
+    mkOption
+    mkEnableOption
+    mkPackageOption
+    ;
+in
 mkFeature {
   name = "alacritty";
   options =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
+    let
+      enabled = config.ordenada.features.alacritty.enable;
+    in
     {
-      package = lib.mkPackageOption pkgs "alacritty" { };
+      package = mkPackageOption pkgs "alacritty" { };
+      defaultTerminal = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global terminal.";
+        default = enabled;
+      };
     };
   globals =
     { config, ... }:
     {
-      apps.terminal = with config.ordenada.features.alacritty; lib.mkForce "${package}/bin/alacritty";
+      apps.terminal =
+        with config.ordenada.features.alacritty;
+        mkIf defaultTerminal (mkForce "${package}/bin/alacritty");
     };
   homeManager =
     { config, ... }:

@@ -2,35 +2,48 @@
 
 let
   inherit (lib)
+    types
     mkIf
     mkMerge
+    mkForce
+    mkOption
+    mkEnableOption
+    mkPackageOption
     ;
 in
 mkFeature {
   name = "ghostty";
   options =
     { config, pkgs, ... }:
+    let
+      enabled = config.ordenada.features.ghostty.enable;
+    in
     {
       package =
         let
           platformPackage =
             if (config.ordenada.globals.platform == "darwin") then "ghostty-bin" else "ghostty";
         in
-        lib.mkPackageOption pkgs platformPackage { };
+        mkPackageOption pkgs platformPackage { };
+      defaultTerminal = mkOption {
+        type = types.bool;
+        description = "Whether to enable this feature as the global shell.";
+        default = enabled;
+      };
     };
   globals =
     { config, ... }:
     {
-      # apps.terminal =
-      #   let
-      #     platformBinPath =
-      #       if (config.ordenada.globals.platform == "darwin") then
-      #         "/Applications/Ghostty.app/Contents/MacOS/ghostty"
-      #       else
-      #         "/bin/ghostty";
-      #   in
-      #   with config.ordenada.features.alacritty;
-      #   lib.mkForce "${package}/${platformBinPath}";
+      apps.terminal =
+        let
+          platformBinPath =
+            if (config.ordenada.globals.platform == "darwin") then
+              "/Applications/Ghostty.app/Contents/MacOS/ghostty"
+            else
+              "/bin/ghostty";
+        in
+        with config.ordenada.features.ghostty;
+        mkIf defaultTerminal (mkForce "${package}/${platformBinPath}");
     };
   homeManager =
     { config, ... }:
