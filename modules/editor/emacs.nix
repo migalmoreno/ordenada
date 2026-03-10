@@ -191,23 +191,16 @@ mkFeature {
                         (lambda (text &optional _)
                           (let ((process-connection-type nil))
                             (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-                              ;; Send plain text without properties
                               (process-send-string proc (substring-no-properties text))
                               (process-send-eof proc)))))
 
                   (setq interprogram-paste-function
                         (lambda ()
-                          (with-temp-buffer
-                            (call-process "pbpaste" nil t nil)
-                            (let ((text (buffer-string)))
-                              ;; If evil-mode is available and text ends with newline,
-                              ;; mark it as linewise yank to fix p,P behaviour
-                              (when (and (featurep 'evil)
-                                         (> (length text) 0)
-                                         (eq (aref text (1- (length text))) ?\n))
-                                (setq text (propertize text 'yank-handler
-                                                       '(evil-yank-line-handler nil t))))
-                              text))))
+                          (let ((pbpaste-output (shell-command-to-string "pbpaste")))
+                            ;; Only return if clipboard differs from last kill
+                            (unless (and kill-ring
+                                         (equal pbpaste-output (substring-no-properties (car kill-ring))))
+                              pbpaste-output))))
                 '' else ""}
                 )
             '';
