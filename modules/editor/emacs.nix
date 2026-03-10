@@ -186,22 +186,27 @@ mkFeature {
               (unless (display-graphic-p)
                 (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 
-                ${if (config.ordenada.globals.platform == "darwin") then ''
-                  (setq interprogram-cut-function
-                        (lambda (text &optional _)
-                          (let ((process-connection-type nil))
-                            (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-                              (process-send-string proc (substring-no-properties text))
-                              (process-send-eof proc)))))
+                ${
+                  if (config.ordenada.globals.platform == "darwin") then
+                    ''
+                      (setq interprogram-cut-function
+                            (lambda (text &optional _)
+                              (let ((process-connection-type nil))
+                                (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+                                  (process-send-string proc (substring-no-properties text))
+                                  (process-send-eof proc)))))
 
-                  (setq interprogram-paste-function
-                        (lambda ()
-                          (let ((pbpaste-output (shell-command-to-string "pbpaste")))
-                            ;; Only return if clipboard differs from last kill
-                            (unless (and kill-ring
-                                         (equal pbpaste-output (substring-no-properties (car kill-ring))))
-                              pbpaste-output))))
-                '' else ""}
+                      (setq interprogram-paste-function
+                            (lambda ()
+                              (let ((pbpaste-output (shell-command-to-string "pbpaste")))
+                                ;; Only return if clipboard differs from last kill
+                                (unless (and kill-ring
+                                             (equal pbpaste-output (substring-no-properties (car kill-ring))))
+                                  pbpaste-output))))
+                    ''
+                  else
+                    ""
+                }
                 )
             '';
         };
