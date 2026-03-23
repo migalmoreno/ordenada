@@ -1,9 +1,9 @@
 # -*- mode: org; org-html-head-include-default-style: nil; org-html-postamble: nil; org-export-with-author: nil; org-export-with-date: nil; -*-
 #+OPTIONS: toc:nil num:nil
 #+title: ordenada
-Ordenada is a configuration framework based on the [[https://nixos.org/][Nix]] package manager that aims to make it easy to build reproducible development environments. It draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] project for [[https://guix.gnu.org/][GNU Guix]].
+Ordenada is an opinionated set of [[https://nixos.org/][Nix]] modules aimed at making it easy to build reproducible Nix setups. It draws inspiration from the [[https://git.sr.ht/~abcdw/rde][RDE]] project for [[https://guix.gnu.org/][GNU Guix]].
 
-Ordenada is centered around features, which are blocks of configuration that provide certain functionality for one or many "classes" (NixOS, Home Manager, Darwin, etc.), such as setting up your email, adding your GnuPG keys, or configuring your window manager. Normally, all you need to do is enable the features and sane defaults will be configured for you, but you can check the [[https://migalmoreno.com/projects/ordenada.html#configuration-options][full list of features and options]] to fit your needs.
+Features are the building blocks of the configuration and they provide functionality for one or many "classes" (currently NixOS, Home Manager, and Darwin). Ordenada includes ready-to-use features for email, browsers, window managers, among other; just enable them in your configuration and sane defaults will be configured for you, and optionally go through the many options to find a setup that works for you.
 
 #+begin_quote
 NOTE: Ordenada is in current development and its API is subject to change
@@ -343,9 +343,6 @@ The feature =name= can be either a string or a list of strings (e.g. =["emacs" "
 The feature =options= are a set of options specific to this feature and =globals= is a set of globals that will dictate "global" Ordenada behavior (e.g. set the preferred editor to ="emacs"= in the Emacs feature). Both =options= and =globals= (i.e. =ordenada.features.<feature_name>.<option>= and =ordenada.globals.<global>=) will be applied in the modules of each class configuration defined next.
 
 Finally, there's the class configurations (=nixos=, =homeManager=, =darwin=) which each take a module with class-specific settings that will only be activated if the feature is enabled via the =ordenada.featurers.<feature_name>.enable= option in the corresponding class configuration.
-
-* Community
-Join the =#ordenada= IRC channel at [[https://libera.chat/][Libera.Chat]] for general project support.
 
 * Configuration Options
 See [[https://migalmoreno.com/projects/ordenada.html#configuration-options][the project's homepage]] for the full list of configuration options.
