@@ -39,6 +39,11 @@ mkFeature {
         description = "Extra Git configuration settings.";
         default = { };
       };
+      extraIgnores = mkOption {
+        type = types.listOf types.str;
+        description = "Extra list of paths that should be ignored.";
+        default = [ ];
+      };
     };
   homeManager =
     { config, pkgs, ... }:
@@ -49,7 +54,7 @@ mkFeature {
       programs.gh = {
         enable = true;
       };
-      programs.git = with config.ordenada.features.git; {
+      programs.git = with git; {
         enable = true;
         settings = {
           user = {
@@ -62,6 +67,7 @@ mkFeature {
           signByDefault = signCommits;
           key = signingKey;
         };
+        ignores = (lib.optional emacs.enable ".dir-locals-2.el") ++ extraIgnores;
       };
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-git";
