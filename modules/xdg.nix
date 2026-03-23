@@ -11,6 +11,7 @@ mkFeature {
     { config, ... }:
     let
       inherit (lib) mkOption types;
+      inherit (config.ordenada.features.userInfo) homeDirectory;
       mkMaybeCapitalizedDir =
         path:
         let
@@ -29,36 +30,32 @@ mkFeature {
         if (pred) then result else path;
     in
     {
-      baseDirs =
-        with config.ordenada.features.userInfo;
-        mkOption {
-          type = ordenada-lib.types.fnOrAttrs;
-          description = "The XDG base directories.";
-          apply = x: ordenada-lib.getFnOrAttrsValue x ({ homeDirectory = homeDirectory; });
-          default = {
-            configHome = "${homeDirectory}/.config";
-            dataHome = "${homeDirectory}/.local/share";
-            cacheHome = "${homeDirectory}/.cache";
-            stateHome = "${homeDirectory}/.local/state";
-          };
+      baseDirs = mkOption {
+        type = ordenada-lib.types.fnOrAttrs;
+        description = "The XDG base directories.";
+        apply = x: ordenada-lib.getFnOrAttrsValue x ({ homeDirectory = homeDirectory; });
+        default = {
+          configHome = "${homeDirectory}/.config";
+          dataHome = "${homeDirectory}/.local/share";
+          cacheHome = "${homeDirectory}/.cache";
+          stateHome = "${homeDirectory}/.local/state";
         };
-      userDirs =
-        with config.ordenada.features.userInfo;
-        mkOption {
-          type = ordenada-lib.types.fnOrAttrs;
-          description = "The XDG user directories.";
-          apply = x: ordenada-lib.getFnOrAttrsValue x ({ homeDirectory = homeDirectory; });
-          default = {
-            desktop = null;
-            documents = mkMaybeCapitalizedDir "${homeDirectory}/documents";
-            download = mkMaybeCapitalizedDir "${homeDirectory}/downloads";
-            music = mkMaybeCapitalizedDir "${homeDirectory}/music";
-            pictures = mkMaybeCapitalizedDir "${homeDirectory}/pictures";
-            publicShare = mkMaybeCapitalizedDir "${homeDirectory}/public";
-            templates = null;
-            videos = mkMaybeCapitalizedDir "${homeDirectory}/videos";
-          };
+      };
+      userDirs = mkOption {
+        type = ordenada-lib.types.fnOrAttrs;
+        description = "The XDG user directories.";
+        apply = x: ordenada-lib.getFnOrAttrsValue x ({ homeDirectory = homeDirectory; });
+        default = {
+          desktop = null;
+          documents = mkMaybeCapitalizedDir "${homeDirectory}/documents";
+          download = mkMaybeCapitalizedDir "${homeDirectory}/downloads";
+          music = mkMaybeCapitalizedDir "${homeDirectory}/music";
+          pictures = mkMaybeCapitalizedDir "${homeDirectory}/pictures";
+          publicShare = mkMaybeCapitalizedDir "${homeDirectory}/public";
+          templates = null;
+          videos = mkMaybeCapitalizedDir "${homeDirectory}/videos";
         };
+      };
       capitalizeUserDirs = mkOption {
         type = types.bool;
         description = "Whether to capitalize the `userDirs` directory names.";
