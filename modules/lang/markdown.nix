@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "markdown";
   options = {
@@ -13,6 +18,9 @@ mkFeature {
   homeManager =
     { config, pkgs, ... }:
     {
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "markdown-mode"
+      ];
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-markdown";
         config = ''

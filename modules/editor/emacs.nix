@@ -5,18 +5,20 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkOption
+    mkPackageOption
+    types
+    ;
+in
 mkFeature {
   name = "emacs";
   options =
     { config, pkgs, ... }:
     let
-      inherit (lib)
-        mkEnableOption
-        mkOption
-        mkPackageOption
-        types
-        ;
-
       enabled = config.ordenada.features.emacs.enable;
 
       ## TODO: [DARWIN] Emacs doesn't display emojis correctly (wrong font)
@@ -50,6 +52,7 @@ mkFeature {
         default = [ ];
       };
       autoUpdateBuffers = ordenada-lib.mkEnableTrueOption "automatically updating buffers";
+      centerSearchResultInBuffer = ordenada-lib.mkEnableTrueOption "automatically recenter the buffer after an isearch operation (also works with evil mode)";
       treesitFontLockLevel = lib.mkOption {
         type = types.int;
         description = "Decoration level to be used by tree-sitter fontifications.";
@@ -142,6 +145,9 @@ mkFeature {
               (add-hook 'after-init-hook #'savehist-mode)
               (run-with-idle-timer 30 t #'savehist-save)
 
+              (setopt inhibit-startup-echo-area-message "${config.ordenada.features.userInfo.username}")
+              (setopt warning-minimum-level :error)
+
               (show-paren-mode 1)
               (subword-mode 1)
               (setq-default indent-tabs-mode nil)
@@ -164,6 +170,14 @@ mkFeature {
                 (global-auto-revert-mode 1)
               ''}
 
+              ${lib.optionalString config.ordenada.features.emacs.centerSearchResultInBuffer ''
+                (defun ordenada--isearch-recenter ()
+                  "Recenter after each isearch match."
+                  (when (and isearch-success (not isearch-mode-end-hook-quit))
+                    (recenter)))
+                (add-hook 'isearch-update-post-hook 'ordenada--isearch-recenter)
+              ''}
+
               (with-eval-after-load 'mwheel
                 (setopt mouse-wheel-scroll-amount '(1 ((shift) . 1)
                                                        ((control) . 1)))
@@ -176,6 +190,33 @@ mkFeature {
 
               (with-eval-after-load 'treesit
                 (setopt treesit-font-lock-level ${toString config.ordenada.features.emacs.treesitFontLockLevel}))
+
+              ;; terminal
+              (unless (display-graphic-p)
+                (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
+
+                ${
+                  if (config.ordenada.globals.platform == "darwin") then
+                    ''
+                      (setq interprogram-cut-function
+                            (lambda (text &optional _)
+                              (let ((process-connection-type nil))
+                                (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+                                  (process-send-string proc (substring-no-properties text))
+                                  (process-send-eof proc)))))
+
+                      (setq interprogram-paste-function
+                            (lambda ()
+                              (let ((pbpaste-output (shell-command-to-string "pbpaste")))
+                                ;; Only return if clipboard differs from last kill
+                                (unless (and kill-ring
+                                             (equal pbpaste-output (substring-no-properties (car kill-ring))))
+                                  pbpaste-output))))
+                    ''
+                  else
+                    ""
+                }
+                )
             '';
         };
       }

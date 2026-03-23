@@ -5,6 +5,11 @@
   ...
 }:
 
+let
+  inherit (lib)
+    mkIf
+    ;
+in
 mkFeature {
   name = "javascript";
   options =
@@ -26,13 +31,18 @@ mkFeature {
           (yarn.override { nodejs = null; })
           nodePackages.prettier
         ]);
+
+      ordenada.features.emacs.corfu.globalModes = mkIf (config.ordenada.features.emacs.corfu.enable) [
+        "js-ts-mode"
+        "jsx-ts-mode"
+        "typescript-ts-mode"
+        "tsx-ts-mode"
+        "css-ts-mode"
+        "web-mode"
+      ];
+
       programs.emacs = ordenada-lib.mkElispConfig pkgs {
         name = "ordenada-javascript";
-        ## TODO: `ordenada-javascript--next-line-function-or-arrow-p` is too
-        ##       primitive, we should use tree-sitter to determine if next
-        ##       line is a function. With this approach, a wrong function
-        ##       definition, like `const () => 1` will cause bugs because
-        ##       the predicate returns `t`.
         config = # elisp
           ''
             (defgroup ordenada-javascript nil
@@ -48,32 +58,87 @@ mkFeature {
             (define-prefix-command 'ordenada-javascript-nodejs-repl-mode-command-map)
             (define-prefix-command 'ordenada-javascript-jtsx-command-map)
 
-            (defun ordenada-javascript--next-line-function-or-arrow-p ()
-              "Return `t' if the next line contains `function' or `=>'."
+            (defun ordenada-javascript--next-line-function-p ()
+              "Return t if the next non-empty line contains a JavaScript function declaration.
+Falls back to text matching if tree-sitter parsing is incomplete."
+              (interactive)
+              (save-match-data
               (save-excursion
                 (forward-line 1)
-                (let ((line (thing-at-point 'line t)))
-                  (when line
-                    (or (and (string-match-p "\\<function\\>" line) t)
-                        (and (string-match-p "=>" line) t))))))
+                ;; Skip blank lines
+                (while (and (not (eobp))
+                            (looking-at-p "^[[:space:]]*$"))
+                  (forward-line 1))
+                (unless (eobp)
+                (back-to-indentation)
+                  (or
+                   (ordenada-javascript--check-function-with-treesit)
+                   ;; Fallback to regex if tree-sitter has errors
+                   (ordenada-javascript--check-function-with-regex))))))
+
+              (defun ordenada-javascript--check-function-with-treesit ()
+                "Check for function signature using tree-sitter."
+                (when-let ((node (treesit-node-at (point))))
+                  (let ((current node)
+                        (found nil)
+                        (has-error nil))
+                    ;; Check if we're in an error state
+                    (while current
+                      (when (string= (treesit-node-type current) "ERROR")
+                        (setq has-error t))
+                      (setq current (treesit-node-parent current)))
+                    ;; Only use tree-sitter if no errors
+                    (unless has-error
+                      (setq current node)
+                      (let ((line-start (line-beginning-position)))
+                        (while (and current (not found))
+                          (when (member (treesit-node-type current)
+                                        '("function_declaration"
+                                          "arrow_function"
+                                          "function_expression"
+                                          "method_definition"
+                                          "generator_function_declaration"
+                                          "async_function_declaration"))
+                            (when (= (line-number-at-pos (treesit-node-start current))
+                                     (line-number-at-pos line-start))
+                              (setq found t)))
+                          (setq current (treesit-node-parent current)))))
+                    found)))
+
+              (defun ordenada-javascript--check-function-with-regex ()
+                "Check for function signature using regex patterns."
+                (looking-at
+                 (rx (zero-or-more space)
+                     (optional "export" (one-or-more space))
+                     (optional (or "async" "static") (one-or-more space))
+                     (or
+                      ;; function declaration: function foo() or function* foo()
+                      (seq "function" (optional "*"))
+                      ;; const/let/var with arrow or function
+                      (seq (or "const" "let" "var") (one-or-more space)
+                           (one-or-more (or alphanumeric "_" "$"))
+                           (zero-or-more space) "=" (zero-or-more space)
+                           (optional "async" (one-or-more space))
+                           (or "(" "function"))))))
 
             (defun ordenada-javascript-jsdoc-or-line-break ()
               "Inserts JSDoc at point if line matches `/**'. Otherwise executes `js2-line-break'
               at given point."
               (interactive)
               (let ((p (point)))
-                (beginning-of-line)
-                (if (and (looking-at-p "^[[:blank:]]*/\\*\\*$")
-                         (ordenada-javascript--next-line-function-or-arrow-p))
-                  (progn
-                    (kill-line)
-                    (next-line)
-                    (jsdoc)
-                    (goto-char (search-backward-regexp "^/\\*\\*$"))
-                    (beginning-of-line)
-                    (backward-delete-char 1)
-                    (next-line)
-                    (end-of-line))
+                (if (and (looking-back "/\\*\\*" 3)
+                         (ordenada-javascript--next-line-function-p))
+                    (progn
+                      (beginning-of-line)
+                      (kill-line)
+                      (next-line)
+                      (message "%s" (thing-at-point 'line t))
+                      (jsdoc)
+                      (goto-char (search-backward-regexp "^/\\*\\*$"))
+                      (beginning-of-line)
+                      (backward-delete-char 1)
+                      (next-line)
+                      (end-of-line))
                   (progn
                     (goto-char p)
                     (if (string-match-p "comment" (treesit-node-type (treesit-node-at p 'javascript)))
@@ -82,11 +147,6 @@ mkFeature {
 
             (defun ordenada-javascript--disable-eglot-parts ()
               (setq-local eglot-stay-out-of '(flymake)))
-
-            (defun ordenada-javascript--setup-electric-pairs-for-jsx-tsx ()
-              (electric-pair-local-mode)
-              (setq-local electric-pair-pairs (append electric-pair-pairs '((60 . 62))))
-              (setq-local electric-pair-text-pairs electric-pair-pairs))
 
             (defun ordenada-javascript--setup-flymake-for-eglot ()
               (flymake-mode t)
@@ -120,10 +180,12 @@ mkFeature {
                 (setq tab-width 2)
 
                 (ordenada-javascript--disable-eglot-parts)
-                (ordenada-javascript--setup-electric-pairs-for-jsx-tsx)
 
                 (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
                 (add-hook 'js2-mode-hook #'js2-refactor-mode)
+
+                (local-unset-key (kbd "RET"))
+                (local-set-key (kbd "RET") 'ordenada-javascript-jsdoc-or-line-break)
 
                 (eglot-ensure)
                 (js2-minor-mode)
@@ -132,39 +194,39 @@ mkFeature {
                 (npm-mode)))
 
             (let ((map ordenada-javascript-nodejs-repl-mode-command-map))
-              (keymap-set map "e" #'nodejs-repl-send-last-expression)
-              (keymap-set map "j" #'nodejs-repl-send-line)
-              (keymap-set map "r" #'nodejs-repl-send-region)
-              (keymap-set map "C-c" #'nodejs-repl-send-buffer)
-              (keymap-set map "C-l" #'nodejs-repl-load-file)
-              (keymap-set map "C-z" #'nodejs-repl-switch-to-repl))
+              (keymap-set map "e" '("Send last expression" . nodejs-repl-send-last-expression))
+              (keymap-set map "j" '("Send line" . nodejs-repl-send-line))
+              (keymap-set map "r" '("Send region" . nodejs-repl-send-region))
+              (keymap-set map "C-c" '("Send buffer" . nodejs-repl-send-buffer))
+              (keymap-set map "C-l" '("Load file" . nodejs-repl-load-file))
+              (keymap-set map "C-z" '("Switch to REPL" . nodejs-repl-switch-to-repl)))
             (let ((map ordenada-javascript-jtsx-command-map))
-              (keymap-set map "j" #'jtsx-jump-jsx-element-tag-dwim)
-              (keymap-set map "r" #'jtsx-rename-jsx-element)
-              (keymap-set map "<down>" #'jtsx-move-jsx-element-forward)
-              (keymap-set map "<up>" #'jtsx-move-jsx-element-backward)
-              (keymap-set map "<right>" #'jtsx-move-jsx-element-step-in-forward)
-              (keymap-set map "<left>" #'jtsx-move-jsx-element-step-in-backward)
-              (keymap-set map "C-<down>" #'jtsx-move-jsx-element-tag-forward)
-              (keymap-set map "C-<up>" #'jtsx-move-jsx-element-tag-backward)
-              (keymap-set map "w" #'jtsx-wrap-in-jsx-element)
-              (keymap-set map "W" #'jtsx-unwrap-jsx)
-              (keymap-set map "d" #'jtsx-delete-jsx-attribute)
-              (keymap-set map "D" #'jtsx-delete-jsx-node)
-              (keymap-set map "t" #'jtsx-toggle-jsx-attributes-orientation))
+              (keymap-set map "j" '("Jump to element boundary" . jtsx-jump-jsx-element-tag-dwim))
+              (keymap-set map "r" '("Rename element" . jtsx-rename-jsx-element))
+              (keymap-set map "<down>" '("Move element forward" . jtsx-move-jsx-element-forward))
+              (keymap-set map "<up>" '("Move element backward" . jtsx-move-jsx-element-backward))
+              (keymap-set map "<right>" '("Move element in forward" . jtsx-move-jsx-element-step-in-forward))
+              (keymap-set map "<left>" '("Move element in backward" . jtsx-move-jsx-element-step-in-backward))
+              (keymap-set map "C-<down>" '("Move tag forward" . jtsx-move-jsx-element-tag-forward))
+              (keymap-set map "C-<up>" '("Move tag backward" . jtsx-move-jsx-element-tag-backward))
+              (keymap-set map "w" '("Wrap in JSX element" . jtsx-wrap-in-jsx-element))
+              (keymap-set map "W" '("Unwrap JSX element" . jtsx-unwrap-jsx))
+              (keymap-set map "d" '("Delete JSX Element attribute" . jtsx-delete-jsx-attribute))
+              (keymap-set map "D" '("Delete JSX Element" . jtsx-delete-jsx-node))
+              (keymap-set map "t" '("Toggle attribute orientation" . jtsx-toggle-jsx-attributes-orientation)))
 
             (keymap-set ordenada-javascript-mode-map "C-c N"
-                        '("node repl" . ordenada-javascript-nodejs-repl-mode-command-map))
+                        '("Node REPL" . ordenada-javascript-nodejs-repl-mode-command-map))
             (keymap-set ordenada-javascript-mode-map "C-c j"
-                        '("j/tsx" . ordenada-javascript-jtsx-command-map))
+                        '("JSX/TSX" . ordenada-javascript-jtsx-command-map))
             (keymap-set ordenada-javascript-mode-map "C-c f"
                         '("Format buffer" . eslint-fix))
 
             (with-eval-after-load 'eglot
               (keymap-set ordenada-javascript-mode-map "C-c c i"
-                          #'ordenada-javascript--eglot-code-action-missing-imports)
+                          '("Add missing imports" . ordenada-javascript--eglot-code-action-missing-imports))
               (keymap-set ordenada-javascript-mode-map "C-c c I"
-                          #'ordenada-javascript--eglot-code-action-unused-imports))
+                          '("Remove unused imports" . ordenada-javascript--eglot-code-action-unused-imports)))
 
             (mapcar (lambda (hook)
                       (add-hook (intern (concat (symbol-name hook) "-hook")) 'ordenada-javascript-mode))
@@ -193,7 +255,7 @@ mkFeature {
 
             (with-eval-after-load 'npm-mode
               (fset 'npm-mode-command-keymap npm-mode-command-keymap)
-              (keymap-set npm-mode-keymap "C-c n" '("npm" . npm-mode-command-keymap)))
+              (keymap-set npm-mode-keymap "C-c n" '("NPM" . npm-mode-command-keymap)))
 
             (with-eval-after-load 'js2-refactor
               (setopt js2r-prefer-let-over-var t)

@@ -116,6 +116,7 @@ mkFeature {
             (consult-customize consult-line :inherit-input-method t))
 
           (with-eval-after-load 'xref
+            (setopt xref-show-definitions-function #'consult-xref)
             (setopt xref-show-xrefs-function #'consult-xref))
         '';
         elispPackages = with pkgs.emacsPackages; [
