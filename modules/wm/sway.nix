@@ -9,8 +9,6 @@ mkFeature {
   name = "sway";
   options =
     { config, pkgs, ... }:
-    with config.ordenada.globals;
-    with config.ordenada.features.xdg;
     let
       inherit (lib)
         mkEnableOption
@@ -57,13 +55,15 @@ mkFeature {
         apply =
           x:
           ordenada-lib.getFnOrAttrsValue x (
-            apps
+            config.ordenada.globals.apps
             // {
-              modifier = modifier;
-              right = right;
-              left = left;
-              down = down;
-              up = up;
+              inherit (config.ordenada.features.sway)
+                modifier
+                up
+                down
+                left
+                right
+                ;
             }
           );
         description = "Extra Sway keybindings.";
@@ -117,131 +117,145 @@ mkFeature {
             export SDL_VIDEODRIVER=wayland
             export _JAVA_AWT_WM_NONREPARENTING=1
           '';
-        config =
-          with config.ordenada.features.theme.scheme.withHashtag;
-          lib.recursiveUpdate {
-            inherit modifier;
-            defaultWorkspace = "workspace number 1";
-            input = with config.ordenada.features.keyboard.layout; {
-              "type:keyboard" = {
-                xkb_layout = name;
-                xkb_options = lib.strings.concatStringsSep "," options;
-              }
-              // (lib.optionalAttrs (variant != "") {
-                xkb_variant = variant;
-              });
-              "type:touchpad" = {
-                dwt = "enabled";
-                tap = "enabled";
-                middle_emulation = "enabled";
-              };
+        config = lib.recursiveUpdate extraConfig {
+          inherit
+            modifier
+            up
+            down
+            left
+            right
+            ;
+          defaultWorkspace = "workspace number 1";
+          input = with config.ordenada.features.keyboard.layout; {
+            "type:keyboard" = {
+              xkb_layout = name;
+              xkb_options = lib.strings.concatStringsSep "," options;
+            }
+            // (lib.optionalAttrs (variant != "") {
+              xkb_variant = variant;
+            });
+            "type:touchpad" = {
+              dwt = "enabled";
+              tap = "enabled";
+              middle_emulation = "enabled";
             };
-            output = {
-              "*" =
-                let
-                  inherit (config.ordenada.features.theme) wallpaper;
-                in
-                {
-                  bg = if wallpaper == null then "${base00} solid_color" else "${wallpaper} fill";
-                };
-            };
-            seat."*" = with config.ordenada.features.gtk.cursorTheme; {
-              xcursor_theme = "${name} ${toString config.ordenada.features.gtk.cursorSize}";
-            };
-            floating = {
-              titlebar = false;
-              border = 2;
-            };
-            colors =
-              with ordenada-lib.nix-rice.color;
+          };
+          output = {
+            "*" =
               let
-                background = base00;
-                focused = toRgbHex (
-                  (if config.ordenada.features.theme.polarity == "dark" then darken else brighten) 50 (
-                    hexToRgba base0D
-                  )
-                );
-                indicator = focused;
-                unfocused = base01;
-                text = base05;
-                urgent = base08;
+                inherit (config.ordenada.features.theme) wallpaper;
+                inherit (config.ordenada.features.theme.scheme.withHashtag)
+                  base00
+                  ;
               in
               {
-                inherit background;
-                urgent = {
-                  inherit background indicator text;
-                  border = urgent;
-                  childBorder = urgent;
-                };
-                focused = {
-                  inherit background indicator text;
-                  border = focused;
-                  childBorder = focused;
-                };
-                focusedInactive = {
-                  inherit background indicator text;
-                  border = unfocused;
-                  childBorder = unfocused;
-                };
-                unfocused = {
-                  inherit background indicator text;
-                  border = unfocused;
-                  childBorder = unfocused;
-                };
-                placeholder = {
-                  inherit background indicator text;
-                  border = unfocused;
-                  childBorder = unfocused;
-                };
+                bg = if wallpaper == null then "${base00} solid_color" else "${wallpaper} fill";
               };
-            window = {
-              titlebar = false;
-              border = 2;
-            };
-            gaps = {
-              inner = 12;
-              smartBorders = "on";
-              smartGaps = true;
-            };
-            bars = [
-              (lib.mkIf useGlobalBar (
-                {
-                  command = config.ordenada.globals.apps.bar;
-                  mode = "dock";
-                  extraConfig = "modifier none";
-                }
-                // extraGlobalBarSettings
-              ))
-            ];
-            startup = map (x: {
-              command = x;
-              always = true;
-            }) config.ordenada.globals.autoloads;
-            up = up;
-            down = down;
-            left = left;
-            right = right;
-            keybindings =
-              let
-                apps = config.ordenada.globals.apps;
-              in
-              lib.mkOptionDefault (
-                { }
-                // lib.optionalAttrs (apps.launcher != null) {
-                  "${modifier}+d" = "exec ${apps.launcher}";
-                }
-                // lib.optionalAttrs (apps.terminal != null) {
-                  "${modifier}+Return" = "exec ${apps.terminal}";
-                }
-                // lib.optionalAttrs (apps.passwordManager != null) {
-                  "${modifier}+p" = "exec ${apps.passwordManager}";
-                }
-                // lib.optionalAttrs useGlobalBar {
-                  "${modifier}+b" = "bar mode toggle";
-                }
-                // extraKeybindings
+          };
+          seat."*" = with config.ordenada.features.gtk.cursorTheme; {
+            xcursor_theme = "${name} ${toString config.ordenada.features.gtk.cursorSize}";
+          };
+          floating = {
+            titlebar = false;
+            border = 2;
+          };
+          colors =
+            let
+              inherit (ordenada-lib.nix-rice.color)
+                darken
+                brighten
+                toRgbHex
+                hexToRgba
+                ;
+              inherit (config.ordenada.features.theme.scheme.withHashtag)
+                base00
+                base01
+                base05
+                base08
+                base0D
+                ;
+              background = base00;
+              focused = toRgbHex (
+                (if config.ordenada.features.theme.polarity == "dark" then darken else brighten) 50 (
+                  hexToRgba base0D
+                )
               );
-          } extraConfig;
+              indicator = focused;
+              unfocused = base01;
+              text = base05;
+              urgent = base08;
+            in
+            {
+              inherit background;
+              urgent = {
+                inherit background indicator text;
+                border = urgent;
+                childBorder = urgent;
+              };
+              focused = {
+                inherit background indicator text;
+                border = focused;
+                childBorder = focused;
+              };
+              focusedInactive = {
+                inherit background indicator text;
+                border = unfocused;
+                childBorder = unfocused;
+              };
+              unfocused = {
+                inherit background indicator text;
+                border = unfocused;
+                childBorder = unfocused;
+              };
+              placeholder = {
+                inherit background indicator text;
+                border = unfocused;
+                childBorder = unfocused;
+              };
+            };
+          window = {
+            titlebar = false;
+            border = 2;
+          };
+          gaps = {
+            inner = 12;
+            smartBorders = "on";
+            smartGaps = true;
+          };
+          bars = [
+            (lib.mkIf useGlobalBar (
+              {
+                command = config.ordenada.globals.apps.bar;
+                mode = "dock";
+                extraConfig = "modifier none";
+              }
+              // extraGlobalBarSettings
+            ))
+          ];
+          startup = map (x: {
+            command = x;
+            always = true;
+          }) config.ordenada.globals.autoloads;
+          keybindings =
+            let
+              inherit (config.ordenada.globals) apps;
+            in
+            lib.mkOptionDefault (
+              extraKeybindings
+              // lib.optionalAttrs (apps.launcher != null) {
+                "${modifier}+d" = "exec ${apps.launcher}";
+              }
+              // lib.optionalAttrs (apps.terminal != null) {
+                "${modifier}+Return" = "exec ${apps.terminal}";
+              }
+              // lib.optionalAttrs (apps.passwordManager != null) {
+                "${modifier}+p" = "exec ${apps.passwordManager}";
+              }
+              // lib.optionalAttrs useGlobalBar {
+                "${modifier}+b" = "bar mode toggle";
+              }
+            );
+        };
       };
       home.packages = with pkgs; [
         wl-clipboard
